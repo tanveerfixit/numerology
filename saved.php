@@ -75,11 +75,12 @@ if (!isStaffOrAdmin($currentUser)) {
 
     .table-search-input {
         width: 100%;
-        padding: 0.1rem 0.25rem;
+        padding: 0.25rem 0.4rem;
         background: #ffffff;
         border: 1px solid #cbd5e1;
-        border-radius: 3px;
-        font-size: 0.85rem;
+        border-radius: 4px;
+        font-size: 0.95rem;
+        font-weight: 500;
         direction: rtl;
     }
 </style>
@@ -143,14 +144,14 @@ if (!isStaffOrAdmin($currentUser)) {
                     <th>Status</th>
                 </tr>
                 <tr>
-                    <td style="text-align: center;"><button id="btnClearFilters" class="btn btn-sm" style="font-size: 0.65rem; padding: 0.1rem 0.25rem;">Clear</button></td>
+                    <td style="text-align: center;"><button id="btnClearFilters" class="btn btn-sm" style="font-size: 0.85rem; padding: 0.2rem 0.5rem; font-weight: 600;">Clear</button></td>
                     <td><input type="text" id="search-name" class="table-search-input" placeholder="Search name..."></td>
                     <td><input type="text" id="search-total" class="table-search-input" placeholder="Search total..."></td>
                     <td><input type="text" id="search-single" class="table-search-input" placeholder="Search single..."></td>
                     <td><input type="text" id="search-origin" class="table-search-input" placeholder="Search origin..."></td>
                     <td><input type="text" id="search-meanings" class="table-search-input" placeholder="Search meanings..."></td>
                     <td>
-                        <select id="search-temperament" class="table-search-input" style="font-size: 0.75rem;">
+                        <select id="search-temperament" class="table-search-input" style="font-size: 0.9rem; font-weight: 500;">
                             <option value="">All</option>
                             <option value="Fire">Fire</option>
                             <option value="Air">Air</option>
