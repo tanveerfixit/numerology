@@ -299,6 +299,11 @@ $errorMsg = $_GET['error'] ?? '';
             <div class="landing-badge">✨ Numerical Wisdom & Divination</div>
             <h1 class="landing-title">Fascinating Insights: Abjad & Geomancy</h1>
             <p class="landing-subtitle">Discover how numerical values, elemental temperaments, and binary geomantic figures reveal deeper structural patterns in language and nature.</p>
+            <div style="margin-top: 1.25rem; display: flex; justify-content: center;">
+                <a href="calculator.php" class="btn btn-primary" style="padding: 0.65rem 1.5rem; font-size: 1rem; font-weight: 600; border-radius: 8px; box-shadow: 0 3px 10px rgba(37,99,235,0.25);">
+                    🧮 Open Abjad Calculator →
+                </a>
+            </div>
         </div>
 
         <!-- Modern Insights Cards Grid -->

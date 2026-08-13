@@ -67,6 +67,12 @@ if ($currentUser && $currentUser['role'] === 'admin') {
             width: 100%;
         }
 
+        .header-left-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
         .logo-area {
             display: flex;
             align-items: center;
@@ -84,6 +90,94 @@ if ($currentUser && $currentUser['role'] === 'admin') {
             padding: 0.15rem 0.5rem;
             border-radius: 4px;
             font-weight: 600;
+        }
+
+        /* Profile Dropdown Icon Menu */
+        .profile-dropdown-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-icon-btn {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-main);
+            transition: all 0.15s ease;
+        }
+
+        .profile-icon-btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .profile-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 120%;
+            left: 0;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-width: 190px;
+            z-index: 200;
+            overflow: hidden;
+        }
+
+        .profile-dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-header {
+            padding: 0.6rem 0.85rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.55rem 0.85rem;
+            color: #0f172a;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: background 0.12s ease;
+        }
+
+        .dropdown-item:hover {
+            background: #f1f5f9;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 0;
+        }
+
+        .logout-item {
+            color: #dc2626;
+        }
+
+        .badge-count {
+            background: #dc2626;
+            color: #ffffff;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border-radius: 50px;
+            padding: 0.1rem 0.4rem;
         }
 
         .nav-links {
@@ -179,36 +273,75 @@ if ($currentUser && $currentUser['role'] === 'admin') {
 </head>
 <body>
     <header class="app-header">
-        <a href="index.php" class="logo-area">
-            <span>Abjad & Geomancy</span>
-            <span class="logo-badge">Numerical Wisdom</span>
-        </a>
+        <div class="header-left-group">
+            <!-- Profile Icon Dropdown Menu (Left Side) -->
+            <div class="profile-dropdown-wrapper">
+                <button id="profileDropdownBtn" class="profile-icon-btn" aria-label="User Profile Options">
+                    <span style="font-size: 1.1rem;">👤</span>
+                    <?php if ($currentUser): ?>
+                        <span style="font-weight: 600; font-size: 0.82rem;"><?php echo htmlspecialchars($currentUser['username']); ?></span>
+                    <?php else: ?>
+                        <span style="font-weight: 600; font-size: 0.82rem;">Account</span>
+                    <?php endif; ?>
+                    <span style="font-size: 0.65rem; color: #64748b;">▼</span>
+                </button>
+                <div id="profileDropdownMenu" class="profile-dropdown-menu">
+                    <?php if ($currentUser): ?>
+                        <div class="dropdown-header">
+                            <strong><?php echo htmlspecialchars($currentUser['username']); ?></strong>
+                            <span class="status-badge status-<?php echo htmlspecialchars($currentUser['status']); ?>"><?php echo htmlspecialchars($currentUser['status']); ?></span>
+                        </div>
+                        <a href="profile.php" class="dropdown-item">👤 My Profile</a>
+                        <?php if ($currentUser['role'] === 'admin'): ?>
+                            <a href="admin.php" class="dropdown-item">
+                                <span>🛡️ Admin Portal</span>
+                                <?php if ($pendingReqCount > 0): ?>
+                                    <span class="badge-count"><?php echo $pendingReqCount; ?></span>
+                                <?php endif; ?>
+                            </a>
+                        <?php endif; ?>
+                        <div class="dropdown-divider"></div>
+                        <a href="api.php?action=logout" class="dropdown-item logout-item">🚪 Logout</a>
+                    <?php else: ?>
+                        <a href="index.php?auth=login" class="dropdown-item">🔑 Login</a>
+                        <a href="index.php?auth=signup" class="dropdown-item">✨ Sign Up</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Heading / Logo (Navigates to Home Screen) -->
+            <a href="index.php" class="logo-area">
+                <span>Abjad & Geomancy</span>
+                <span class="logo-badge">Numerical Wisdom</span>
+            </a>
+        </div>
         
         <nav class="nav-links">
-            <a href="index.php" class="btn btn-sm">Home</a>
-            <a href="calculator.php" class="btn btn-primary btn-sm">Calculator</a>
-            
-            <?php if ($currentUser): ?>
-                <a href="profile.php" class="btn btn-sm">My Profile</a>
-                <?php if ($currentUser['role'] === 'admin'): ?>
-                    <a href="admin.php" class="btn btn-sm" style="position: relative;">
-                        Admin Portal 🔔
-                        <?php if ($pendingReqCount > 0): ?>
-                            <span style="background: #dc2626; color: #ffffff; font-size: 0.7rem; font-weight: bold; border-radius: 50px; padding: 0.1rem 0.45rem; margin-left: 0.2rem;">
-                                <?php echo $pendingReqCount; ?>
-                            </span>
-                        <?php endif; ?>
-                    </a>
-                <?php endif; ?>
-                
-                <span class="user-badge">
-                    👤 <strong><?php echo htmlspecialchars($currentUser['username']); ?></strong> 
-                    (<?php echo htmlspecialchars($currentUser['role']); ?>)
-                </span>
-                <a href="api.php?action=logout" class="btn btn-danger btn-sm">Logout</a>
-            <?php else: ?>
-                <a href="index.php?auth=login" class="btn btn-sm">Login</a>
-                <a href="index.php?auth=signup" class="btn btn-primary btn-sm">Sign Up</a>
+            <?php if ($currentUser && $currentUser['role'] === 'admin'): ?>
+                <a href="admin.php" class="btn btn-sm" style="position: relative;">
+                    Admin Portal 🔔
+                    <?php if ($pendingReqCount > 0): ?>
+                        <span style="background: #dc2626; color: #ffffff; font-size: 0.7rem; font-weight: bold; border-radius: 50px; padding: 0.1rem 0.45rem; margin-left: 0.2rem;">
+                            <?php echo $pendingReqCount; ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
             <?php endif; ?>
         </nav>
     </header>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('profileDropdownBtn');
+            const menu = document.getElementById('profileDropdownMenu');
+            if (btn && menu) {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    menu.classList.toggle('show');
+                });
+                document.addEventListener('click', () => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
+    </script>
