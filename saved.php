@@ -37,32 +37,49 @@ if (!isStaffOrAdmin($currentUser)) {
         border-collapse: collapse;
         direction: rtl;
         text-align: right;
-        font-size: 0.85rem;
+        font-size: 1rem;
     }
 
     .history-table th, .history-table td {
-        padding: 0.35rem 0.5rem;
+        padding: 0.15rem 0.35rem;
         border: 1px solid #cbd5e1;
     }
 
     .history-table th {
-        background: #f1f5f9;
-        font-weight: 600;
+        background: #e2e8f0;
+        font-weight: 700;
         color: #0f172a;
+        font-size: 0.95rem;
+    }
+
+    /* Alternating slightly grey rows */
+    .history-table tbody tr:nth-child(even) {
+        background-color: #f1f5f9;
+    }
+
+    .history-table tbody tr:nth-child(odd) {
+        background-color: #ffffff;
+    }
+
+    /* Interactive mouse hover effect */
+    .history-table tbody tr:hover {
+        background-color: #cbd5e1 !important;
+        transition: background 0.1s ease;
     }
 
     .history-table td.arabic-cell {
         font-family: 'Amiri', serif;
-        font-size: 1.25rem;
+        font-size: 1.45rem;
+        font-weight: bold;
     }
 
     .table-search-input {
         width: 100%;
-        padding: 0.15rem 0.3rem;
+        padding: 0.1rem 0.25rem;
         background: #ffffff;
         border: 1px solid #cbd5e1;
         border-radius: 3px;
-        font-size: 0.78rem;
+        font-size: 0.85rem;
         direction: rtl;
     }
 </style>
