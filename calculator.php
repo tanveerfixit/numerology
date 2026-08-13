@@ -784,8 +784,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
 
     function openMemoModal() {
         handleProtectedAction(() => {
-            loadHistory();
-            document.getElementById('memoModal').style.display = 'flex';
+            window.location.href = 'saved.php';
         });
     }
 
