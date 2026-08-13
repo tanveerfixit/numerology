@@ -294,7 +294,7 @@ if ($currentUser && $currentUser['role'] === 'admin') {
                             <span class="status-badge status-<?php echo htmlspecialchars($currentUser['status']); ?>"><?php echo htmlspecialchars($currentUser['status']); ?></span>
                         </div>
                         <a href="profile.php" class="dropdown-item">👤 My Profile</a>
-                        <?php if ($currentUser && in_array($currentUser['role'], ['staff', 'admin']) && $currentUser['status'] === 'approved'): ?>
+                        <?php if ($currentUser && $currentUser['status'] === 'approved'): ?>
                             <a href="saved.php" class="dropdown-item">📜 Saved History Log</a>
                         <?php endif; ?>
                         <?php if ($currentUser['role'] === 'admin'): ?>

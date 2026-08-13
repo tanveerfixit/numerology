@@ -236,13 +236,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Calculation endpoints - REQUIRE STAFF OR ADMIN ROLE
-    if (in_array($action, ['save', 'edit', 'delete'])) {
-        if (!isStaffOrAdmin($currentUser)) {
+    // Calculation endpoints - REQUIRE LOGGED IN AND APPROVED USER
+    if (in_array($action, ['save', 'edit', 'delete', 'update_name_notes'])) {
+        if (!$currentUser || $currentUser['status'] !== 'approved') {
             http_response_code(403);
-            echo json_encode(['error' => 'Only Staff and Admin members have access rights to saved names history.']);
+            echo json_encode(['error' => 'Account must be logged in and approved to access saved names history.']);
             exit;
         }
+    }
+
+    if ($action === 'update_name_notes') {
+        $id = $data['id'] ?? null;
+        $notes = $data['notes'] ?? '';
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing record ID']);
+            exit;
+        }
+        try {
+            $stmt = $db->prepare("UPDATE calculations SET notes = ? WHERE id = ?");
+            $stmt->execute([$notes, $id]);
+            echo json_encode(['success' => true, 'message' => 'Specific notes saved successfully!']);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+        exit;
     }
 
     if ($action === 'save') {
@@ -251,6 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $single = $data['single'] ?? null;
         $origin = $data['origin'] ?? '';
         $meanings = $data['meanings'] ?? '';
+        $notes = $data['notes'] ?? '';
 
         if (empty($name) || $total === null || $single === null) {
             http_response_code(400);
@@ -259,8 +279,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         try {
-            $stmt = $db->prepare("INSERT INTO calculations (name, total, single, origin, meanings) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$name, $total, $single, $origin, $meanings]);
+            $stmt = $db->prepare("INSERT INTO calculations (name, total, single, origin, meanings, notes) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$name, $total, $single, $origin, $meanings, $notes]);
             echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -276,6 +296,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $single = $data['single'] ?? null;
         $origin = $data['origin'] ?? '';
         $meanings = $data['meanings'] ?? '';
+        $notes = $data['notes'] ?? null;
 
         if (!$id || empty($name) || $total === null || $single === null) {
             http_response_code(400);
@@ -284,8 +305,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         try {
-            $stmt = $db->prepare("UPDATE calculations SET name = ?, total = ?, single = ?, origin = ?, meanings = ? WHERE id = ?");
-            $stmt->execute([$name, $total, $single, $origin, $meanings, $id]);
+            if ($notes !== null) {
+                $stmt = $db->prepare("UPDATE calculations SET name = ?, total = ?, single = ?, origin = ?, meanings = ?, notes = ? WHERE id = ?");
+                $stmt->execute([$name, $total, $single, $origin, $meanings, $notes, $id]);
+            } else {
+                $stmt = $db->prepare("UPDATE calculations SET name = ?, total = ?, single = ?, origin = ?, meanings = ? WHERE id = ?");
+                $stmt->execute([$name, $total, $single, $origin, $meanings, $id]);
+            }
             echo json_encode(['success' => true]);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -317,6 +343,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $currentUser = getCurrentUser($db);
+
+    if ($action === 'get_name_detail') {
+        if (!$currentUser || $currentUser['status'] !== 'approved') {
+            http_response_code(403);
+            echo json_encode(['error' => 'Account must be logged in and approved to view record details.']);
+            exit;
+        }
+        $id = $_GET['id'] ?? null;
+        $stmt = $db->prepare("SELECT id, name, total, single, origin, meanings, notes, created_at FROM calculations WHERE id = ?");
+        $stmt->execute([$id]);
+        $row = $stmt->fetch();
+        if ($row) {
+            echo json_encode($row, JSON_UNESCAPED_UNICODE);
+        } else {
+            http_response_code(404);
+            echo json_encode(['error' => 'Record not found']);
+        }
+        exit;
+    }
 
     if ($action === 'get_user_chats') {
         if (!$currentUser || $currentUser['status'] !== 'approved') {
@@ -360,14 +405,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 
     if ($action === 'history') {
-        if (!isStaffOrAdmin($currentUser)) {
+        if (!$currentUser || $currentUser['status'] !== 'approved') {
             http_response_code(403);
-            echo json_encode(['error' => 'Only Staff and Admin members have access rights to saved names history.']);
+            echo json_encode(['error' => 'Account must be logged in and approved to view saved names history.']);
             exit;
         }
 
         try {
-            $stmt = $db->query("SELECT id, name, total, single, origin, meanings FROM calculations ORDER BY id DESC");
+            $stmt = $db->query("SELECT id, name, total, single, origin, meanings, notes, created_at FROM calculations ORDER BY id DESC");
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode($rows, JSON_UNESCAPED_UNICODE);
         } catch (PDOException $e) {

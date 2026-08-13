@@ -17,9 +17,19 @@ try {
             single INTEGER NOT NULL,
             origin TEXT DEFAULT NULL,
             meanings TEXT DEFAULT NULL,
+            notes TEXT DEFAULT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     ");
+
+    // Migration check for calculations table columns
+    $calcCols = array_column($db->query("PRAGMA table_info(calculations)")->fetchAll(), 'name');
+    if (!in_array('notes', $calcCols)) {
+        $db->exec("ALTER TABLE calculations ADD COLUMN notes TEXT DEFAULT NULL");
+    }
+    if (!in_array('created_at', $calcCols)) {
+        $db->exec("ALTER TABLE calculations ADD COLUMN created_at TEXT DEFAULT NULL");
+    }
 
     // Create users table if not exists
     $db->exec("

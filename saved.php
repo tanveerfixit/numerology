@@ -4,10 +4,10 @@ $pageTitle = 'Saved Names History Log';
 require_once __DIR__ . '/includes/header.php';
 
 requireLogin();
-if (!isStaffOrAdmin($currentUser)) {
-    echo '<main style="text-align: center; padding: 1rem;">
-            <h2>Staff & Admin Privilege Required</h2>
-            <p>Access to saved names history database is reserved for Staff and Admin accounts.</p>
+if (!$currentUser || $currentUser['status'] !== 'approved') {
+    echo '<main style="text-align: center; padding: 2rem 1rem;">
+            <h2>Account Approval Required</h2>
+            <p>Your account must be logged in and approved by an administrator to view saved names history.</p>
             <a href="calculator.php" class="btn btn-primary">Return to Calculator</a>
           </main>';
     require_once __DIR__ . '/includes/footer.php';
@@ -99,34 +99,34 @@ if (!isStaffOrAdmin($currentUser)) {
     </div>
 
     <!-- Add/Edit Record Form (Inline, hidden by default) -->
-    <div id="addEditRecordForm" style="display: none; background: #f8fafc; border: 1px solid #cbd5e1; padding: 0.5rem; margin-bottom: 0.5rem;">
-        <h4 id="formTitle" style="margin-bottom: 0.4rem; font-size: 0.85rem;">Add Calculation Record</h4>
+    <div id="addEditRecordForm" style="display: none; background: #f8fafc; border: 1px solid #cbd5e1; padding: 0.75rem; margin-bottom: 0.6rem; border-radius: 6px;">
+        <h4 id="formTitle" style="margin-bottom: 0.5rem; font-size: 1.05rem; font-weight: 700; color: #0f172a;">Add Calculation Record</h4>
         <input type="hidden" id="editRecordId">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.4rem; margin-bottom: 0.4rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.5rem; margin-bottom: 0.6rem;">
             <div>
-                <label style="font-size: 0.7rem; color: #64748b;">Name *</label>
-                <input type="text" id="formName" class="calc-input" style="width:100%; font-size: 0.9rem; height: 28px; padding: 0.15rem 0.3rem; border:1px solid #cbd5e1;">
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.15rem;">Name *</label>
+                <input type="text" id="formName" class="calc-input" style="width:100%; font-size: 1.05rem; height: 34px; padding: 0.25rem 0.4rem; border:1px solid #cbd5e1; border-radius: 4px;">
             </div>
             <div>
-                <label style="font-size: 0.7rem; color: #64748b;">Total *</label>
-                <input type="number" id="formTotal" class="calc-input" style="width:100%; font-size: 0.9rem; height: 28px; padding: 0.15rem 0.3rem; border:1px solid #cbd5e1; direction: ltr;">
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.15rem;">Total *</label>
+                <input type="number" id="formTotal" class="calc-input" style="width:100%; font-size: 1rem; height: 34px; padding: 0.25rem 0.4rem; border:1px solid #cbd5e1; border-radius: 4px; direction: ltr;">
             </div>
             <div>
-                <label style="font-size: 0.7rem; color: #64748b;">Single Root *</label>
-                <input type="number" id="formSingle" class="calc-input" style="width:100%; font-size: 0.9rem; height: 28px; padding: 0.15rem 0.3rem; border:1px solid #cbd5e1; direction: ltr;">
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.15rem;">Single Root *</label>
+                <input type="number" id="formSingle" class="calc-input" style="width:100%; font-size: 1rem; height: 34px; padding: 0.25rem 0.4rem; border:1px solid #cbd5e1; border-radius: 4px; direction: ltr;">
             </div>
             <div>
-                <label style="font-size: 0.7rem; color: #64748b;">Origin</label>
-                <input type="text" id="formOrigin" class="calc-input" style="width:100%; font-size: 0.9rem; height: 28px; padding: 0.15rem 0.3rem; border:1px solid #cbd5e1;">
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.15rem;">Origin</label>
+                <input type="text" id="formOrigin" class="calc-input" style="width:100%; font-size: 0.95rem; height: 34px; padding: 0.25rem 0.4rem; border:1px solid #cbd5e1; border-radius: 4px;">
             </div>
             <div style="grid-column: span 2;">
-                <label style="font-size: 0.7rem; color: #64748b;">Meanings</label>
-                <input type="text" id="formMeanings" class="calc-input" style="width:100%; font-size: 0.9rem; height: 28px; padding: 0.15rem 0.3rem; border:1px solid #cbd5e1;">
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.15rem;">Meanings</label>
+                <input type="text" id="formMeanings" class="calc-input" style="width:100%; font-size: 0.95rem; height: 34px; padding: 0.25rem 0.4rem; border:1px solid #cbd5e1; border-radius: 4px;">
             </div>
         </div>
-        <div style="display: flex; gap: 0.4rem; justify-content: flex-end;">
-            <button id="btnCancelForm" class="btn btn-sm">Cancel</button>
-            <button id="btnSubmitForm" class="btn btn-primary btn-sm">Save</button>
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+            <button id="btnCancelForm" class="btn btn-sm" style="font-size: 0.9rem; padding: 0.3rem 0.7rem;">Cancel</button>
+            <button id="btnSubmitForm" class="btn btn-primary btn-sm" style="font-size: 0.9rem; padding: 0.3rem 0.7rem;">Save Record</button>
         </div>
     </div>
 
@@ -135,24 +135,23 @@ if (!isStaffOrAdmin($currentUser)) {
         <table class="history-table">
             <thead>
                 <tr>
-                    <th style="text-align: center;">Actions</th>
-                    <th>Name ↕</th>
+                    <th>Name (Click for Notes/Edit) ↕</th>
                     <th>Total ↕</th>
                     <th>Single ↕</th>
                     <th>Origin ↕</th>
                     <th>Meanings</th>
-                    <th>Status</th>
+                    <th>Element Status</th>
                 </tr>
                 <tr>
-                    <td style="text-align: center;"><button id="btnClearFilters" class="btn btn-sm" style="font-size: 0.85rem; padding: 0.2rem 0.5rem; font-weight: 600;">Clear</button></td>
                     <td><input type="text" id="search-name" class="table-search-input" placeholder="Search name..."></td>
                     <td><input type="text" id="search-total" class="table-search-input" placeholder="Search total..."></td>
                     <td><input type="text" id="search-single" class="table-search-input" placeholder="Search single..."></td>
                     <td><input type="text" id="search-origin" class="table-search-input" placeholder="Search origin..."></td>
                     <td><input type="text" id="search-meanings" class="table-search-input" placeholder="Search meanings..."></td>
-                    <td>
-                        <select id="search-temperament" class="table-search-input" style="font-size: 0.9rem; font-weight: 500;">
-                            <option value="">All</option>
+                    <td style="display: flex; gap: 0.2rem; align-items: center;">
+                        <button id="btnClearFilters" class="btn btn-sm" style="font-size: 0.75rem; padding: 0.15rem 0.35rem; font-weight: 600;">Clear</button>
+                        <select id="search-temperament" class="table-search-input" style="font-size: 0.85rem; font-weight: 500;">
+                            <option value="">All Elements</option>
                             <option value="Fire">Fire</option>
                             <option value="Air">Air</option>
                             <option value="Water">Water</option>
@@ -162,7 +161,7 @@ if (!isStaffOrAdmin($currentUser)) {
                 </tr>
             </thead>
             <tbody id="historyTableBody">
-                <tr><td colspan="7" style="text-align: center; color: #64748b;">Loading history records...</td></tr>
+                <tr><td colspan="6" style="text-align: center; color: #64748b;">Loading history records...</td></tr>
             </tbody>
         </table>
     </div>
@@ -191,14 +190,76 @@ if (!isStaffOrAdmin($currentUser)) {
     let currentPage = 1;
     let pageSize = 25;
 
+    const letterMap = {
+        'ا': 1, 'آ': 1, 'ب': 2, 'پ': 2, 'ج': 3, 'چ': 3, 'د': 4, 'ڈ': 4, 'ہ': 5, 'ھ': 5,
+        'و': 6, 'ز': 7, 'ژ': 7, 'ح': 8, 'ط': 9, 'ی': 10, 'ے': 10, 'ک': 20, 'گ': 20,
+        'ل': 30, 'م': 40, 'ن': 50, 'ں': 50, 'س': 60, 'ع': 70, 'ف': 80, 'ص': 90,
+        'ق': 100, 'ر': 200, 'ڑ': 200, 'ش': 300, 'ت': 400, 'ٹ': 400, 'ث': 500,
+        'خ': 600, 'ذ': 700, 'ض': 800, 'ظ': 900, 'غ': 1000
+    };
+
+    const elementMap = {
+        'ا': 'Fire', 'آ': 'Fire', 'ہ': 'Fire', 'ھ': 'Fire', 'ط': 'Fire', 'م': 'Fire', 'ف': 'Fire', 'ش': 'Fire', 'ذ': 'Fire',
+        'ب': 'Air', 'پ': 'Air', 'و': 'Air', 'ی': 'Air', 'ے': 'Air', 'ن': 'Air', 'ں': 'Air', 'ص': 'Air', 'ت': 'Air', 'ٹ': 'Air', 'ض': 'Air',
+        'ج': 'Water', 'چ': 'Water', 'ز': 'Water', 'ژ': 'Water', 'ک': 'Water', 'گ': 'Water', 'س': 'Water', 'ق': 'Water', 'ث': 'Water', 'ظ': 'Water',
+        'د': 'Earth', 'ڈ': 'Earth', 'ح': 'Earth', 'ل': 'Earth', 'ع': 'Earth', 'ر': 'Earth', 'ڑ': 'Earth', 'خ': 'Earth', 'غ': 'Earth'
+    };
+
+    function getElementPercentages(text) {
+        let counts = { Fire: 0, Air: 0, Water: 0, Earth: 0 };
+        let totalVal = 0;
+        for (let char of (text || '')) {
+            let elem = elementMap[char];
+            let val = letterMap[char] || 0;
+            if (elem && val > 0) {
+                counts[elem] += val;
+                totalVal += val;
+            }
+        }
+
+        if (totalVal === 0) {
+            return {
+                Fire: 0, Air: 0, Water: 0, Earth: 0,
+                html: '<span style="color:#d97706; font-weight:700;">0</span> <span style="color:#dc2626; font-weight:700;">0</span> <span style="color:#2563eb; font-weight:700;">0</span> <span style="color:#16a34a; font-weight:700;">0</span>'
+            };
+        }
+
+        const pFire = Math.round((counts.Fire / totalVal) * 100);
+        const pAir = Math.round((counts.Air / totalVal) * 100);
+        const pWater = Math.round((counts.Water / totalVal) * 100);
+        const pEarth = Math.round((counts.Earth / totalVal) * 100);
+
+        const html = `
+            <div style="display: inline-flex; gap: 0.45rem; align-items: center; justify-content: center; direction: ltr; font-weight: 700; font-size: 0.95rem;">
+                <span style="color: #d97706;" title="Fire (آتشی)">${pFire}</span>
+                <span style="color: #dc2626;" title="Air (بادی)">${pAir}</span>
+                <span style="color: #2563eb;" title="Water (آبی)">${pWater}</span>
+                <span style="color: #16a34a;" title="Earth (خاکی)">${pEarth}</span>
+            </div>
+        `;
+
+        return { Fire: pFire, Air: pAir, Water: pWater, Earth: pEarth, html };
+    }
+
     function loadHistory() {
+        const tbody = document.getElementById('historyTableBody');
+        if (tbody && calculationsHistory.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">Loading history records...</td></tr>`;
+        }
+
         fetch('api.php?action=history')
         .then(res => res.json())
         .then(data => {
             if (Array.isArray(data)) {
                 calculationsHistory = data;
                 renderTable();
+            } else if (data && data.error) {
+                if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #dc2626;">${escapeHtml(data.error)}</td></tr>`;
             }
+        })
+        .catch(err => {
+            console.error('History fetch error:', err);
+            if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #dc2626;">Network error loading records.</td></tr>`;
         });
     }
 
@@ -206,7 +267,11 @@ if (!isStaffOrAdmin($currentUser)) {
         const tbody = document.getElementById('historyTableBody');
         if (!tbody) return;
 
+        const sTemp = (document.getElementById('search-temperament')?.value || '').toLowerCase();
+
         let filtered = calculationsHistory.filter(item => {
+            const elemInfo = getElementPercentages(item.name);
+
             const sName = (document.getElementById('search-name')?.value || '').toLowerCase();
             const sTotal = (document.getElementById('search-total')?.value || '').toLowerCase();
             const sSingle = (document.getElementById('search-single')?.value || '').toLowerCase();
@@ -218,11 +283,19 @@ if (!isStaffOrAdmin($currentUser)) {
             if (sSingle && !String(item.single).includes(sSingle)) return false;
             if (sOrigin && !(item.origin || '').toLowerCase().includes(sOrigin)) return false;
             if (sMeanings && !(item.meanings || '').toLowerCase().includes(sMeanings)) return false;
+            if (sTemp) {
+                if (sTemp === 'fire' && elemInfo.Fire === 0) return false;
+                if (sTemp === 'air' && elemInfo.Air === 0) return false;
+                if (sTemp === 'water' && elemInfo.Water === 0) return false;
+                if (sTemp === 'earth' && elemInfo.Earth === 0) return false;
+            }
             return true;
         });
 
         if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #64748b;">No matching records.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">No matching records found.</td></tr>`;
+            const pageInfo = document.getElementById('pageInfoText');
+            if (pageInfo) pageInfo.innerText = `Page 0 of 0 (0 records)`;
             return;
         }
 
@@ -231,22 +304,22 @@ if (!isStaffOrAdmin($currentUser)) {
         const startIdx = (currentPage - 1) * pageSize;
         const pageItems = filtered.slice(startIdx, startIdx + pageSize);
 
-        document.getElementById('pageInfoText').innerText = `Page ${currentPage} of ${totalPages} (${filtered.length} records)`;
+        const pageInfo = document.getElementById('pageInfoText');
+        if (pageInfo) pageInfo.innerText = `Page ${currentPage} of ${totalPages} (${filtered.length} records)`;
 
         let html = '';
         pageItems.forEach(item => {
+            const elemInfo = getElementPercentages(item.name);
             html += `
-                <tr>
-                    <td style="text-align: center;">
-                        <button onclick="editRecord(${item.id})" class="btn btn-sm" style="font-size:0.68rem; padding: 0.05rem 0.25rem;">Edit</button>
-                        <button onclick="deleteRecord(${item.id})" class="btn btn-danger btn-sm" style="font-size:0.68rem; padding: 0.05rem 0.25rem;">Del</button>
+                <tr onclick="window.location.href='view_name.php?id=${item.id}'" style="cursor: pointer;" title="Click to view details & notes for ${escapeHtml(item.name)}">
+                    <td class="arabic-cell">
+                        <a href="view_name.php?id=${item.id}" style="color: #0f172a; text-decoration: none; font-weight: bold;">${escapeHtml(item.name)}</a>
                     </td>
-                    <td class="arabic-cell">${escapeHtml(item.name)}</td>
                     <td><strong>${item.total}</strong></td>
                     <td><span style="color:#2563eb; font-weight:bold;">${item.single}</span></td>
                     <td>${escapeHtml(item.origin || '-')}</td>
                     <td>${escapeHtml(item.meanings || '-')}</td>
-                    <td><span style="font-size:0.72rem; color:#16a34a;">Saved</span></td>
+                    <td style="text-align: center;">${elemInfo.html}</td>
                 </tr>
             `;
         });
@@ -257,37 +330,13 @@ if (!isStaffOrAdmin($currentUser)) {
         return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    function deleteRecord(id) {
-        if (!confirm('Delete record?')) return;
-        fetch('api.php?action=delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) loadHistory();
-            else alert('Error deleting record.');
-        });
-    }
-
-    function editRecord(id) {
-        const item = calculationsHistory.find(r => r.id == id);
-        if (!item) return;
-        document.getElementById('editRecordId').value = item.id;
-        document.getElementById('formName').value = item.name;
-        document.getElementById('formTotal').value = item.total;
-        document.getElementById('formSingle').value = item.single;
-        document.getElementById('formOrigin').value = item.origin || '';
-        document.getElementById('formMeanings').value = item.meanings || '';
-        document.getElementById('formTitle').innerText = 'Edit Record #' + item.id;
-        document.getElementById('addEditRecordForm').style.display = 'block';
-    }
+    // Immediate load invocation
+    loadHistory();
 
     document.addEventListener('DOMContentLoaded', () => {
         loadHistory();
 
-        document.getElementById('btnAddNew').addEventListener('click', () => {
+        document.getElementById('btnAddNew')?.addEventListener('click', () => {
             document.getElementById('editRecordId').value = '';
             document.getElementById('formName').value = '';
             document.getElementById('formTotal').value = '';
@@ -298,11 +347,11 @@ if (!isStaffOrAdmin($currentUser)) {
             document.getElementById('addEditRecordForm').style.display = 'block';
         });
 
-        document.getElementById('btnCancelForm').addEventListener('click', () => {
+        document.getElementById('btnCancelForm')?.addEventListener('click', () => {
             document.getElementById('addEditRecordForm').style.display = 'none';
         });
 
-        document.getElementById('btnSubmitForm').addEventListener('click', () => {
+        document.getElementById('btnSubmitForm')?.addEventListener('click', () => {
             const id = document.getElementById('editRecordId').value;
             const name = document.getElementById('formName').value.trim();
             const total = parseInt(document.getElementById('formTotal').value);
@@ -337,7 +386,7 @@ if (!isStaffOrAdmin($currentUser)) {
             if (el) el.addEventListener('input', renderTable);
         });
 
-        document.getElementById('btnClearFilters').addEventListener('click', () => {
+        document.getElementById('btnClearFilters')?.addEventListener('click', () => {
             ['search-name', 'search-total', 'search-single', 'search-origin', 'search-meanings', 'search-temperament'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = '';
@@ -345,20 +394,20 @@ if (!isStaffOrAdmin($currentUser)) {
             renderTable();
         });
 
-        document.getElementById('pageSizeSelect').addEventListener('change', (e) => {
+        document.getElementById('pageSizeSelect')?.addEventListener('change', (e) => {
             pageSize = parseInt(e.target.value) || 25;
             currentPage = 1;
             renderTable();
         });
 
-        document.getElementById('btnPrevPage').addEventListener('click', () => {
+        document.getElementById('btnPrevPage')?.addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
                 renderTable();
             }
         });
 
-        document.getElementById('btnNextPage').addEventListener('click', () => {
+        document.getElementById('btnNextPage')?.addEventListener('click', () => {
             currentPage++;
             renderTable();
         });
