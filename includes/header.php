@@ -67,12 +67,6 @@ if ($currentUser && $currentUser['role'] === 'admin') {
             width: 100%;
         }
 
-        .header-left-group {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
         .logo-area {
             display: flex;
             align-items: center;
@@ -92,7 +86,13 @@ if ($currentUser && $currentUser['role'] === 'admin') {
             font-weight: 600;
         }
 
-        /* Profile Dropdown Icon Menu */
+        .header-right-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Profile Dropdown Icon Menu (Right Side) */
         .profile-dropdown-wrapper {
             position: relative;
             display: inline-block;
@@ -122,7 +122,8 @@ if ($currentUser && $currentUser['role'] === 'admin') {
             display: none;
             position: absolute;
             top: 120%;
-            left: 0;
+            right: 0;
+            left: auto;
             background: #ffffff;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
@@ -180,12 +181,6 @@ if ($currentUser && $currentUser['role'] === 'admin') {
             padding: 0.1rem 0.4rem;
         }
 
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
         .btn {
             background: #ffffff;
             border: 1px solid var(--card-border);
@@ -233,16 +228,6 @@ if ($currentUser && $currentUser['role'] === 'admin') {
             font-size: 0.8rem;
         }
 
-        .user-badge {
-            font-size: 0.8rem;
-            background: #f1f5f9;
-            color: var(--text-muted);
-            padding: 0.25rem 0.6rem;
-            border-radius: 4px;
-            border: 1px solid var(--card-border);
-            text-transform: capitalize;
-        }
-
         .status-badge {
             font-size: 0.75rem;
             padding: 0.15rem 0.4rem;
@@ -273,8 +258,25 @@ if ($currentUser && $currentUser['role'] === 'admin') {
 </head>
 <body>
     <header class="app-header">
-        <div class="header-left-group">
-            <!-- Profile Icon Dropdown Menu (Left Side) -->
+        <!-- Left Side: Heading / Logo (Navigates to Home Screen) -->
+        <a href="index.php" class="logo-area">
+            <span>Abjad & Geomancy</span>
+            <span class="logo-badge">Numerical Wisdom</span>
+        </a>
+        
+        <!-- Right Side: Profile Icon Dropdown Menu -->
+        <div class="header-right-group">
+            <?php if ($currentUser && $currentUser['role'] === 'admin'): ?>
+                <a href="admin.php" class="btn btn-sm" style="position: relative;">
+                    Admin Portal 🔔
+                    <?php if ($pendingReqCount > 0): ?>
+                        <span style="background: #dc2626; color: #ffffff; font-size: 0.7rem; font-weight: bold; border-radius: 50px; padding: 0.1rem 0.45rem; margin-left: 0.2rem;">
+                            <?php echo $pendingReqCount; ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
+            <?php endif; ?>
+
             <div class="profile-dropdown-wrapper">
                 <button id="profileDropdownBtn" class="profile-icon-btn" aria-label="User Profile Options">
                     <span style="font-size: 1.1rem;">👤</span>
@@ -308,26 +310,7 @@ if ($currentUser && $currentUser['role'] === 'admin') {
                     <?php endif; ?>
                 </div>
             </div>
-
-            <!-- Heading / Logo (Navigates to Home Screen) -->
-            <a href="index.php" class="logo-area">
-                <span>Abjad & Geomancy</span>
-                <span class="logo-badge">Numerical Wisdom</span>
-            </a>
         </div>
-        
-        <nav class="nav-links">
-            <?php if ($currentUser && $currentUser['role'] === 'admin'): ?>
-                <a href="admin.php" class="btn btn-sm" style="position: relative;">
-                    Admin Portal 🔔
-                    <?php if ($pendingReqCount > 0): ?>
-                        <span style="background: #dc2626; color: #ffffff; font-size: 0.7rem; font-weight: bold; border-radius: 50px; padding: 0.1rem 0.45rem; margin-left: 0.2rem;">
-                            <?php echo $pendingReqCount; ?>
-                        </span>
-                    <?php endif; ?>
-                </a>
-            <?php endif; ?>
-        </nav>
     </header>
 
     <script>
