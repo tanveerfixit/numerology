@@ -1,0 +1,383 @@
+<?php
+// abjad/api.php
+
+header('Content-Type: application/json; charset=utf-8');
+
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/auth.php';
+
+startSession();
+
+$action = $_GET['action'] ?? '';
+
+// Logout action
+if ($action === 'logout') {
+    $_SESSION = array();
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+    session_destroy();
+    header('Location: index.php');
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = file_get_contents('php://input');
+    $data = json_decode($input, true) ?? [];
+
+    // Signup action
+    if ($action === 'signup') {
+        $username = trim($data['username'] ?? '');
+        $email = trim($data['email'] ?? '');
+        $password = $data['password'] ?? '';
+
+        if (empty($username) || empty($email) || empty($password)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'All fields (username, email, password) are required']);
+            exit;
+        }
+
+        // Check unique username or email
+        $check = $db->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+        $check->execute([$username, $email]);
+        if ($check->fetch()) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Username or Email is already taken']);
+            exit;
+        }
+
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $db->prepare("INSERT INTO users (username, email, password, role, status) VALUES (?, ?, ?, 'public', 'pending')");
+        try {
+            $stmt->execute([$username, $email, $hash]);
+            echo json_encode(['success' => true, 'message' => 'Account created! Pending admin approval.']);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Signup failed: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    // Login action
+    if ($action === 'login') {
+        $username = trim($data['username'] ?? '');
+        $password = $data['password'] ?? '';
+
+        if (empty($username) || empty($password)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Username and password are required']);
+            exit;
+        }
+
+        $stmt = $db->prepare("SELECT * FROM users WHERE username = ? OR email = ?");
+        $stmt->execute([$username, $username]);
+        $user = $stmt->fetch();
+
+        if (!$user || !password_verify($password, $user['password'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Invalid credentials']);
+            exit;
+        }
+
+        $_SESSION['user_id'] = $user['id'];
+        echo json_encode([
+            'success' => true,
+            'user' => [
+                'id' => $user['id'],
+                'username' => $user['username'],
+                'role' => $user['role'],
+                'status' => $user['status'],
+                'circumstance' => $user['circumstance']
+            ]
+        ]);
+        exit;
+    }
+
+    // Require authentication for remaining POST actions
+    $currentUser = getCurrentUser($db);
+    if (!$currentUser || $currentUser['status'] !== 'approved') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Unauthorized: Account must be logged in and approved by admin.']);
+        exit;
+    }
+
+    // Send User Chat Question
+    if ($action === 'send_user_chat') {
+        $nameLookup = trim($data['name_lookup'] ?? '');
+        $relationship = trim($data['relationship'] ?? '');
+        $name = trim($data['name'] ?? '');
+        $question = trim($data['question'] ?? '');
+
+        if (empty($question)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Question message cannot be empty.']);
+            exit;
+        }
+
+        try {
+            $stmt = $db->prepare("INSERT INTO user_chats (user_id, sender, name_lookup, relationship, name, message) VALUES (?, 'user', ?, ?, ?, ?)");
+            $stmt->execute([$currentUser['id'], $nameLookup, $relationship, $name, $question]);
+
+            // Update user status
+            $db->prepare("UPDATE users SET req_status = 'pending', req_name_lookup = ?, req_relationship = ?, req_name = ?, req_question = ?, req_submitted_at = CURRENT_TIMESTAMP WHERE id = ?")
+               ->execute([$nameLookup, $relationship, $name, $question, $currentUser['id']]);
+
+            echo json_encode(['success' => true, 'message' => 'Message sent to admin successfully!']);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to send message: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    // Admin user management & chat endpoints
+    if (in_array($action, ['approve_user', 'reject_user', 'update_role', 'update_circumstance', 'send_admin_reply', 'delete_chat_message', 'clear_user_chat_history', 'delete_user'])) {
+        if ($currentUser['role'] !== 'admin') {
+            http_response_code(403);
+            echo json_encode(['error' => 'Admin privileges required']);
+            exit;
+        }
+
+        if ($action === 'delete_chat_message') {
+            $chatId = $data['chat_id'] ?? null;
+            if (!$chatId) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Missing chat_id']);
+                exit;
+            }
+            $stmt = $db->prepare("DELETE FROM user_chats WHERE id = ?");
+            $stmt->execute([$chatId]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
+        $targetId = $data['id'] ?? $data['user_id'] ?? null;
+        if (!$targetId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing target user ID']);
+            exit;
+        }
+
+        if ($action === 'send_admin_reply') {
+            $reply = trim($data['reply'] ?? '');
+            if (empty($reply)) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Reply text cannot be empty']);
+                exit;
+            }
+
+            try {
+                $stmt = $db->prepare("INSERT INTO user_chats (user_id, sender, message) VALUES (?, 'admin', ?)");
+                $stmt->execute([$targetId, $reply]);
+
+                $db->prepare("UPDATE users SET req_admin_reply = ?, req_status = 'replied', req_replied_at = CURRENT_TIMESTAMP, circumstance = ? WHERE id = ?")
+                   ->execute([$reply, $reply, $targetId]);
+
+                echo json_encode(['success' => true, 'message' => 'Reply sent to user successfully!']);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Failed to send reply: ' . $e->getMessage()]);
+            }
+            exit;
+        }
+
+        if ($action === 'clear_user_chat_history') {
+            $stmt = $db->prepare("DELETE FROM user_chats WHERE user_id = ?");
+            $stmt->execute([$targetId]);
+            $db->prepare("UPDATE users SET req_status = 'none' WHERE id = ?")->execute([$targetId]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
+        if ($action === 'approve_user') {
+            $stmt = $db->prepare("UPDATE users SET status = 'approved' WHERE id = ?");
+            $stmt->execute([$targetId]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
+        if ($action === 'reject_user') {
+            $stmt = $db->prepare("UPDATE users SET status = 'rejected' WHERE id = ?");
+            $stmt->execute([$targetId]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
+        if ($action === 'update_role') {
+            $newRole = $data['role'] ?? 'public';
+            if (!in_array($newRole, ['public', 'staff', 'admin'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid role']);
+                exit;
+            }
+            $stmt = $db->prepare("UPDATE users SET role = ? WHERE id = ?");
+            $stmt->execute([$newRole, $targetId]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
+        if ($action === 'update_circumstance') {
+            $circumstance = $data['circumstance'] ?? '';
+            $stmt = $db->prepare("UPDATE users SET circumstance = ? WHERE id = ?");
+            $stmt->execute([$circumstance, $targetId]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
+        if ($action === 'delete_user') {
+            $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
+            $stmt->execute([$targetId]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+    }
+
+    // Calculation endpoints - REQUIRE STAFF OR ADMIN ROLE
+    if (in_array($action, ['save', 'edit', 'delete'])) {
+        if (!isStaffOrAdmin($currentUser)) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Only Staff and Admin members have access rights to saved names history.']);
+            exit;
+        }
+    }
+
+    if ($action === 'save') {
+        $name = $data['name'] ?? null;
+        $total = $data['total'] ?? null;
+        $single = $data['single'] ?? null;
+        $origin = $data['origin'] ?? '';
+        $meanings = $data['meanings'] ?? '';
+
+        if (empty($name) || $total === null || $single === null) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing required fields']);
+            exit;
+        }
+
+        try {
+            $stmt = $db->prepare("INSERT INTO calculations (name, total, single, origin, meanings) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$name, $total, $single, $origin, $meanings]);
+            echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    if ($action === 'edit') {
+        $id = $data['id'] ?? null;
+        $name = $data['name'] ?? null;
+        $total = $data['total'] ?? null;
+        $single = $data['single'] ?? null;
+        $origin = $data['origin'] ?? '';
+        $meanings = $data['meanings'] ?? '';
+
+        if (!$id || empty($name) || $total === null || $single === null) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing required fields']);
+            exit;
+        }
+
+        try {
+            $stmt = $db->prepare("UPDATE calculations SET name = ?, total = ?, single = ?, origin = ?, meanings = ? WHERE id = ?");
+            $stmt->execute([$name, $total, $single, $origin, $meanings, $id]);
+            echo json_encode(['success' => true]);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    if ($action === 'delete') {
+        $id = $data['id'] ?? null;
+
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing required field id']);
+            exit;
+        }
+
+        try {
+            $stmt = $db->prepare("DELETE FROM calculations WHERE id = ?");
+            $stmt->execute([$id]);
+            echo json_encode(['success' => true]);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+        exit;
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $currentUser = getCurrentUser($db);
+
+    if ($action === 'get_user_chats') {
+        if (!$currentUser || $currentUser['status'] !== 'approved') {
+            http_response_code(403);
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
+        }
+        $targetUserId = $_GET['user_id'] ?? $currentUser['id'];
+        // Non-admins can only view their own chats
+        if ($currentUser['role'] !== 'admin' && (int)$targetUserId !== (int)$currentUser['id']) {
+            $targetUserId = $currentUser['id'];
+        }
+
+        $stmt = $db->prepare("SELECT id, user_id, sender, name_lookup, relationship, name, message, created_at FROM user_chats WHERE user_id = ? ORDER BY id ASC");
+        $stmt->execute([$targetUserId]);
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        exit;
+    }
+
+    if ($action === 'list_users') {
+        if (!$currentUser || $currentUser['role'] !== 'admin') {
+            http_response_code(403);
+            echo json_encode(['error' => 'Admin privileges required']);
+            exit;
+        }
+        $stmt = $db->query("SELECT id, username, email, role, status, circumstance, req_name_lookup, req_relationship, req_name, req_question, req_submitted_at, req_admin_reply, req_status, req_replied_at, created_at FROM users ORDER BY id DESC");
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        exit;
+    }
+
+    if ($action === 'get_pending_requests_count') {
+        if (!$currentUser || $currentUser['role'] !== 'admin') {
+            http_response_code(403);
+            echo json_encode(['error' => 'Admin privileges required']);
+            exit;
+        }
+        $stmt = $db->query("SELECT COUNT(*) as cnt FROM users WHERE req_status = 'pending'");
+        $row = $stmt->fetch();
+        echo json_encode(['pending_count' => (int)$row['cnt']]);
+        exit;
+    }
+
+    if ($action === 'history') {
+        if (!isStaffOrAdmin($currentUser)) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Only Staff and Admin members have access rights to saved names history.']);
+            exit;
+        }
+
+        try {
+            $stmt = $db->query("SELECT id, name, total, single, origin, meanings FROM calculations ORDER BY id DESC");
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($rows, JSON_UNESCAPED_UNICODE);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+        exit;
+    }
+}
+
+// 404 fallback
+http_response_code(404);
+echo json_encode(['error' => 'Endpoint not found']);
