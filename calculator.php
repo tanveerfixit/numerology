@@ -763,7 +763,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
             document.getElementById('loginPromptModal').style.display = 'flex';
         } else if (!isStaffOrAdminUser) {
             document.getElementById('promptTitle').innerText = 'Staff & Admin Privileges Reserved';
-            document.getElementById('promptMsg').innerText = 'Access rights to saved names history and saving calculations are reserved exclusively for Staff and Admin accounts. Public accounts may use the interactive calculator freely.';
+            document.getElementById('promptMsg').innerText = 'Access rights to saved names history, saving, and editing records are reserved exclusively for Staff and Admin accounts. Public users can calculate freely and submit consultation lookup requests with follow-up questions in their profile.';
             document.getElementById('promptAuthButtons').style.display = 'none';
             document.getElementById('loginPromptModal').style.display = 'flex';
         } else {

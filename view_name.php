@@ -4,13 +4,16 @@ $pageTitle = 'Name Inspection & Specific Notes';
 require_once __DIR__ . '/includes/header.php';
 
 requireLogin();
-if (!$currentUser || $currentUser['status'] !== 'approved') {
+if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $currentUser['status'] !== 'approved') {
     echo '<main class="container" style="text-align: center; padding: 3rem 1.5rem;">
-            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: 0; max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-md);">
+            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: 0; max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-sm);">
                 <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🔒</div>
-                <h2 style="font-size: 1.35rem; color: var(--text-primary); margin-bottom: 0.5rem;">Account Approval Required</h2>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">Your account must be approved by an administrator to view name record details and notes.</p>
-                <a href="calculator.php" class="btn btn-primary" style="border-radius: 2px;">Return to Calculator</a>
+                <h2 style="font-size: 1.35rem; color: var(--text-primary); margin-bottom: 0.5rem;">Staff & Admin Access Only</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">Access to individual saved record details and notes is reserved for Staff and Admin accounts. Public users can use the calculator workbench and submit consultation requests in their profile.</p>
+                <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                    <a href="calculator.php" class="btn btn-primary" style="border-radius: 2px;">Go to Calculator</a>
+                    <a href="profile.php" class="btn btn-secondary" style="border-radius: 2px;">My Profile & Chat</a>
+                </div>
             </div>
           </main>';
     require_once __DIR__ . '/includes/footer.php';

@@ -4,11 +4,17 @@ $pageTitle = 'Saved Names History Log';
 require_once __DIR__ . '/includes/header.php';
 
 requireLogin();
-if (!$currentUser || $currentUser['status'] !== 'approved') {
-    echo '<main style="text-align: center; padding: 2rem 1rem;">
-            <h2>Account Approval Required</h2>
-            <p>Your account must be logged in and approved by an administrator to view saved names history.</p>
-            <a href="calculator.php" class="btn btn-primary" style="border-radius: 2px;">Return to Calculator</a>
+if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $currentUser['status'] !== 'approved') {
+    echo '<main style="text-align: center; padding: 3rem 1rem;">
+            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2rem; max-width: 480px; margin: 0 auto; border-radius: 0;">
+                <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🔒</div>
+                <h2 style="font-size: 1.25rem; color: var(--text-primary); margin-bottom: 0.5rem;">Staff & Admin Access Only</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.5;">Access to saved history records is strictly reserved for Staff and Admin members. Public users can use the calculator workbench and submit consultation requests in their profile.</p>
+                <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                    <a href="calculator.php" class="btn btn-primary" style="border-radius: 2px;">Go to Calculator</a>
+                    <a href="profile.php" class="btn btn-secondary" style="border-radius: 2px;">My Profile & Chat</a>
+                </div>
+            </div>
           </main>';
     require_once __DIR__ . '/includes/footer.php';
     exit;

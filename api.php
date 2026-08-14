@@ -322,11 +322,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Calculation endpoints - REQUIRE LOGGED IN AND APPROVED USER
+    // Calculation endpoints - REQUIRE STAFF OR ADMIN PRIVILEGES
     if (in_array($action, ['save', 'edit', 'delete', 'update_name_notes'])) {
-        if (!$currentUser || $currentUser['status'] !== 'approved') {
+        if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $currentUser['status'] !== 'approved') {
             http_response_code(403);
-            echo json_encode(['error' => 'Account must be logged in and approved to access saved names history.']);
+            echo json_encode(['error' => 'Permission denied: Saving, editing, and deleting records is reserved exclusively for Staff and Admin accounts.']);
             exit;
         }
     }
@@ -431,9 +431,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $currentUser = getCurrentUser($db);
 
     if ($action === 'get_name_detail') {
-        if (!$currentUser || $currentUser['status'] !== 'approved') {
+        if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $currentUser['status'] !== 'approved') {
             http_response_code(403);
-            echo json_encode(['error' => 'Account must be logged in and approved to view record details.']);
+            echo json_encode(['error' => 'Permission denied: Viewing saved name record details is restricted to Staff and Admin accounts.']);
             exit;
         }
 
@@ -499,9 +499,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 
     if ($action === 'history') {
-        if (!$currentUser || $currentUser['status'] !== 'approved') {
+        if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $currentUser['status'] !== 'approved') {
             http_response_code(403);
-            echo json_encode(['error' => 'Account must be logged in and approved to view saved names history.']);
+            echo json_encode(['error' => 'Permission denied: Access to saved calculation history is reserved for Staff and Admin accounts.']);
             exit;
         }
 

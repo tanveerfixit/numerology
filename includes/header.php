@@ -541,7 +541,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <a href="calculator.php" class="nav-item-link <?php echo $currentPage === 'calculator.php' ? 'active' : ''; ?>">
                     <span>🧮</span> Calculator
                 </a>
-                <?php if ($currentUser && $currentUser['status'] === 'approved'): ?>
+                <?php if ($isStaffOrAdmin): ?>
                     <a href="saved.php" class="nav-item-link <?php echo $currentPage === 'saved.php' ? 'active' : ''; ?>">
                         <span>📜</span> Saved Names
                     </a>
@@ -584,7 +584,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                         <a href="profile.php" class="dropdown-item">
                             <span>👤 My Profile & Chat</span>
                         </a>
-                        <?php if ($currentUser && $currentUser['status'] === 'approved'): ?>
+                        <?php if ($isStaffOrAdmin): ?>
                             <a href="saved.php" class="dropdown-item">
                                 <span>📜 Saved History Log</span>
                             </a>
