@@ -21,25 +21,53 @@ function loadEnv($filePath) {
 
 $env = loadEnv(dirname(__DIR__) . '/.env');
 
-$dbDriver = $env['DB_DRIVER'] ?? 'sqlite';
+$dbDriver = $env['DB_DRIVER'] ?? 'mysql';
+$dbHost = $env['DB_HOST'] ?? 'srv2113.hstgr.io';
+$dbPort = $env['DB_PORT'] ?? '3306';
+$dbName = $env['DB_NAME'] ?? 'u583652021_numerology';
+$dbUser = $env['DB_USER'] ?? 'u583652021_number';
+$dbPass = $env['DB_PASS'] ?? 'Tani@8877';
+
 $dbPath = dirname(__DIR__) . '/abjad.db';
+$db = null;
 
+// Connection Attempt Logic
+if ($dbDriver === 'mysql') {
+    // 1. Try specified host (e.g. srv2113.hstgr.io or IP)
+    $hostsToTry = array_unique([$dbHost, '127.0.0.1', 'localhost']);
+    foreach ($hostsToTry as $h) {
+        try {
+            $dsn = "mysql:host={$h};port={$dbPort};dbname={$dbName};charset=utf8mb4";
+            $db = new PDO($dsn, $dbUser, $dbPass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
+                PDO::ATTR_TIMEOUT => 4
+            ]);
+            break; // Successfully connected!
+        } catch (Exception $ex) {
+            // Try next candidate host
+        }
+    }
+}
+
+// Fallback to SQLite if MySQL failed or if SQLite is explicitly chosen
+if (!$db) {
+    try {
+        $db = new PDO('sqlite:' . $dbPath);
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        http_response_code(500);
+        die(json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]));
+    }
+}
+
+// Initialize tables based on active driver
 try {
-    if ($dbDriver === 'mysql') {
-        $dbHost = $env['DB_HOST'] ?? '127.0.0.1';
-        $dbPort = $env['DB_PORT'] ?? '3306';
-        $dbName = $env['DB_NAME'] ?? 'numerology';
-        $dbUser = $env['DB_USER'] ?? 'root';
-        $dbPass = $env['DB_PASS'] ?? '';
+    $activeDriver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
 
-        $dsn = "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4";
-        $db = new PDO($dsn, $dbUser, $dbPass, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
-        ]);
-
-        // MySQL Schema
+    if ($activeDriver === 'mysql') {
         $db->exec("
             CREATE TABLE IF NOT EXISTS calculations (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -96,13 +124,8 @@ try {
                 setting_value TEXT NOT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ");
-
     } else {
-        // SQLite Driver
-        $db = new PDO('sqlite:' . $dbPath);
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
+        // SQLite Schema
         $db->exec("
             CREATE TABLE IF NOT EXISTS calculations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -192,7 +215,7 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
-    die(json_encode(['error' => 'Database connection or initialization failed: ' . $e->getMessage()]));
+    die(json_encode(['error' => 'Database initialization error: ' . $e->getMessage()]));
 }
 
 /**

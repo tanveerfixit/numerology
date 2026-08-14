@@ -812,54 +812,83 @@ $errorMsg = $_GET['error'] ?? '';
         // Auth Form handlers
         const loginForm = document.getElementById('loginForm');
         if (loginForm) {
-            loginForm.addEventListener('submit', (e) => {
+            loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const username = document.getElementById('loginUsername').value;
+                const username = document.getElementById('loginUsername').value.trim();
                 const password = document.getElementById('loginPassword').value;
                 const alertDiv = document.getElementById('loginAlert');
+                const submitBtn = loginForm.querySelector('button[type="submit"]');
 
-                fetch('api.php?action=login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = 'calculator.php';
+                if (submitBtn) submitBtn.disabled = true;
+                alertDiv.style.display = 'none';
+
+                try {
+                    const res = await fetch('api.php?action=login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (err) {
+                        throw new Error('Server returned an unexpected response (Status ' + res.status + ')');
+                    }
+
+                    if (res.ok && data.success) {
+                        if (data.user && data.user.role === 'admin') {
+                            window.location.href = 'admin.php';
+                        } else if (data.user && data.user.role === 'staff') {
+                            window.location.href = 'saved.php';
+                        } else {
+                            window.location.href = 'calculator.php';
+                        }
                     } else {
                         alertDiv.className = 'alert alert-danger';
                         alertDiv.innerText = data.error || 'Invalid username or password';
                         alertDiv.style.display = 'block';
                     }
-                })
-                .catch(() => {
+                } catch (err) {
                     alertDiv.className = 'alert alert-danger';
-                    alertDiv.innerText = 'Network error during login';
+                    alertDiv.innerText = err.message || 'Network error during login';
                     alertDiv.style.display = 'block';
-                });
+                } finally {
+                    if (submitBtn) submitBtn.disabled = false;
+                }
             });
         }
 
         const signupForm = document.getElementById('signupForm');
         if (signupForm) {
-            signupForm.addEventListener('submit', (e) => {
+            signupForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const username = document.getElementById('signupUsername').value;
-                const email = document.getElementById('signupEmail').value;
+                const username = document.getElementById('signupUsername').value.trim();
+                const email = document.getElementById('signupEmail').value.trim();
                 const password = document.getElementById('signupPassword').value;
                 const alertDiv = document.getElementById('signupAlert');
+                const submitBtn = signupForm.querySelector('button[type="submit"]');
 
-                fetch('api.php?action=signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
+                if (submitBtn) submitBtn.disabled = true;
+                alertDiv.style.display = 'none';
+
+                try {
+                    const res = await fetch('api.php?action=signup', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, email, password })
+                    });
+
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (err) {
+                        throw new Error('Server returned an unexpected response (Status ' + res.status + ')');
+                    }
+
+                    if (res.ok && data.success) {
                         alertDiv.className = 'alert alert-success';
-                        alertDiv.innerText = data.message || 'Account created! Pending approval.';
+                        alertDiv.innerText = '✓ ' + (data.message || 'Account created! Pending approval.');
                         alertDiv.style.display = 'block';
                         signupForm.reset();
                     } else {
@@ -867,12 +896,13 @@ $errorMsg = $_GET['error'] ?? '';
                         alertDiv.innerText = data.error || 'Signup failed';
                         alertDiv.style.display = 'block';
                     }
-                })
-                .catch(() => {
+                } catch (err) {
                     alertDiv.className = 'alert alert-danger';
-                    alertDiv.innerText = 'Network error during signup';
+                    alertDiv.innerText = err.message || 'Network error during signup';
                     alertDiv.style.display = 'block';
-                });
+                } finally {
+                    if (submitBtn) submitBtn.disabled = false;
+                }
             });
         }
     });
