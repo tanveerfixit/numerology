@@ -1,3 +1,4 @@
 node_modules/
 *.db
 .system_generated/
+.env

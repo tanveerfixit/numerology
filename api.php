@@ -285,11 +285,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $earth = trim($data['earth'] ?? '#0f172a');
 
             try {
-                $stmt = $db->prepare("INSERT INTO site_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
-                $stmt->execute(['elem_color_fire', $fire]);
-                $stmt->execute(['elem_color_air', $air]);
-                $stmt->execute(['elem_color_water', $water]);
-                $stmt->execute(['elem_color_earth', $earth]);
+                setSiteSetting($db, 'elem_color_fire', $fire);
+                setSiteSetting($db, 'elem_color_air', $air);
+                setSiteSetting($db, 'elem_color_water', $water);
+                setSiteSetting($db, 'elem_color_earth', $earth);
 
                 echo json_encode(['success' => true, 'message' => 'Elemental color configuration saved successfully!']);
             } catch (PDOException $e) {
@@ -307,11 +306,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $defaultEarth = '#0f172a';
 
             try {
-                $stmt = $db->prepare("INSERT INTO site_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
-                $stmt->execute(['elem_color_fire', $defaultFire]);
-                $stmt->execute(['elem_color_air', $defaultAir]);
-                $stmt->execute(['elem_color_water', $defaultWater]);
-                $stmt->execute(['elem_color_earth', $defaultEarth]);
+                setSiteSetting($db, 'elem_color_fire', $defaultFire);
+                setSiteSetting($db, 'elem_color_air', $defaultAir);
+                setSiteSetting($db, 'elem_color_water', $defaultWater);
+                setSiteSetting($db, 'elem_color_earth', $defaultEarth);
 
                 echo json_encode([
                     'success' => true, 
