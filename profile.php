@@ -321,46 +321,61 @@ if (!$currentUser) {
 
             <!-- Ask New Question / Submit Consultation Query -->
             <form id="circumstanceRequestForm" class="query-form-card">
-                <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">
-                    Ask a New Consultation Question
-                </h3>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">
+                        Send Consultation Question / Reply
+                    </h3>
+                    <button type="button" class="btn btn-secondary btn-sm btn-open-kb" data-target="question" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 2px;">
+                        ⌨️ Urdu Keyboard
+                    </button>
+                </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                    <div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label class="form-label" for="nameLookup" style="margin-bottom: 0;">Target Name to Analyze *</label>
-                            <button type="button" class="btn btn-secondary btn-sm btn-open-kb" data-target="nameLookup" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 2px;">
-                                ⌨️ Urdu Keyboard
-                            </button>
-                        </div>
-                        <input type="text" id="nameLookup" class="form-control" required placeholder="e.g. احمد / فاطمہ" style="font-family: var(--font-arabic); font-size: 1.15rem; direction: rtl; border-radius: 0;">
-                    </div>
-
-                    <div>
-                        <label class="form-label" for="relationship">Relationship / Connection *</label>
-                        <input type="text" id="relationship" class="form-control" required placeholder="e.g. Self, Spouse, Business Partner" style="border-radius: 0;">
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                    <div>
-                        <label class="form-label" for="fullName">Your Full Name *</label>
-                        <input type="text" id="fullName" class="form-control" required placeholder="Enter your full name" value="<?php echo htmlspecialchars($currentUser['full_name'] ?? $currentUser['username']); ?>" style="border-radius: 0;">
-                    </div>
-
-                    <div>
-                        <label class="form-label" for="contactNumber">Contact / WhatsApp</label>
-                        <input type="text" id="contactNumber" class="form-control" placeholder="e.g. +92 300 1234567" value="<?php echo htmlspecialchars($currentUser['contact'] ?? ''); ?>" style="border-radius: 0;">
-                    </div>
-                </div>
-
                 <div>
-                    <label class="form-label" for="question">Detailed Question / Specific Circumstance *</label>
-                    <textarea id="question" rows="3" class="form-control" required placeholder="Type your question or circumstance details here for the admin..." style="border-radius: 0;"></textarea>
+                    <label class="form-label" for="question" style="font-weight: 700; margin-bottom: 0.35rem;">
+                        Question / Message *
+                    </label>
+                    <textarea id="question" rows="3" class="form-control" required placeholder="Type your consultation question, follow-up, or circumstance message here..." style="border-radius: 0;"></textarea>
                 </div>
+
+                <!-- Optional Context Details Accordion / Sub-fields -->
+                <details style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 0.65rem 0.85rem; border-radius: 0; font-size: 0.85rem;">
+                    <summary style="cursor: pointer; font-weight: 600; color: var(--text-secondary); user-select: none;">
+                        <span>⚙️ Optional Context Details (Target Name, Relationship, Contact)</span>
+                    </summary>
+                    <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: 0.75rem; padding-top: 0.65rem; border-top: 1px solid var(--border-subtle);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                                    <label class="form-label" for="nameLookup" style="margin-bottom: 0; font-size: 0.76rem;">Target Name (Optional)</label>
+                                    <button type="button" class="btn btn-secondary btn-sm btn-open-kb" data-target="nameLookup" style="padding: 0.1rem 0.35rem; font-size: 0.68rem; border-radius: 2px;">
+                                        ⌨️
+                                    </button>
+                                </div>
+                                <input type="text" id="nameLookup" class="form-control" placeholder="e.g. احمد / فاطمہ" style="font-family: var(--font-arabic); font-size: 1.1rem; direction: rtl; border-radius: 0;">
+                            </div>
+
+                            <div>
+                                <label class="form-label" for="relationship" style="font-size: 0.76rem; margin-bottom: 0.25rem;">Relationship (Optional)</label>
+                                <input type="text" id="relationship" class="form-control" placeholder="e.g. Self, Spouse, Business" style="border-radius: 0;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+                            <div>
+                                <label class="form-label" for="fullName" style="font-size: 0.76rem; margin-bottom: 0.25rem;">Your Name (Optional)</label>
+                                <input type="text" id="fullName" class="form-control" placeholder="Enter your name" value="<?php echo htmlspecialchars($currentUser['full_name'] ?? $currentUser['username']); ?>" style="border-radius: 0;">
+                            </div>
+
+                            <div>
+                                <label class="form-label" for="contactNumber" style="font-size: 0.76rem; margin-bottom: 0.25rem;">Contact / Phone (Optional)</label>
+                                <input type="text" id="contactNumber" class="form-control" placeholder="e.g. +92 300 1234567" value="<?php echo htmlspecialchars($currentUser['contact'] ?? ''); ?>" style="border-radius: 0;">
+                            </div>
+                        </div>
+                    </div>
+                </details>
 
                 <button type="submit" class="btn btn-primary" style="justify-content: center; padding: 0.65rem; border-radius: 2px;">
-                    ✉️ Submit Question to Admin
+                    ✉️ Send Message to Admin
                 </button>
             </form>
 
