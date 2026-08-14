@@ -1,13 +1,13 @@
 <?php
 // admin.php
-$pageTitle = 'Admin Portal - Executive Dashboard & User Management';
+$pageTitle = 'Admin Portal - Executive Console & User Management';
 require_once __DIR__ . '/includes/header.php';
 
 requireLogin();
 if (!$currentUser || $currentUser['role'] !== 'admin') {
     echo '<main class="container" style="text-align: center; padding: 4rem 1.5rem;">
-            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: 0; max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-md);">
-                <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🛡️</div>
+            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: 0; max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-sm);">
+                <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🔒</div>
                 <h2 style="color: var(--danger); font-size: 1.35rem; margin-bottom: 0.5rem;">Administrator Access Restricted</h2>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">You must possess verified Administrator role privileges to view the management console.</p>
                 <a href="index.php" class="btn btn-primary" style="border-radius: 2px;">Return to Home</a>
@@ -22,22 +22,62 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
     .admin-dashboard-wrapper {
         display: flex;
         flex-direction: column;
-        gap: 1.75rem;
+        gap: 1.5rem;
+        width: 100%;
     }
 
-    /* Executive KPI Stats: Zero radius */
+    /* Executive Top Bar */
+    .admin-executive-banner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        background: #ffffff;
+        border: 1px solid var(--border-subtle);
+        padding: 1.25rem 1.5rem;
+        box-shadow: var(--shadow-xs);
+    }
+
+    .admin-brand-col {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+    }
+
+    .admin-shield-icon {
+        width: 44px;
+        height: 44px;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+        border: 1px solid var(--primary-border);
+    }
+
+    .admin-actions-bar {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    /* KPI Metrics Grid */
     .admin-kpi-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 1.25rem;
+        gap: 1rem;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 992px) {
         .admin-kpi-grid {
             grid-template-columns: repeat(2, 1fr);
         }
     }
-    @media (max-width: 480px) {
+    @media (max-width: 540px) {
         .admin-kpi-grid {
             grid-template-columns: 1fr;
         }
@@ -46,22 +86,32 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
     .kpi-card {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: 0;
-        padding: 1.25rem;
-        box-shadow: var(--shadow-sm);
+        padding: 1.15rem 1.25rem;
         display: flex;
         align-items: center;
         gap: 1rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        position: relative;
+    }
+
+    .kpi-card:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .kpi-card.active-filter {
+        border-color: var(--primary);
+        background: var(--primary-light);
     }
 
     .kpi-icon-box {
-        width: 46px;
-        height: 46px;
-        border-radius: 0;
+        width: 42px;
+        height: 42px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.4rem;
+        font-size: 1.3rem;
         flex-shrink: 0;
     }
 
@@ -71,7 +121,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
     }
 
     .kpi-metric-title {
-        font-size: 0.75rem;
+        font-size: 0.74rem;
         font-weight: 700;
         text-transform: uppercase;
         color: var(--text-muted);
@@ -79,60 +129,99 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
     }
 
     .kpi-metric-count {
-        font-size: 1.65rem;
+        font-size: 1.6rem;
         font-weight: 800;
         color: var(--text-primary);
         line-height: 1.2;
         margin-top: 0.15rem;
     }
 
-    /* Admin Management Card */
+    /* Main Console Card */
     .admin-card-panel {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: 0;
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
+        padding: 1.25rem;
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
+        gap: 1rem;
     }
 
-    .admin-header-row {
+    /* Search & Filter Toolbar */
+    .console-toolbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 0.75rem;
+        padding-bottom: 0.85rem;
         border-bottom: 1px solid var(--border-subtle);
-        padding-bottom: 1rem;
     }
 
-    .admin-title-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .admin-main-title {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: var(--text-primary);
+    .filter-tabs-group {
         display: flex;
         align-items: center;
-        gap: 0.45rem;
+        flex-wrap: wrap;
+        gap: 0.35rem;
     }
 
-    .admin-sub-text {
-        font-size: 0.84rem;
+    .filter-tab-btn {
+        background: var(--surface-subtle);
+        border: 1px solid var(--border-medium);
+        padding: 0.3rem 0.65rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        cursor: pointer;
+        border-radius: 2px;
+        transition: all 0.12s ease;
+    }
+
+    .filter-tab-btn:hover {
+        background: #ffffff;
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .filter-tab-btn.active {
+        background: var(--primary);
+        color: #ffffff;
+        border-color: var(--primary);
+    }
+
+    .search-input-wrapper {
+        position: relative;
+        flex: 1;
+        max-width: 340px;
+        min-width: 200px;
+    }
+
+    @media (max-width: 640px) {
+        .search-input-wrapper {
+            max-width: 100%;
+            width: 100%;
+        }
+    }
+
+    .search-input-wrapper input {
+        width: 100%;
+        padding: 0.35rem 0.65rem 0.35rem 2rem;
+        font-size: 0.85rem;
+    }
+
+    .search-icon-decor {
+        position: absolute;
+        left: 0.65rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.82rem;
         color: var(--text-muted);
-        margin-top: 0.15rem;
+        pointer-events: none;
     }
 
-    /* Modern Table */
+    /* Desktop Table View */
     .user-table-wrapper {
         overflow-x: auto;
         border: 1px solid var(--border-subtle);
-        border-radius: 0;
     }
 
     .user-data-table {
@@ -144,17 +233,18 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
 
     .user-data-table th {
         background: var(--surface-subtle);
-        padding: 0.75rem 1rem;
+        padding: 0.65rem 0.85rem;
         font-weight: 700;
-        font-size: 0.76rem;
+        font-size: 0.74rem;
         text-transform: uppercase;
         letter-spacing: 0.04em;
         color: var(--text-secondary);
         border-bottom: 1px solid var(--border-subtle);
+        white-space: nowrap;
     }
 
     .user-data-table td {
-        padding: 0.8rem 1rem;
+        padding: 0.65rem 0.85rem;
         border-bottom: 1px solid var(--border-subtle);
         vertical-align: middle;
     }
@@ -163,19 +253,50 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         background: var(--surface-subtle);
     }
 
+    /* Mobile Cards View (Hidden on desktop, shown on mobile) */
+    .user-cards-mobile-view {
+        display: none;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .user-table-wrapper {
+            display: none;
+        }
+        .user-cards-mobile-view {
+            display: flex;
+        }
+    }
+
+    .user-mobile-card {
+        background: #ffffff;
+        border: 1px solid var(--border-subtle);
+        padding: 0.85rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        box-shadow: var(--shadow-xs);
+    }
+
+    .user-card-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
     .user-profile-link {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        font-weight: 600;
-        color: var(--primary);
+        gap: 0.45rem;
+        font-weight: 700;
+        color: var(--text-primary);
         cursor: pointer;
         text-decoration: none;
     }
 
     .user-profile-link:hover {
-        color: var(--primary-hover);
-        text-decoration: underline;
+        color: var(--primary);
     }
 
     .notification-chip {
@@ -184,33 +305,30 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         border: 1px solid var(--danger-border);
         font-size: 0.72rem;
         font-weight: 700;
-        padding: 0.15rem 0.5rem;
-        border-radius: 0;
+        padding: 0.15rem 0.45rem;
         display: inline-flex;
         align-items: center;
         gap: 0.25rem;
     }
 
-    /* Single Chat Thread Stream in Admin */
+    /* Chat Stream in Admin Modal */
     .admin-chat-thread-box {
         background: var(--surface-subtle);
         border: 1px solid var(--border-medium);
-        border-radius: 0;
-        padding: 1rem;
-        max-height: 380px;
+        padding: 0.85rem;
+        max-height: 340px;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.65rem;
     }
 
     .stream-bubble {
-        padding: 0.75rem 1rem;
-        border-radius: 0;
-        font-size: 0.88rem;
-        line-height: 1.5;
+        padding: 0.65rem 0.85rem;
+        font-size: 0.86rem;
+        line-height: 1.45;
         position: relative;
-        max-width: 85%;
+        max-width: 88%;
     }
 
     .stream-bubble-user {
@@ -218,7 +336,6 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         background: #ffffff;
         border: 1px solid var(--border-medium);
         color: var(--text-primary);
-        box-shadow: var(--shadow-xs);
     }
 
     .stream-bubble-admin {
@@ -233,79 +350,142 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         justify-content: space-between;
         align-items: center;
         font-size: 0.72rem;
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.25rem;
         color: var(--text-muted);
-        gap: 1rem;
+        gap: 0.75rem;
+    }
+
+    /* Built-in Virtual Urdu Keyboard in Modal */
+    .admin-kb-drawer {
+        background: #ffffff;
+        border: 1px solid var(--border-medium);
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .admin-kb-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+        gap: 0.25rem;
+        direction: rtl;
+    }
+
+    .admin-kb-tile {
+        background: var(--surface-subtle);
+        border: 1px solid var(--border-medium);
+        padding: 0.35rem 0.15rem;
+        font-family: var(--font-arabic);
+        font-size: 1.25rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.1s ease;
+        border-radius: 2px;
+        color: var(--text-primary);
+        line-height: 1;
+    }
+
+    .admin-kb-tile:hover {
+        background: var(--primary-light);
+        border-color: var(--primary);
+        color: var(--primary);
     }
 </style>
 
 <main class="container">
     <div class="admin-dashboard-wrapper">
-        <!-- Executive KPI Cards -->
+
+        <!-- Executive Header Banner -->
+        <div class="admin-executive-banner">
+            <div class="admin-brand-col">
+                <div class="admin-shield-icon">🛡️</div>
+                <div>
+                    <h1 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.15rem;">
+                        Executive Management Console
+                    </h1>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                        Logged in as Administrator (<strong><?php echo htmlspecialchars($currentUser['username']); ?></strong>)
+                    </p>
+                </div>
+            </div>
+
+            <div class="admin-actions-bar">
+                <button id="btnOpenElemSettings" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="Configure 4 Elements Theme Colors">
+                    <span>🎨</span> <span>Element Colors</span>
+                </button>
+                <button onclick="loadUsers()" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">
+                    <span>🔄</span> <span>Refresh Directory</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Interactive KPI Metric Tiles -->
         <div class="admin-kpi-grid">
-            <div class="kpi-card">
+            <div class="kpi-card active-filter" id="kpiCardAll" onclick="setFilter('all')">
                 <div class="kpi-icon-box" style="background: var(--primary-light); color: var(--primary);">👥</div>
                 <div class="kpi-text-col">
                     <span class="kpi-metric-title">Total Registered</span>
-                    <div class="kpi-metric-count" id="kpiTotalUsers">--</div>
+                    <div class="kpi-metric-count" id="kpiTotalUsers">0</div>
                 </div>
             </div>
 
-            <div class="kpi-card">
+            <div class="kpi-card" id="kpiCardPending" onclick="setFilter('pending')">
                 <div class="kpi-icon-box" style="background: var(--accent-gold-light); color: var(--accent-gold);">⏳</div>
                 <div class="kpi-text-col">
                     <span class="kpi-metric-title">Pending Approvals</span>
-                    <div class="kpi-metric-count" id="kpiPendingApprovals">--</div>
+                    <div class="kpi-metric-count" id="kpiPendingApprovals">0</div>
                 </div>
             </div>
 
-            <div class="kpi-card">
+            <div class="kpi-card" id="kpiCardInquiries" onclick="setFilter('inquiries')">
                 <div class="kpi-icon-box" style="background: #fdf2f8; color: #db2777;">💬</div>
                 <div class="kpi-text-col">
-                    <span class="kpi-metric-title">New Inquiries</span>
-                    <div class="kpi-metric-count" id="kpiPendingChats">--</div>
+                    <span class="kpi-metric-title">Inquiries Waiting</span>
+                    <div class="kpi-metric-count" id="kpiPendingChats">0</div>
                 </div>
             </div>
 
-            <div class="kpi-card">
+            <div class="kpi-card" id="kpiCardStaff" onclick="setFilter('staff')">
                 <div class="kpi-icon-box" style="background: #f0fdf4; color: var(--success);">🛡️</div>
                 <div class="kpi-text-col">
                     <span class="kpi-metric-title">Staff & Admins</span>
-                    <div class="kpi-metric-count" id="kpiStaffCount">--</div>
+                    <div class="kpi-metric-count" id="kpiStaffCount">0</div>
                 </div>
             </div>
         </div>
 
-        <!-- Main User Management Panel -->
+        <!-- User Directory Panel -->
         <div class="admin-card-panel">
-            <div class="admin-header-row">
-                <div class="admin-title-group">
-                    <h2 class="admin-main-title">
-                        <span>🛡️</span> User Directory & Consultation Console
-                    </h2>
-                    <p class="admin-sub-text">Inspect user profiles, approve new registrations, configure authorization roles, and reply to circumstance consultations.</p>
+            <!-- Search and Filter Bar -->
+            <div class="console-toolbar">
+                <div class="filter-tabs-group">
+                    <button type="button" class="filter-tab-btn active" id="tabAll" onclick="setFilter('all')">All Accounts (<span id="countTabAll">0</span>)</button>
+                    <button type="button" class="filter-tab-btn" id="tabPending" onclick="setFilter('pending')">Pending (<span id="countTabPending">0</span>)</button>
+                    <button type="button" class="filter-tab-btn" id="tabInquiries" onclick="setFilter('inquiries')">Inquiries (<span id="countTabInquiries">0</span>)</button>
+                    <button type="button" class="filter-tab-btn" id="tabStaff" onclick="setFilter('staff')">Staff/Admin (<span id="countTabStaff">0</span>)</button>
                 </div>
-                <div style="display: flex; gap: 0.45rem; align-items: center;">
-                    <button id="btnOpenElemSettings" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="4 Elements Color Configuration">
-                        <span>⚙️</span> <span>Element Colors</span>
-                    </button>
-                    <button onclick="loadUsers()" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">
-                        <span>🔄</span> <span>Refresh Directory</span>
-                    </button>
+
+                <div class="search-input-wrapper">
+                    <span class="search-icon-decor">🔍</span>
+                    <input type="text" id="adminSearchInput" class="form-control" placeholder="Search user, name, email, contact...">
                 </div>
             </div>
 
+            <!-- Desktop Data Table -->
             <div class="user-table-wrapper">
                 <table class="user-data-table">
                     <thead>
                         <tr>
                             <th>User ID</th>
-                            <th>Username</th>
-                            <th>Email</th>
+                            <th>User Identity</th>
+                            <th>Contact / Email</th>
                             <th>Role Access</th>
-                            <th>Account Status</th>
+                            <th>Status</th>
                             <th>Consultation Status</th>
-                            <th style="text-align: right;">Action</th>
+                            <th style="text-align: right;">Action Controls</th>
                         </tr>
                     </thead>
                     <tbody id="userTableBody">
@@ -313,13 +493,19 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                     </tbody>
                 </table>
             </div>
+
+            <!-- Mobile Adaptive Cards View -->
+            <div class="user-cards-mobile-view" id="userCardsMobileContainer">
+                <div style="padding: 1.5rem; text-align: center; color: var(--text-muted);">Loading user directory...</div>
+            </div>
         </div>
+
     </div>
 </main>
 
-<!-- Profile & Single Chat Thread Modal -->
-<div id="userProfileModal" class="modal-overlay-custom">
-    <div class="modal-card-box" style="max-width: 720px; text-align: left; max-height: 90vh; overflow-y: auto; border-radius: 0;">
+<!-- User Profile & Consultation Thread Modal -->
+<div id="userProfileModal" class="modal-overlay-custom" style="display: none;">
+    <div class="modal-card-box" style="max-width: 740px; width: 95%; max-height: 90vh; overflow-y: auto; text-align: left; border-radius: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem;">
             <h3 id="profileModalTitle" style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
                 <span>👤</span> User Profile & Consultation Thread
@@ -328,18 +514,18 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         </div>
 
         <div id="profileModalBody">
-            <!-- Populated dynamically via JS -->
+            <!-- Dynamically populated -->
         </div>
     </div>
 </div>
 
 <!-- 4 Elements Color Configuration Modal -->
 <div id="elemSettingsModal" class="modal-overlay-custom" style="display: none;">
-    <div class="modal-card-box" style="max-width: 620px; text-align: left; border-radius: 0;">
+    <div class="modal-card-box" style="max-width: 620px; width: 95%; max-height: 90vh; overflow-y: auto; text-align: left; border-radius: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem;">
             <div>
                 <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
-                    <span>⚙️</span> 4 Elements Color Configuration
+                    <span>🎨</span> 4 Elements Color Configuration
                 </h3>
                 <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">Customize global theme colors for Fire, Air, Water, and Earth.</p>
             </div>
@@ -348,7 +534,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
 
         <div id="elemColorAlert" style="display: none; margin-bottom: 0.75rem;"></div>
 
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.85rem; margin-bottom: 1.25rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem; margin-bottom: 1.25rem;">
             <!-- Fire -->
             <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 0.85rem; border-radius: 0; display: flex; flex-direction: column; gap: 0.45rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -418,7 +604,16 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
 
 <script>
     let usersList = [];
+    let currentFilter = 'all';
     let activeModalUserId = null;
+    let activeAdminInput = null;
+
+    const arabicLetters = [
+        'ا', 'آ', 'ب', 'پ', 'ت', 'ٹ', 'ث', 'ج', 'چ', 'ح', 'خ',
+        'د', 'ڈ', 'ذ', 'ر', 'ڑ', 'ز', 'ژ', 'س', 'ش', 'ص', 'ض',
+        'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ک', 'گ', 'ل', 'م', 'ن',
+        'ں', 'و', 'ہ', 'ھ', 'ء', 'ی', 'ے'
+    ];
 
     function loadUsers() {
         fetch('api.php?action=list_users')
@@ -426,10 +621,11 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         .then(users => {
             usersList = Array.isArray(users) ? users : [];
             updateKPIs();
-            renderUserTable();
+            renderUserViews();
         })
         .catch(() => {
             document.getElementById('userTableBody').innerHTML = '<tr><td colspan="7" style="padding: 1.5rem; text-align: center; color: var(--danger);">Failed to load user directory.</td></tr>';
+            document.getElementById('userCardsMobileContainer').innerHTML = '<div style="padding: 1.5rem; text-align: center; color: var(--danger);">Failed to load user directory.</div>';
         });
     }
 
@@ -443,17 +639,62 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         document.getElementById('kpiPendingApprovals').innerText = pendingAppr;
         document.getElementById('kpiPendingChats').innerText = pendingChats;
         document.getElementById('kpiStaffCount').innerText = staffAndAdmin;
+
+        document.getElementById('countTabAll').innerText = total;
+        document.getElementById('countTabPending').innerText = pendingAppr;
+        document.getElementById('countTabInquiries').innerText = pendingChats;
+        document.getElementById('countTabStaff').innerText = staffAndAdmin;
     }
 
-    function renderUserTable() {
+    function setFilter(filter) {
+        currentFilter = filter;
+
+        // Update tabs active state
+        ['All', 'Pending', 'Inquiries', 'Staff'].forEach(f => {
+            const el = document.getElementById('tab' + f);
+            if (el) el.classList.toggle('active', filter.toLowerCase() === f.toLowerCase());
+            const kpi = document.getElementById('kpiCard' + f);
+            if (kpi) kpi.classList.toggle('active-filter', filter.toLowerCase() === f.toLowerCase());
+        });
+
+        renderUserViews();
+    }
+
+    function getFilteredUsers() {
+        const search = (document.getElementById('adminSearchInput')?.value || '').toLowerCase().trim();
+        return usersList.filter(u => {
+            if (currentFilter === 'pending' && u.status !== 'pending') return false;
+            if (currentFilter === 'inquiries' && u.req_status !== 'pending') return false;
+            if (currentFilter === 'staff' && !['staff', 'admin'].includes(u.role)) return false;
+
+            if (search) {
+                const matchU = u.username.toLowerCase().includes(search);
+                const matchE = u.email.toLowerCase().includes(search);
+                const matchN = (u.full_name || '').toLowerCase().includes(search);
+                const matchC = (u.contact || '').toLowerCase().includes(search);
+                if (!matchU && !matchE && !matchN && !matchC) return false;
+            }
+            return true;
+        });
+    }
+
+    function renderUserViews() {
+        const filtered = getFilteredUsers();
+        renderUserTable(filtered);
+        renderUserMobileCards(filtered);
+    }
+
+    function renderUserTable(list) {
         const tbody = document.getElementById('userTableBody');
-        if (!usersList.length) {
-            tbody.innerHTML = '<tr><td colspan="7" style="padding: 2rem; text-align: center; color: var(--text-muted);">No users found.</td></tr>';
+        if (!tbody) return;
+
+        if (!list.length) {
+            tbody.innerHTML = '<tr><td colspan="7" style="padding: 2rem; text-align: center; color: var(--text-muted);">No users matching current filter/search.</td></tr>';
             return;
         }
 
         let html = '';
-        usersList.forEach(u => {
+        list.forEach(u => {
             const statusClass = 'status-' + u.status;
             let reqBadge = '<span style="color:var(--text-muted); font-size:0.75rem;">None</span>';
             if (u.req_status === 'pending') {
@@ -464,14 +705,21 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
 
             html += `
                 <tr>
-                    <td style="font-weight: 600; color: var(--text-muted);">#${u.id}</td>
+                    <td style="font-weight: 600; color: var(--text-muted); font-size: 0.8rem;">#${u.id}</td>
                     <td>
-                        <a class="user-profile-link" onclick="openUserProfile(${u.id})">
-                            <span class="user-avatar-circle" style="width: 22px; height: 22px; font-size: 0.68rem; border-radius: 0;">${escapeHtml(u.username.charAt(0).toUpperCase())}</span>
-                            <span>${escapeHtml(u.username)}</span>
-                        </a>
+                        <div style="display: flex; flex-direction: column;">
+                            <a class="user-profile-link" onclick="openUserProfile(${u.id})">
+                                <span style="font-weight: 700;">${escapeHtml(u.username)}</span>
+                            </a>
+                            ${u.full_name ? `<span style="font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(u.full_name)}</span>` : ''}
+                        </div>
                     </td>
-                    <td style="color: var(--text-secondary); font-size: 0.85rem;">${escapeHtml(u.email)}</td>
+                    <td>
+                        <div style="display: flex; flex-direction: column; font-size: 0.82rem;">
+                            <span>${escapeHtml(u.email)}</span>
+                            ${u.contact ? `<span style="color: var(--text-muted); font-size: 0.76rem;">${escapeHtml(u.contact)}</span>` : ''}
+                        </div>
+                    </td>
                     <td>
                         <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.2rem 0.45rem; font-size: 0.78rem; border-radius: 0;">
                             <option value="public" ${u.role === 'public' ? 'selected' : ''}>Public</option>
@@ -484,10 +732,12 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                     </td>
                     <td>${reqBadge}</td>
                     <td style="text-align: right; white-space: nowrap;">
-                        ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>` : ''}
-                        <button onclick="openUserProfile(${u.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; border-radius: 2px;">
-                            ${u.req_status === 'pending' ? '💬 Reply' : 'Inspect'}
-                        </button>
+                        <div style="display: inline-flex; gap: 0.3rem;">
+                            ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>` : ''}
+                            <button onclick="openUserProfile(${u.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; border-radius: 2px;">
+                                ${u.req_status === 'pending' ? '💬 Reply' : 'Inspect'}
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -495,63 +745,180 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         tbody.innerHTML = html;
     }
 
+    function renderUserMobileCards(list) {
+        const container = document.getElementById('userCardsMobileContainer');
+        if (!container) return;
+
+        if (!list.length) {
+            container.innerHTML = '<div style="padding: 1.5rem; text-align: center; color: var(--text-muted);">No users matching current filter.</div>';
+            return;
+        }
+
+        let html = '';
+        list.forEach(u => {
+            const statusClass = 'status-' + u.status;
+            let reqBadge = '';
+            if (u.req_status === 'pending') {
+                reqBadge = '<span class="notification-chip">🔔 New Question</span>';
+            } else if (u.req_status === 'replied') {
+                reqBadge = '<span style="color:var(--success); font-weight:700; font-size:0.75rem;">✓ Replied</span>';
+            }
+
+            html += `
+                <div class="user-mobile-card">
+                    <div class="user-card-top-row">
+                        <div>
+                            <strong style="font-size: 0.95rem; color: var(--text-primary);">${escapeHtml(u.username)}</strong>
+                            <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 0.3rem;">#${u.id}</span>
+                            ${u.full_name ? `<div style="font-size: 0.8rem; color: var(--text-secondary);">${escapeHtml(u.full_name)}</div>` : ''}
+                        </div>
+                        <div style="display: flex; gap: 0.3rem; align-items: center;">
+                            <span class="status-badge ${statusClass}">${escapeHtml(u.status)}</span>
+                            <span class="role-badge role-${escapeHtml(u.role)}">${escapeHtml(u.role)}</span>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 0.82rem; color: var(--text-secondary);">
+                        <div>✉️ ${escapeHtml(u.email)}</div>
+                        ${u.contact ? `<div>📞 ${escapeHtml(u.contact)}</div>` : ''}
+                    </div>
+
+                    ${reqBadge ? `<div style="margin-top: 0.2rem;">${reqBadge}</div>` : ''}
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.5rem; margin-top: 0.25rem;">
+                        <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.2rem 0.4rem; font-size: 0.78rem; border-radius: 0;">
+                            <option value="public" ${u.role === 'public' ? 'selected' : ''}>Public</option>
+                            <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
+                            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                        </select>
+                        <div style="display: flex; gap: 0.3rem;">
+                            ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>` : ''}
+                            <button onclick="openUserProfile(${u.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-radius: 2px;">
+                                ${u.req_status === 'pending' ? '💬 Reply' : 'Inspect'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
     function openUserProfile(userId) {
         activeModalUserId = userId;
         const u = usersList.find(item => item.id == userId);
         if (!u) return;
 
-        document.getElementById('profileModalTitle').innerHTML = `<span>👤</span> Profile & Chat Thread: <strong>${escapeHtml(u.username)}</strong>`;
+        document.getElementById('profileModalTitle').innerHTML = `<span>👤</span> User Identity & Chat: <strong>${escapeHtml(u.username)}</strong>`;
 
         document.getElementById('profileModalBody').innerHTML = `
-            <!-- Info Card -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1rem; font-size: 0.85rem; background: var(--surface-subtle); padding: 1rem; border-radius: 0; border: 1px solid var(--border-subtle);">
+            <!-- Info Identity Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.65rem; margin-bottom: 1rem; font-size: 0.85rem; background: var(--surface-subtle); padding: 0.85rem; border-radius: 0; border: 1px solid var(--border-subtle);">
                 <div><strong>User ID:</strong> #${u.id}</div>
                 <div><strong>Username:</strong> ${escapeHtml(u.username)}</div>
                 <div><strong>Full Name:</strong> ${escapeHtml(u.full_name || '—')}</div>
                 <div><strong>Contact:</strong> ${escapeHtml(u.contact || '—')}</div>
-                <div><strong>Email:</strong> ${escapeHtml(u.email)}</div>
+                <div style="grid-column: span 2; word-break: break-all;"><strong>Email:</strong> ${escapeHtml(u.email)}</div>
                 <div><strong>Joined:</strong> ${u.created_at || '—'}</div>
                 <div>
                     <strong>Role:</strong> 
-                    <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.15rem 0.35rem; font-size: 0.78rem; display: inline-block; margin-left: 0.3rem; border-radius: 0;">
+                    <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.15rem 0.35rem; font-size: 0.78rem; display: inline-block; margin-left: 0.2rem; border-radius: 0;">
                         <option value="public" ${u.role === 'public' ? 'selected' : ''}>Public</option>
                         <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
                         <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
                     </select>
                 </div>
-                <div>
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
                     <strong>Status:</strong> <span class="status-badge status-${u.status}">${u.status}</span>
                 </div>
-                <div>
-                    ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve Account Now</button>` : ''}
+                <div style="display: flex; gap: 0.3rem; align-items: center;">
+                    ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>` : ''}
+                    ${u.status !== 'rejected' ? `<button onclick="rejectUser(${u.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 2px; color: var(--danger);">Reject</button>` : ''}
+                    <button onclick="deleteUser(${u.id})" type="button" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 2px;">Delete</button>
                 </div>
             </div>
 
             <!-- Single Consultation Chat Stream -->
             <div style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <strong style="font-size: 0.95rem; color: var(--text-primary);">💬 Consultation Stream</strong>
-                    <button onclick="clearChatHistory(${u.id})" type="button" class="btn btn-danger btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 2px;">🗑️ Clear Thread History</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <strong style="font-size: 0.92rem; color: var(--text-primary);">💬 Consultation Dialogue History</strong>
+                    <button onclick="clearChatHistory(${u.id})" type="button" class="btn btn-danger btn-sm" style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 2px;">🗑️ Clear Thread</button>
                 </div>
                 <div id="adminChatContainer" class="admin-chat-thread-box">
-                    <div style="text-align: center; color: var(--text-muted); padding: 1rem;">Loading messages...</div>
+                    <div style="text-align: center; color: var(--text-muted); padding: 1rem;">Loading dialogue...</div>
                 </div>
             </div>
 
-            <!-- Admin Message Composer -->
-            <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
-                <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">
-                    Send Consultation Reply:
-                </label>
-                <textarea id="replyMsg_${u.id}" class="form-control" rows="3" placeholder="Type your response to ${escapeHtml(u.username)}..." style="border-radius: 0;"></textarea>
+            <!-- Admin Message Composer with Built-in Keyboard -->
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.85rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0;">
+                        Send Administrative Reply:
+                    </label>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleAdminKeyboard(${u.id})" style="font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 2px;">
+                        ⌨️ Urdu Keyboard
+                    </button>
+                </div>
+                <textarea id="replyMsg_${u.id}" class="form-control" rows="3" placeholder="Type your response or advice to ${escapeHtml(u.username)}..." style="border-radius: 0;"></textarea>
+
+                <!-- Admin Virtual Urdu Keyboard Drawer -->
+                <div id="adminKbDrawer_${u.id}" class="admin-kb-drawer" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; font-weight: 600; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.35rem;">
+                        <span>⌨️ Virtual Urdu Keyboard (Admin Reply)</span>
+                        <div style="display: flex; gap: 0.3rem;">
+                            <button type="button" onclick="adminInsertChar(' ', ${u.id})" class="btn btn-secondary btn-sm" style="padding: 0.1rem 0.4rem; font-size: 0.7rem; border-radius: 2px;">Space ␣</button>
+                            <button type="button" onclick="adminBackspaceChar(${u.id})" class="btn btn-danger btn-sm" style="padding: 0.1rem 0.4rem; font-size: 0.7rem; border-radius: 2px;">⌫</button>
+                        </div>
+                    </div>
+                    <div class="admin-kb-grid">
+                        ${arabicLetters.map(ch => `<button type="button" class="admin-kb-tile" onclick="adminInsertChar('${ch}', ${u.id})">${ch}</button>`).join('')}
+                    </div>
+                </div>
+
                 <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.6rem;">
-                    <button onclick="sendAdminReply(${u.id})" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">✉️ Send Reply</button>
+                    <button onclick="sendAdminReply(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.4rem 0.85rem; border-radius: 2px;">✉️ Send Reply to User</button>
                 </div>
             </div>
         `;
 
         document.getElementById('userProfileModal').style.display = 'flex';
         loadAdminChatThread(userId);
+    }
+
+    function toggleAdminKeyboard(userId) {
+        const drawer = document.getElementById('adminKbDrawer_' + userId);
+        if (drawer) {
+            drawer.style.display = drawer.style.display === 'none' ? 'flex' : 'none';
+        }
+    }
+
+    function adminInsertChar(ch, userId) {
+        const textarea = document.getElementById('replyMsg_' + userId);
+        if (!textarea) return;
+        const start = textarea.selectionStart || textarea.value.length;
+        const end = textarea.selectionEnd || textarea.value.length;
+        const text = textarea.value;
+        textarea.value = text.substring(0, start) + ch + text.substring(end);
+        textarea.selectionStart = textarea.selectionEnd = start + ch.length;
+        textarea.focus();
+    }
+
+    function adminBackspaceChar(userId) {
+        const textarea = document.getElementById('replyMsg_' + userId);
+        if (!textarea) return;
+        const start = textarea.selectionStart || textarea.value.length;
+        const end = textarea.selectionEnd || textarea.value.length;
+        const text = textarea.value;
+        if (start === end) {
+            if (start > 0) {
+                textarea.value = text.substring(0, start - 1) + text.substring(end);
+                textarea.selectionStart = textarea.selectionEnd = start - 1;
+            }
+        } else {
+            textarea.value = text.substring(0, start) + text.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start;
+        }
+        textarea.focus();
     }
 
     function loadAdminChatThread(userId) {
@@ -571,7 +938,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                 const bubbleClass = isUser ? 'stream-bubble-user' : 'stream-bubble-admin';
                 const senderTitle = isUser ? '👤 User Inquiry' : '🛡️ Admin Response';
                 const details = m.name_lookup ? `
-                    <div style="font-size: 0.76rem; background: rgba(0,0,0,0.03); border-radius: 0; padding: 0.25rem 0.45rem; margin-bottom: 0.35rem;">
+                    <div style="font-size: 0.76rem; background: rgba(0,0,0,0.03); padding: 0.25rem 0.45rem; margin-bottom: 0.35rem; border-radius: 0;">
                         <strong>Target Name:</strong> ${escapeHtml(m.name_lookup)} | <strong>Relation:</strong> ${escapeHtml(m.relationship || 'N/A')}
                     </div>
                 ` : '';
@@ -669,6 +1036,38 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                 closeProfileModal();
                 loadUsers();
             } else alert('Failed to approve user: ' + (data.error || ''));
+        });
+    }
+
+    function rejectUser(id) {
+        if (!confirm('Reject this user account?')) return;
+        fetch('api.php?action=reject_user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                closeProfileModal();
+                loadUsers();
+            } else alert('Failed to reject user: ' + (data.error || ''));
+        });
+    }
+
+    function deleteUser(id) {
+        if (!confirm('Are you sure you want to permanently delete this user account? This cannot be undone.')) return;
+        fetch('api.php?action=delete_user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                closeProfileModal();
+                loadUsers();
+            } else alert('Failed to delete user: ' + (data.error || ''));
         });
     }
 
@@ -806,6 +1205,8 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
     document.addEventListener('DOMContentLoaded', () => {
         loadUsers();
         bindColorPickers();
+
+        document.getElementById('adminSearchInput')?.addEventListener('input', renderUserViews);
     });
 </script>
 
