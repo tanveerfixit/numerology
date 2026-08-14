@@ -1,17 +1,14 @@
 <?php
 // saved.php
-$pageTitle = 'Saved Names History Log & Database';
+$pageTitle = 'Saved Names History Log';
 require_once __DIR__ . '/includes/header.php';
 
 requireLogin();
 if (!$currentUser || $currentUser['status'] !== 'approved') {
-    echo '<main class="container" style="text-align: center; padding: 3rem 1.5rem;">
-            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: 0; max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-md);">
-                <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🔒</div>
-                <h2 style="font-size: 1.35rem; color: var(--text-primary); margin-bottom: 0.5rem;">Account Approval Required</h2>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">Your account must be approved by an administrator to view and manage saved calculation history records.</p>
-                <a href="calculator.php" class="btn btn-primary" style="border-radius: 2px;">Return to Calculator</a>
-            </div>
+    echo '<main style="text-align: center; padding: 2rem 1rem;">
+            <h2>Account Approval Required</h2>
+            <p>Your account must be logged in and approved by an administrator to view saved names history.</p>
+            <a href="calculator.php" class="btn btn-primary" style="border-radius: 2px;">Return to Calculator</a>
           </main>';
     require_once __DIR__ . '/includes/footer.php';
     exit;
@@ -19,320 +16,171 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
 ?>
 
 <style>
-    .history-card-wrapper {
-        background: #ffffff;
-        border: 1px solid var(--border-subtle);
-        border-radius: 0;
-        box-shadow: var(--shadow-sm);
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-    }
-
-    .history-header-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        border-bottom: 1px solid var(--border-subtle);
-        padding-bottom: 1rem;
-    }
-
-    .history-title-group {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .history-title-text {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        letter-spacing: -0.01em;
-    }
-
-    /* Filter Controls Bar */
-    .filter-controls-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-    }
-
-    .search-input-wrapper {
-        position: relative;
-        flex: 1;
-        min-width: 240px;
-        max-width: 400px;
-    }
-
-    .search-icon-pos {
-        position: absolute;
-        left: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-muted);
-        font-size: 0.85rem;
-        pointer-events: none;
-    }
-
-    .modern-search-input {
+    /* Yesterday's layout: Zero unnecessary padding, no shadows, no nested cards */
+    main.container-saved {
         width: 100%;
-        padding: 0.48rem 0.75rem 0.48rem 2.2rem;
-        border: 1px solid var(--border-medium);
-        border-radius: 0 !important;
-        font-size: 0.88rem;
-        font-family: inherit;
-        background: var(--surface-subtle);
-        color: var(--text-primary);
-        transition: all 0.15s ease;
+        padding: 0.25rem 0.5rem;
+        flex: 1;
     }
 
-    .modern-search-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        background: #ffffff;
-        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-    }
-
-    .element-filter-pills {
+    .action-header-row {
         display: flex;
-        gap: 0.35rem;
-        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.4rem 0.25rem;
+        margin-bottom: 0.4rem;
+        border-bottom: 1px solid #e2e8f0;
     }
 
-    .elem-filter-btn {
-        background: var(--surface-subtle);
-        border: 1px solid var(--border-subtle);
-        color: var(--text-secondary);
-        font-size: 0.78rem;
-        font-weight: 600;
-        padding: 0.32rem 0.65rem;
-        border-radius: 2px !important;
-        cursor: pointer;
-        transition: all 0.12s ease;
-    }
-
-    .elem-filter-btn:hover {
-        background: var(--surface-active);
-        color: var(--text-primary);
-    }
-
-    .elem-filter-btn.active {
-        background: var(--primary);
-        color: #ffffff;
-        border-color: var(--primary);
-    }
-
-    /* Modern Table Grid */
-    .table-container-modern {
-        overflow-x: auto;
-        border: 1px solid var(--border-subtle);
-        border-radius: 0;
-    }
-
-    .data-grid-table {
+    .history-table {
         width: 100%;
         border-collapse: collapse;
-        text-align: left;
-        font-size: 0.88rem;
-    }
-
-    .data-grid-table th {
-        background: var(--surface-subtle);
-        padding: 0.7rem 0.85rem;
-        font-weight: 700;
-        font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: var(--text-secondary);
-        border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .data-grid-table td {
-        padding: 0.75rem 0.85rem;
-        border-bottom: 1px solid var(--border-subtle);
-        color: var(--text-primary);
-        vertical-align: middle;
-    }
-
-    .data-grid-table tbody tr {
-        transition: background 0.12s ease;
-    }
-
-    .data-grid-table tbody tr:hover {
-        background: var(--surface-subtle);
-    }
-
-    .arabic-grid-cell {
-        font-family: var(--font-arabic);
-        font-size: 1.55rem;
-        font-weight: 700;
-        color: var(--text-primary);
         direction: rtl;
         text-align: right;
+        font-size: 1rem;
     }
 
-    .arabic-grid-link {
-        color: var(--text-primary);
-        text-decoration: none;
-        transition: color 0.12s ease;
+    .history-table th, .history-table td {
+        padding: 0.15rem 0.35rem;
+        border: 1px solid #cbd5e1;
     }
 
-    .arabic-grid-link:hover {
-        color: var(--primary);
-    }
-
-    .root-pill-badge {
-        background: var(--primary-light);
-        color: var(--primary);
-        border: 1px solid var(--primary-border);
+    .history-table th {
+        background: #e2e8f0;
         font-weight: 700;
-        font-size: 0.82rem;
-        padding: 0.15rem 0.5rem;
+        color: #0f172a;
+        font-size: 0.95rem;
+    }
+
+    /* Alternating slightly grey rows */
+    .history-table tbody tr:nth-child(even) {
+        background-color: #f1f5f9;
+    }
+
+    .history-table tbody tr:nth-child(odd) {
+        background-color: #ffffff;
+    }
+
+    /* Interactive mouse hover effect */
+    .history-table tbody tr:hover {
+        background-color: #cbd5e1 !important;
+        transition: background 0.1s ease;
+    }
+
+    .history-table td.arabic-cell {
+        font-family: 'Amiri', serif;
+        font-size: 1.45rem;
+        font-weight: bold;
+    }
+
+    .table-search-input {
+        width: 100%;
+        padding: 0.25rem 0.4rem;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
         border-radius: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 28px;
-    }
-
-    .elem-metric-quad {
-        display: inline-flex;
-        gap: 0.5rem;
-        align-items: center;
-        font-size: 0.82rem;
-        font-weight: 700;
-        direction: ltr;
-    }
-
-    /* Modal / Form overlay */
-    .form-drawer-card {
-        background: var(--surface-subtle);
-        border: 1px solid var(--border-medium);
-        border-radius: 0;
-        padding: 1.25rem;
-        display: none;
-        animation: fadeIn 0.15s ease-in-out;
-    }
-
-    .pagination-bar-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 0.5rem;
-        font-size: 0.82rem;
-        color: var(--text-secondary);
-        flex-wrap: wrap;
-        gap: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        direction: rtl;
     }
 </style>
 
-<main class="container">
-    <div class="history-card-wrapper">
-        <!-- Top Title Bar -->
-        <div class="history-header-bar">
-            <div class="history-title-group">
-                <a href="calculator.php" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="Return to Calculator">← Calculator</a>
-                <h1 class="history-title-text">Saved Calculation Records</h1>
+<main class="container-saved">
+    <!-- Action Line -->
+    <div class="action-header-row">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <a href="calculator.php" class="btn btn-sm" style="border-radius: 2px;">← Calculator</a>
+            <strong style="font-size: 1rem; color: #0f172a;">Saved Names History Log</strong>
+        </div>
+        <div style="display: flex; gap: 0.4rem;">
+            <button id="btnAddNew" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">+ Add Record</button>
+            <button onclick="loadHistory()" type="button" class="btn btn-sm" style="border-radius: 2px;">Refresh 🔄</button>
+        </div>
+    </div>
+
+    <!-- Add/Edit Record Form (Inline, hidden by default) -->
+    <div id="addEditRecordForm" style="display: none; background: #f8fafc; border: 1px solid #cbd5e1; padding: 0.75rem; margin-bottom: 0.6rem; border-radius: 0;">
+        <h4 id="formTitle" style="margin-bottom: 0.5rem; font-size: 1.05rem; font-weight: 700; color: #0f172a;">Add Calculation Record</h4>
+        <input type="hidden" id="editRecordId">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.5rem; margin-bottom: 0.6rem;">
+            <div>
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.15rem;">Name *</label>
+                <input type="text" id="formName" class="calc-input" style="width:100%; font-size: 1.05rem; height: 34px; padding: 0.25rem 0.4rem; border:1px solid #cbd5e1; border-radius: 0; direction: rtl; font-family: var(--font-arabic);">
             </div>
-            <div style="display: flex; gap: 0.45rem;">
-                <button id="btnAddNew" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">+ Add New Record</button>
-                <button onclick="loadHistory()" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="Refresh list">🔄 Refresh</button>
+            <div>
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.15rem;">Total *</label>
+                <input type="number" id="formTotal" class="calc-input" style="width:100%; font-size: 1rem; height: 34px; padding: 0.25rem 0.4rem; border:1px solid #cbd5e1; border-radius: 0; direction: ltr;">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.15rem;">Single Root *</label>
+                <input type="number" id="formSingle" class="calc-input" style="width:100%; font-size: 1rem; height: 34px; padding: 0.25rem 0.4rem; border:1px solid #cbd5e1; border-radius: 0; direction: ltr;">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.15rem;">Origin</label>
+                <input type="text" id="formOrigin" class="calc-input" style="width:100%; font-size: 0.95rem; height: 34px; padding: 0.25rem 0.4rem; border:1px solid #cbd5e1; border-radius: 0;">
+            </div>
+            <div style="grid-column: span 2;">
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.15rem;">Meanings</label>
+                <input type="text" id="formMeanings" class="calc-input" style="width:100%; font-size: 0.95rem; height: 34px; padding: 0.25rem 0.4rem; border:1px solid #cbd5e1; border-radius: 0;">
             </div>
         </div>
-
-        <!-- Add / Edit Record Inline Drawer -->
-        <div id="addEditRecordForm" class="form-drawer-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
-                <strong id="formTitle" style="font-size: 1rem; color: var(--text-primary);">Add Calculation Record</strong>
-                <button id="btnCancelForm" type="button" class="btn btn-sm btn-secondary" style="padding: 0.15rem 0.5rem; border-radius: 2px;">✕ Close</button>
-            </div>
-            <input type="hidden" id="editRecordId">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin-bottom: 0.85rem;">
-                <div>
-                    <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Name (Arabic/Urdu) *</label>
-                    <input type="text" id="formName" class="form-control" style="font-family: var(--font-arabic); font-size: 1.15rem; direction: rtl; border-radius: 0;">
-                </div>
-                <div>
-                    <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Total Abjad *</label>
-                    <input type="number" id="formTotal" class="form-control" style="border-radius: 0;">
-                </div>
-                <div>
-                    <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Single Root (1-9) *</label>
-                    <input type="number" id="formSingle" class="form-control" style="border-radius: 0;">
-                </div>
-                <div>
-                    <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Origin</label>
-                    <input type="text" id="formOrigin" class="form-control" placeholder="e.g. Arabic, Persian" style="border-radius: 0;">
-                </div>
-                <div style="grid-column: span 2;">
-                    <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Meanings</label>
-                    <input type="text" id="formMeanings" class="form-control" placeholder="e.g. The Praised One, Exalted" style="border-radius: 0;">
-                </div>
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                <button id="btnCancelFormBottom" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">Cancel</button>
-                <button id="btnSubmitForm" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">Save Record</button>
-            </div>
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+            <button id="btnCancelForm" type="button" class="btn btn-sm" style="font-size: 0.9rem; padding: 0.3rem 0.7rem; border-radius: 2px;">Cancel</button>
+            <button id="btnSubmitForm" type="button" class="btn btn-primary btn-sm" style="font-size: 0.9rem; padding: 0.3rem 0.7rem; border-radius: 2px;">Save Record</button>
         </div>
+    </div>
 
-        <!-- Filter & Search Controls -->
-        <div class="filter-controls-row">
-            <div class="search-input-wrapper">
-                <span class="search-icon-pos">🔍</span>
-                <input type="text" id="globalSearchInput" class="modern-search-input" placeholder="Search name, meaning, root, origin...">
-            </div>
+    <!-- Bare History Table Direct View -->
+    <div style="overflow-x: auto;">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Name (Click for Notes/Edit) ↕</th>
+                    <th>Total ↕</th>
+                    <th>Single ↕</th>
+                    <th>Origin ↕</th>
+                    <th>Meanings</th>
+                    <th>Element Status</th>
+                </tr>
+                <tr>
+                    <td><input type="text" id="search-name" class="table-search-input" placeholder="Search name..."></td>
+                    <td><input type="text" id="search-total" class="table-search-input" placeholder="Search total..."></td>
+                    <td><input type="text" id="search-single" class="table-search-input" placeholder="Search single..."></td>
+                    <td><input type="text" id="search-origin" class="table-search-input" placeholder="Search origin..."></td>
+                    <td><input type="text" id="search-meanings" class="table-search-input" placeholder="Search meanings..."></td>
+                    <td style="display: flex; gap: 0.2rem; align-items: center;">
+                        <button id="btnClearFilters" type="button" class="btn btn-sm" style="font-size: 0.75rem; padding: 0.15rem 0.35rem; font-weight: 600; border-radius: 2px;">Clear</button>
+                        <select id="search-temperament" class="table-search-input" style="font-size: 0.85rem; font-weight: 500; border-radius: 0;">
+                            <option value="">All Elements</option>
+                            <option value="Fire">Fire</option>
+                            <option value="Air">Air</option>
+                            <option value="Water">Water</option>
+                            <option value="Earth">Earth</option>
+                        </select>
+                    </td>
+                </tr>
+            </thead>
+            <tbody id="historyTableBody">
+                <tr><td colspan="6" style="text-align: center; color: #64748b;">Loading history records...</td></tr>
+            </tbody>
+        </table>
+    </div>
 
-            <div class="element-filter-pills">
-                <button type="button" class="elem-filter-btn active" data-elem="">All Elements</button>
-                <button type="button" class="elem-filter-btn" data-elem="Fire">🔥 Fire</button>
-                <button type="button" class="elem-filter-btn" data-elem="Air">💨 Air</button>
-                <button type="button" class="elem-filter-btn" data-elem="Water">💧 Water</button>
-                <button type="button" class="elem-filter-btn" data-elem="Earth">🪨 Earth</button>
-            </div>
+    <!-- Pagination Line -->
+    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: #64748b; padding: 0.4rem 0;">
+        <div>
+            Show: 
+            <select id="pageSizeSelect" style="padding: 0.1rem; font-size: 0.78rem; border: 1px solid #cbd5e1; border-radius: 0;">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
         </div>
-
-        <!-- Data Grid Table -->
-        <div class="table-container-modern">
-            <table class="data-grid-table">
-                <thead>
-                    <tr>
-                        <th style="text-align: right;">Name (Click to Inspect)</th>
-                        <th>Total Abjad</th>
-                        <th>Single Root</th>
-                        <th>Origin</th>
-                        <th>Meanings</th>
-                        <th style="text-align: center;">Elements (🔥 / 💨 / 💧 / 🪨)</th>
-                        <th style="text-align: right;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="historyTableBody">
-                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading history records...</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination Controls -->
-        <div class="pagination-bar-row">
-            <div style="display: flex; align-items: center; gap: 0.4rem;">
-                <span>Show:</span>
-                <select id="pageSizeSelect" class="form-control" style="width: auto; padding: 0.2rem 0.5rem; font-size: 0.8rem; border-radius: 0;">
-                    <option value="10">10</option>
-                    <option value="25" selected>25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-                <span>records per page</span>
-            </div>
-            <div id="pageInfoText" style="font-weight: 500;">Page 1 of 1</div>
-            <div style="display: flex; gap: 0.35rem;">
-                <button id="btnPrevPage" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">Previous</button>
-                <button id="btnNextPage" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">Next</button>
-            </div>
+        <div id="pageInfoText">Page 1 of 1</div>
+        <div style="display: flex; gap: 0.25rem;">
+            <button id="btnPrevPage" type="button" class="btn btn-sm" style="border-radius: 2px;">Prev</button>
+            <button id="btnNextPage" type="button" class="btn btn-sm" style="border-radius: 2px;">Next</button>
         </div>
     </div>
 </main>
@@ -341,7 +189,6 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
     let calculationsHistory = [];
     let currentPage = 1;
     let pageSize = 25;
-    let activeElemFilter = '';
 
     const letterMap = {
         'ا': 1, 'آ': 1, 'ب': 2, 'پ': 2, 'ج': 3, 'چ': 3, 'د': 4, 'ڈ': 4, 'ہ': 5, 'ھ': 5,
@@ -373,7 +220,7 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         if (totalVal === 0) {
             return {
                 Fire: 0, Air: 0, Water: 0, Earth: 0,
-                html: '<span style="color:var(--text-muted); font-size:0.75rem;">N/A</span>'
+                html: '<span style="color:#d97706; font-weight:700;">0</span> <span style="color:#dc2626; font-weight:700;">0</span> <span style="color:#2563eb; font-weight:700;">0</span> <span style="color:#16a34a; font-weight:700;">0</span>'
             };
         }
 
@@ -383,11 +230,11 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         const pEarth = Math.round((counts.Earth / totalVal) * 100);
 
         const html = `
-            <div class="elem-metric-quad">
-                <span style="color: var(--fire-color);" title="Fire: ${pFire}%">${pFire}%</span>
-                <span style="color: var(--air-color);" title="Air: ${pAir}%">${pAir}%</span>
-                <span style="color: var(--water-color);" title="Water: ${pWater}%">${pWater}%</span>
-                <span style="color: var(--earth-color);" title="Earth: ${pEarth}%">${pEarth}%</span>
+            <div style="display: inline-flex; gap: 0.45rem; align-items: center; justify-content: center; direction: ltr; font-weight: 700; font-size: 0.95rem;">
+                <span style="color: #d97706;" title="Fire (آتشی)">${pFire}</span>
+                <span style="color: #dc2626;" title="Air (بادی)">${pAir}</span>
+                <span style="color: #2563eb;" title="Water (آبی)">${pWater}</span>
+                <span style="color: #16a34a;" title="Earth (خاکی)">${pEarth}</span>
             </div>
         `;
 
@@ -396,6 +243,10 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
 
     function loadHistory() {
         const tbody = document.getElementById('historyTableBody');
+        if (tbody && calculationsHistory.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">Loading history records...</td></tr>`;
+        }
+
         fetch('api.php?action=history')
         .then(res => res.json())
         .then(data => {
@@ -403,11 +254,12 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
                 calculationsHistory = data;
                 renderTable();
             } else if (data && data.error) {
-                if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 1.5rem;">${escapeHtml(data.error)}</td></tr>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #dc2626;">${escapeHtml(data.error)}</td></tr>`;
             }
         })
-        .catch(() => {
-            if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 1.5rem;">Network error loading records.</td></tr>`;
+        .catch(err => {
+            console.error('History fetch error:', err);
+            if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #dc2626;">Network error loading records.</td></tr>`;
         });
     }
 
@@ -415,34 +267,35 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         const tbody = document.getElementById('historyTableBody');
         if (!tbody) return;
 
-        const query = (document.getElementById('globalSearchInput')?.value || '').toLowerCase().trim();
+        const sTemp = (document.getElementById('search-temperament')?.value || '').toLowerCase();
 
         let filtered = calculationsHistory.filter(item => {
             const elemInfo = getElementPercentages(item.name);
 
-            if (activeElemFilter) {
-                if (activeElemFilter === 'Fire' && elemInfo.Fire === 0) return false;
-                if (activeElemFilter === 'Air' && elemInfo.Air === 0) return false;
-                if (activeElemFilter === 'Water' && elemInfo.Water === 0) return false;
-                if (activeElemFilter === 'Earth' && elemInfo.Earth === 0) return false;
-            }
+            const sName = (document.getElementById('search-name')?.value || '').toLowerCase();
+            const sTotal = (document.getElementById('search-total')?.value || '').toLowerCase();
+            const sSingle = (document.getElementById('search-single')?.value || '').toLowerCase();
+            const sOrigin = (document.getElementById('search-origin')?.value || '').toLowerCase();
+            const sMeanings = (document.getElementById('search-meanings')?.value || '').toLowerCase();
 
-            if (query) {
-                const matchName = (item.name || '').toLowerCase().includes(query);
-                const matchTotal = String(item.total).includes(query);
-                const matchSingle = String(item.single).includes(query);
-                const matchOrigin = (item.origin || '').toLowerCase().includes(query);
-                const matchMeanings = (item.meanings || '').toLowerCase().includes(query);
-                if (!matchName && !matchTotal && !matchSingle && !matchOrigin && !matchMeanings) return false;
+            if (sName && !item.name.toLowerCase().includes(sName)) return false;
+            if (sTotal && !String(item.total).includes(sTotal)) return false;
+            if (sSingle && !String(item.single).includes(sSingle)) return false;
+            if (sOrigin && !(item.origin || '').toLowerCase().includes(sOrigin)) return false;
+            if (sMeanings && !(item.meanings || '').toLowerCase().includes(sMeanings)) return false;
+            if (sTemp) {
+                if (sTemp === 'fire' && elemInfo.Fire === 0) return false;
+                if (sTemp === 'air' && elemInfo.Air === 0) return false;
+                if (sTemp === 'water' && elemInfo.Water === 0) return false;
+                if (sTemp === 'earth' && elemInfo.Earth === 0) return false;
             }
-
             return true;
         });
 
         if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No calculation records match your search filter.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">No matching records found.</td></tr>`;
             const pageInfo = document.getElementById('pageInfoText');
-            if (pageInfo) pageInfo.innerText = `0 records found`;
+            if (pageInfo) pageInfo.innerText = `Page 0 of 0 (0 records)`;
             return;
         }
 
@@ -452,88 +305,37 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         const pageItems = filtered.slice(startIdx, startIdx + pageSize);
 
         const pageInfo = document.getElementById('pageInfoText');
-        if (pageInfo) pageInfo.innerText = `Page ${currentPage} of ${totalPages} (${filtered.length} total records)`;
+        if (pageInfo) pageInfo.innerText = `Page ${currentPage} of ${totalPages} (${filtered.length} records)`;
 
         let html = '';
         pageItems.forEach(item => {
             const elemInfo = getElementPercentages(item.name);
             html += `
-                <tr>
-                    <td class="arabic-grid-cell">
-                        <a href="view_name.php?id=${item.id}" class="arabic-grid-link" title="Click to inspect notes & breakdown">${escapeHtml(item.name)}</a>
+                <tr onclick="window.location.href='view_name.php?id=${item.id}'" style="cursor: pointer;" title="Click to view details & notes for ${escapeHtml(item.name)}">
+                    <td class="arabic-cell">
+                        <a href="view_name.php?id=${item.id}" style="color: #0f172a; text-decoration: none; font-weight: bold;">${escapeHtml(item.name)}</a>
                     </td>
-                    <td><strong style="color: var(--accent-gold); font-size: 1.05rem;">${item.total}</strong></td>
-                    <td><span class="root-pill-badge">${item.single}</span></td>
-                    <td><span style="color: var(--text-secondary); font-size: 0.85rem;">${escapeHtml(item.origin || '—')}</span></td>
-                    <td><span style="color: var(--text-secondary); font-size: 0.85rem;">${escapeHtml(item.meanings || '—')}</span></td>
+                    <td><strong>${item.total}</strong></td>
+                    <td><span style="color:#2563eb; font-weight:bold;">${item.single}</span></td>
+                    <td>${escapeHtml(item.origin || '-')}</td>
+                    <td>${escapeHtml(item.meanings || '-')}</td>
                     <td style="text-align: center;">${elemInfo.html}</td>
-                    <td style="text-align: right; white-space: nowrap;">
-                        <a href="view_name.php?id=${item.id}" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 2px;">Inspect</a>
-                        <button onclick="editRecord(${item.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 2px;">Edit</button>
-                        <button onclick="deleteRecord(${item.id})" type="button" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 2px;">Del</button>
-                    </td>
                 </tr>
             `;
         });
         tbody.innerHTML = html;
     }
 
-    function editRecord(id) {
-        const item = calculationsHistory.find(r => r.id == id);
-        if (!item) return;
-        document.getElementById('editRecordId').value = item.id;
-        document.getElementById('formName').value = item.name;
-        document.getElementById('formTotal').value = item.total;
-        document.getElementById('formSingle').value = item.single;
-        document.getElementById('formOrigin').value = item.origin || '';
-        document.getElementById('formMeanings').value = item.meanings || '';
-        document.getElementById('formTitle').innerText = 'Edit Calculation Record';
-        document.getElementById('addEditRecordForm').style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function deleteRecord(id) {
-        if (!confirm('Are you sure you want to permanently delete this record?')) return;
-        fetch('api.php?action=delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                loadHistory();
-            } else {
-                alert('Error deleting: ' + (data.error || ''));
-            }
-        });
-    }
-
     function escapeHtml(str) {
         return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
+    // Immediate load invocation
+    loadHistory();
+
     document.addEventListener('DOMContentLoaded', () => {
         loadHistory();
 
-        // Element filter buttons
-        document.querySelectorAll('.elem-filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.elem-filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                activeElemFilter = btn.getAttribute('data-elem');
-                currentPage = 1;
-                renderTable();
-            });
-        });
-
-        // Search Input
-        document.getElementById('globalSearchInput')?.addEventListener('input', () => {
-            currentPage = 1;
-            renderTable();
-        });
-
-        // Add Record Drawer Toggle
         document.getElementById('btnAddNew')?.addEventListener('click', () => {
             document.getElementById('editRecordId').value = '';
             document.getElementById('formName').value = '';
@@ -548,11 +350,7 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         document.getElementById('btnCancelForm')?.addEventListener('click', () => {
             document.getElementById('addEditRecordForm').style.display = 'none';
         });
-        document.getElementById('btnCancelFormBottom')?.addEventListener('click', () => {
-            document.getElementById('addEditRecordForm').style.display = 'none';
-        });
 
-        // Form submit
         document.getElementById('btnSubmitForm')?.addEventListener('click', () => {
             const id = document.getElementById('editRecordId').value;
             const name = document.getElementById('formName').value.trim();
@@ -562,7 +360,7 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
             const meanings = document.getElementById('formMeanings').value.trim();
 
             if (!name || isNaN(total) || isNaN(single)) {
-                alert('Please fill out Name, Total Abjad, and Single Root.');
+                alert('Please fill Name, Total, and Single Root.');
                 return;
             }
 
@@ -579,13 +377,23 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
                 if (data.success) {
                     document.getElementById('addEditRecordForm').style.display = 'none';
                     loadHistory();
-                } else {
-                    alert('Error saving record: ' + (data.error || ''));
-                }
+                } else alert('Error: ' + (data.error || ''));
             });
         });
 
-        // Page size & navigation
+        ['search-name', 'search-total', 'search-single', 'search-origin', 'search-meanings', 'search-temperament'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', renderTable);
+        });
+
+        document.getElementById('btnClearFilters')?.addEventListener('click', () => {
+            ['search-name', 'search-total', 'search-single', 'search-origin', 'search-meanings', 'search-temperament'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            renderTable();
+        });
+
         document.getElementById('pageSizeSelect')?.addEventListener('change', (e) => {
             pageSize = parseInt(e.target.value) || 25;
             currentPage = 1;
