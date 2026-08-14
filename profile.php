@@ -182,16 +182,11 @@ requireLogin();
 
         <!-- Right: Consultation Stream & Question Composer -->
         <div class="profile-card-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.85rem;">
-                <div>
-                    <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.45rem;">
-                        <span>💬</span> Consultation Dialogue & Inquiries
-                    </h2>
-                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.15rem;">Private direct thread between your account and the administrative scholars.</p>
-                </div>
-                <button id="btnToggleKeyboard" class="btn btn-secondary btn-sm" style="font-weight: 600;">
-                    ⌨️ Urdu Keyboard
-                </button>
+            <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.85rem;">
+                <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.45rem;">
+                    <span>💬</span> Consultation Dialogue & Inquiries
+                </h2>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.15rem;">Private direct thread between your account and the administrative scholars.</p>
             </div>
 
             <!-- Messages Stream Box -->
@@ -209,7 +204,12 @@ requireLogin();
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                     <div>
-                        <label class="form-label" for="nameLookup">Target Name to Analyze *</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label class="form-label" for="nameLookup" style="margin-bottom: 0;">Target Name *</label>
+                            <button id="btnToggleKeyboard" type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 600;">
+                                ⌨️ Urdu Keyboard
+                            </button>
+                        </div>
                         <input type="text" id="nameLookup" class="form-control" required placeholder="e.g. احمد / فاطمہ" style="font-family: var(--font-arabic); font-size: 1.1rem; direction: rtl;">
                     </div>
 
@@ -217,6 +217,19 @@ requireLogin();
                         <label class="form-label" for="relationship">Relationship / Connection *</label>
                         <input type="text" id="relationship" class="form-control" required placeholder="e.g. Self, Spouse, Business Partner">
                     </div>
+                </div>
+
+                <!-- Virtual Urdu Keyboard Drawer (Directly under nameLookup, default hidden) -->
+                <div class="keyboard-drawer-card" id="keyboardContainer" style="display: none; margin-top: 0.5rem;">
+                    <div class="kb-header-row">
+                        <span class="kb-title">⌨️ Virtual Urdu Keyboard (Target: <span id="activeFieldLabel" style="color: var(--primary);">Target Name</span>)</span>
+                        <button id="btnCloseKeyboard" type="button" class="btn btn-secondary btn-sm" style="color: var(--danger);">✕ Close</button>
+                    </div>
+                    <div class="kb-special-keys-row">
+                        <button id="btnSpaceBar" type="button" class="btn btn-secondary" style="flex: 2; padding: 0.5rem;">Space Bar ␣</button>
+                        <button id="btnBackspace" type="button" class="btn btn-danger" style="flex: 1; padding: 0.5rem;">Backspace ⌫</button>
+                    </div>
+                    <div class="kb-grid-matrix" id="lettersGrid"></div>
                 </div>
 
                 <div>
@@ -233,19 +246,6 @@ requireLogin();
                     ✉️ Submit Question to Admin
                 </button>
             </form>
-
-            <!-- Virtual Urdu Keyboard Drawer (Default Hidden) -->
-            <div class="keyboard-drawer-card" id="keyboardContainer" style="display: none; margin-top: 1rem;">
-                <div class="kb-header-row">
-                    <span class="kb-title">⌨️ Virtual Urdu Keyboard (Target: <span id="activeFieldLabel" style="color: var(--primary);">Target Name</span>)</span>
-                    <button id="btnCloseKeyboard" class="btn btn-secondary btn-sm" style="color: var(--danger);">✕ Close</button>
-                </div>
-                <div class="kb-special-keys-row">
-                    <button id="btnSpaceBar" class="btn btn-secondary" style="flex: 2; padding: 0.5rem;">Space Bar ␣</button>
-                    <button id="btnBackspace" class="btn btn-danger" style="flex: 1; padding: 0.5rem;">Backspace ⌫</button>
-                </div>
-                <div class="kb-grid-matrix" id="lettersGrid"></div>
-            </div>
 
         </div>
     </div>

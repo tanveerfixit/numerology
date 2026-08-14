@@ -25,29 +25,13 @@ $errorMsg = $_GET['error'] ?? '';
         }
     }
 
-    .hero-badge-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        background: var(--primary-light);
-        color: var(--primary);
-        border: 1px solid var(--primary-border);
-        font-size: 0.78rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        padding: 0.35rem 0.85rem;
-        border-radius: var(--radius-full);
-        margin-bottom: 1.25rem;
-    }
-
     .hero-title {
-        font-size: 2.6rem;
+        font-size: 1.75rem;
         font-weight: 800;
         color: var(--text-primary);
-        letter-spacing: -0.03em;
-        line-height: 1.15;
-        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+        line-height: 1.25;
+        margin-bottom: 0.85rem;
     }
 
     .hero-title span.highlight {
@@ -541,9 +525,6 @@ $errorMsg = $_GET['error'] ?? '';
         <!-- Hero Section with Interactive Quick-Playground -->
         <section class="hero-container">
             <div class="hero-text-col">
-                <div class="hero-badge-pill">
-                    <span>✨ Classical Abjad & Geomancy Science</span>
-                </div>
                 <h1 class="hero-title">
                     Unlock Hidden Numerical Wisdom in <span class="highlight">Every Word</span>.
                 </h1>

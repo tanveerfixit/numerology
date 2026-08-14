@@ -435,16 +435,38 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
 
         <!-- Calculator Main Workbench -->
         <div class="workbench-card">
-            <!-- Top Input Header -->
+            <!-- Top Input Header with Direct Keyboard Button -->
             <div class="input-header-row">
                 <span class="input-header-label">
                     <span>🔤</span> Name or Text Input (Arabic / Urdu / Persian)
                 </span>
-                <span class="input-stats-badge" id="charCountLabel">0 characters</span>
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <button id="btnToggleKeyboard" type="button" class="btn btn-sm" style="background: var(--primary-light); color: var(--primary); border-color: var(--primary-border); font-weight: 600; padding: 0.28rem 0.75rem;">
+                        ⌨️ Urdu Keyboard
+                    </button>
+                    <span class="input-stats-badge" id="charCountLabel">0 characters</span>
+                </div>
             </div>
 
             <!-- Calligraphic Text Input -->
-            <input type="text" id="calcInput" class="main-calc-input" placeholder="Type name or use the Urdu Keyboard below..." autocomplete="off">
+            <input type="text" id="calcInput" class="main-calc-input" placeholder="Type name or use the Urdu Keyboard..." autocomplete="off">
+
+            <!-- Built-in Urdu Keyboard Drawer (Directly under input field, default hidden) -->
+            <div class="keyboard-drawer-card" id="keyboardContainer" style="display: none;">
+                <div class="kb-header-row">
+                    <span class="kb-title">
+                        ⌨️ Urdu / Arabic Virtual Keyboard (Target: <span id="activeFieldLabel" style="color: var(--primary);">Main Input</span>)
+                    </span>
+                    <button id="btnCloseKeyboard" class="btn btn-sm btn-secondary" style="color: var(--danger);">✕ Close Keyboard</button>
+                </div>
+
+                <div class="kb-special-keys-row">
+                    <button id="btnSpaceBar" class="btn btn-secondary" style="flex: 2; padding: 0.5rem;">Space Bar ␣</button>
+                    <button id="btnBackspace" class="btn btn-danger" style="flex: 1; padding: 0.5rem;">Backspace ⌫</button>
+                </div>
+
+                <div class="kb-grid-matrix" id="lettersGrid"></div>
+            </div>
 
             <!-- Four Elements Telemetry Distribution -->
             <div class="elements-telemetry-grid">
@@ -494,9 +516,6 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
                 <div class="toolbar-left-buttons">
                     <button id="btnClear" class="btn btn-secondary btn-sm" title="Clear input fields">✕ Clear</button>
                     <button id="btnCopyResult" class="btn btn-secondary btn-sm" title="Copy breakdown to clipboard">📋 Copy</button>
-                    <button id="btnToggleKeyboard" class="btn btn-sm" style="background: var(--primary-light); color: var(--primary); border-color: var(--primary-border); font-weight: 600;">
-                        ⌨️ Urdu Keyboard
-                    </button>
                     <button id="btnSave" class="btn btn-primary btn-sm">💾 Save Record</button>
                     <button id="btnMemo" class="btn btn-secondary btn-sm">📜 Saved History</button>
                 </div>
@@ -544,23 +563,6 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
                     </span>
                 </div>
             </div>
-        </div>
-
-        <!-- Built-in Urdu Keyboard Drawer (Default Hidden) -->
-        <div class="keyboard-drawer-card" id="keyboardContainer" style="display: none;">
-            <div class="kb-header-row">
-                <span class="kb-title">
-                    ⌨️ Urdu / Arabic Virtual Keyboard (Target: <span id="activeFieldLabel" style="color: var(--primary);">Main Input</span>)
-                </span>
-                <button id="btnCloseKeyboard" class="btn btn-sm btn-secondary" style="color: var(--danger);">✕ Close Keyboard</button>
-            </div>
-
-            <div class="kb-special-keys-row">
-                <button id="btnSpaceBar" class="btn btn-secondary" style="flex: 2; padding: 0.5rem;">Space Bar ␣</button>
-                <button id="btnBackspace" class="btn btn-danger" style="flex: 1; padding: 0.5rem;">Backspace ⌫</button>
-            </div>
-
-            <div class="kb-grid-matrix" id="lettersGrid"></div>
         </div>
 
     </div>
