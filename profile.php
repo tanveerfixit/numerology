@@ -13,12 +13,12 @@ if (!$currentUser) {
 <style>
     .profile-dashboard-layout {
         display: grid;
-        grid-template-columns: 320px 1fr;
+        grid-template-columns: 340px 1fr;
         gap: 1.5rem;
         align-items: flex-start;
     }
 
-    @media (max-width: 840px) {
+    @media (max-width: 880px) {
         .profile-dashboard-layout {
             grid-template-columns: 1fr;
         }
@@ -84,6 +84,7 @@ if (!$currentUser) {
     .info-item-val {
         color: var(--text-primary);
         font-weight: 600;
+        text-align: right;
     }
 
     /* Chat / Consultation Stream */
@@ -132,7 +133,7 @@ if (!$currentUser) {
         gap: 1rem;
     }
 
-    /* Query Form */
+    /* Form Card */
     .query-form-card {
         border-top: 1px solid var(--border-subtle);
         padding-top: 1.25rem;
@@ -141,16 +142,16 @@ if (!$currentUser) {
         gap: 0.85rem;
     }
 
-    /* Keyboard drawer inside profile: zero border radius */
+    /* Built-in Virtual Keyboard Drawer: zero border-radius */
     .keyboard-drawer-card {
         background: #ffffff;
         border: 1px solid var(--border-medium);
         border-radius: 0;
-        padding: 1.25rem;
+        padding: 1.15rem;
         box-shadow: var(--shadow-md);
         display: flex;
         flex-direction: column;
-        gap: 0.85rem;
+        gap: 0.75rem;
         animation: fadeIn 0.15s ease-in-out;
     }
 
@@ -159,11 +160,11 @@ if (!$currentUser) {
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid var(--border-subtle);
-        padding-bottom: 0.6rem;
+        padding-bottom: 0.5rem;
     }
 
     .kb-title {
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         font-weight: 700;
         color: var(--text-primary);
     }
@@ -175,8 +176,8 @@ if (!$currentUser) {
 
     .kb-grid-matrix {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
-        gap: 0.45rem;
+        grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+        gap: 0.4rem;
         direction: rtl;
     }
 
@@ -184,12 +185,11 @@ if (!$currentUser) {
         background: #ffffff;
         border: 1px solid var(--border-medium);
         border-radius: 0;
-        height: 58px;
+        height: 54px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: space-between;
-        padding: 0.25rem 0.35rem;
+        justify-content: center;
         cursor: pointer;
         user-select: none;
         transition: all 0.12s ease;
@@ -202,23 +202,22 @@ if (!$currentUser) {
         transform: translateY(-2px);
     }
 
-    .kb-arabic-glyph {
-        font-family: var(--font-arabic);
-        font-size: 1.85rem;
-        line-height: 1;
-        color: var(--text-primary);
+    .kb-key-tile:active {
+        transform: translateY(0);
+        background: var(--primary-light);
     }
 
-    .kb-val-num {
-        font-size: 0.68rem;
-        font-weight: 700;
-        color: var(--accent-gold);
+    .kb-arabic-glyph {
+        font-family: var(--font-arabic);
+        font-size: 1.75rem;
+        line-height: 1;
+        color: var(--text-primary);
     }
 </style>
 
 <main class="container">
     <div class="profile-dashboard-layout">
-        <!-- Left: Account & Identity Card -->
+        <!-- Left: Account, Identity & Profile Information Form -->
         <div class="profile-card-panel">
             <div class="user-profile-header-card">
                 <div class="large-user-avatar">
@@ -237,13 +236,22 @@ if (!$currentUser) {
                 </div>
             </div>
 
+            <!-- Profile Summary -->
             <div class="profile-info-list">
                 <div class="info-list-item">
                     <span class="info-item-label">Account ID</span>
                     <span class="info-item-val">#<?php echo $currentUser['id']; ?></span>
                 </div>
                 <div class="info-list-item">
-                    <span class="info-item-label">Email Address</span>
+                    <span class="info-item-label">Full Name</span>
+                    <span class="info-item-val" id="summaryFullName"><?php echo !empty($currentUser['full_name']) ? htmlspecialchars($currentUser['full_name']) : '<em style="color:var(--text-muted); font-weight:400;">Not set</em>'; ?></span>
+                </div>
+                <div class="info-list-item">
+                    <span class="info-item-label">Contact</span>
+                    <span class="info-item-val" id="summaryContact"><?php echo !empty($currentUser['contact']) ? htmlspecialchars($currentUser['contact']) : '<em style="color:var(--text-muted); font-weight:400;">Not set</em>'; ?></span>
+                </div>
+                <div class="info-list-item">
+                    <span class="info-item-label">Email</span>
                     <span class="info-item-val" style="font-size: 0.82rem; word-break: break-all;"><?php echo htmlspecialchars($currentUser['email']); ?></span>
                 </div>
                 <div class="info-list-item">
@@ -252,8 +260,41 @@ if (!$currentUser) {
                 </div>
             </div>
 
+            <!-- Edit Personal Profile (Name & Contact) Form -->
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.15rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <h3 style="font-size: 0.92rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.35rem;">
+                        <span>✏️</span> Edit Profile Details
+                    </h3>
+                </div>
+
+                <div id="profileUpdateAlert" style="display: none; margin-bottom: 0.75rem;"></div>
+
+                <form id="editProfileDetailsForm" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <label class="form-label" for="profileFullName" style="margin-bottom: 0; font-size: 0.78rem;">Full Name</label>
+                            <button type="button" class="btn btn-secondary btn-sm btn-open-kb" data-target="profileFullName" style="padding: 0.12rem 0.45rem; font-size: 0.72rem; border-radius: 2px;">
+                                ⌨️ Urdu Keyboard
+                            </button>
+                        </div>
+                        <input type="text" id="profileFullName" class="form-control" placeholder="e.g. محمد طارق / Tariq Ali" value="<?php echo htmlspecialchars($currentUser['full_name'] ?? ''); ?>" style="border-radius: 0;">
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="profileContact" style="font-size: 0.78rem; margin-bottom: 0.25rem;">Contact / Phone / WhatsApp</label>
+                        <input type="text" id="profileContact" class="form-control" placeholder="e.g. +92 300 1234567" value="<?php echo htmlspecialchars($currentUser['contact'] ?? ''); ?>" style="border-radius: 0;">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-sm" style="margin-top: 0.25rem; padding: 0.5rem; justify-content: center; border-radius: 2px;">
+                        💾 Save Profile Details
+                    </button>
+                </form>
+            </div>
+
+            <!-- Active Circumstance -->
             <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
-                <h3 style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.04em;">
+                <h3 style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem; letter-spacing: 0.04em;">
                     Current Circumstance
                 </h3>
                 <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
@@ -287,12 +328,12 @@ if (!$currentUser) {
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label class="form-label" for="nameLookup" style="margin-bottom: 0;">Target Name *</label>
-                            <button id="btnToggleKeyboard" type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 2px;">
+                            <label class="form-label" for="nameLookup" style="margin-bottom: 0;">Target Name to Analyze *</label>
+                            <button type="button" class="btn btn-secondary btn-sm btn-open-kb" data-target="nameLookup" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 2px;">
                                 ⌨️ Urdu Keyboard
                             </button>
                         </div>
-                        <input type="text" id="nameLookup" class="form-control" required placeholder="e.g. احمد / فاطمہ" style="font-family: var(--font-arabic); font-size: 1.1rem; direction: rtl; border-radius: 0;">
+                        <input type="text" id="nameLookup" class="form-control" required placeholder="e.g. احمد / فاطمہ" style="font-family: var(--font-arabic); font-size: 1.15rem; direction: rtl; border-radius: 0;">
                     </div>
 
                     <div>
@@ -301,22 +342,16 @@ if (!$currentUser) {
                     </div>
                 </div>
 
-                <!-- Virtual Urdu Keyboard Drawer (Directly under nameLookup, default hidden) -->
-                <div class="keyboard-drawer-card" id="keyboardContainer" style="display: none; margin-top: 0.5rem;">
-                    <div class="kb-header-row">
-                        <span class="kb-title">⌨️ Virtual Urdu Keyboard (Target: <span id="activeFieldLabel" style="color: var(--primary);">Target Name</span>)</span>
-                        <button id="btnCloseKeyboard" type="button" class="btn btn-secondary btn-sm" style="color: var(--danger); border-radius: 2px;">✕ Close</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div>
+                        <label class="form-label" for="fullName">Your Full Name *</label>
+                        <input type="text" id="fullName" class="form-control" required placeholder="Enter your full name" value="<?php echo htmlspecialchars($currentUser['full_name'] ?? $currentUser['username']); ?>" style="border-radius: 0;">
                     </div>
-                    <div class="kb-special-keys-row">
-                        <button id="btnSpaceBar" type="button" class="btn btn-secondary" style="flex: 2; padding: 0.5rem; border-radius: 2px;">Space Bar ␣</button>
-                        <button id="btnBackspace" type="button" class="btn btn-danger" style="flex: 1; padding: 0.5rem; border-radius: 2px;">Backspace ⌫</button>
-                    </div>
-                    <div class="kb-grid-matrix" id="lettersGrid"></div>
-                </div>
 
-                <div>
-                    <label class="form-label" for="fullName">Your Full Name (for verification) *</label>
-                    <input type="text" id="fullName" class="form-control" required placeholder="Enter your full registered name" style="border-radius: 0;">
+                    <div>
+                        <label class="form-label" for="contactNumber">Contact / WhatsApp</label>
+                        <input type="text" id="contactNumber" class="form-control" placeholder="e.g. +92 300 1234567" value="<?php echo htmlspecialchars($currentUser['contact'] ?? ''); ?>" style="border-radius: 0;">
+                    </div>
                 </div>
 
                 <div>
@@ -328,6 +363,19 @@ if (!$currentUser) {
                     ✉️ Submit Question to Admin
                 </button>
             </form>
+
+            <!-- Virtual Urdu Keyboard Drawer (Shared, interactive for all input fields) -->
+            <div class="keyboard-drawer-card" id="keyboardContainer" style="display: none; margin-top: 0.75rem;">
+                <div class="kb-header-row">
+                    <span class="kb-title">⌨️ Virtual Urdu Keyboard (Active Target: <span id="activeFieldLabel" style="color: var(--primary); font-weight: 700;">Target Name</span>)</span>
+                    <button id="btnCloseKeyboard" type="button" class="btn btn-secondary btn-sm" style="color: var(--danger); border-radius: 2px;">✕ Close Keyboard</button>
+                </div>
+                <div class="kb-special-keys-row">
+                    <button id="btnSpaceBar" type="button" class="btn btn-secondary" style="flex: 2; padding: 0.45rem; border-radius: 2px;">Space Bar ␣</button>
+                    <button id="btnBackspace" type="button" class="btn btn-danger" style="flex: 1; padding: 0.45rem; border-radius: 2px;">Backspace ⌫</button>
+                </div>
+                <div class="kb-grid-matrix" id="lettersGrid"></div>
+            </div>
 
         </div>
     </div>
@@ -360,17 +408,18 @@ if (!$currentUser) {
     }
 
     function insertChar(char) {
-        if (!activeInput) activeInput = document.getElementById('nameLookup');
-        const start = activeInput.selectionStart || activeInput.value.length;
-        const end = activeInput.selectionEnd || activeInput.value.length;
+        if (!activeInput) activeInput = document.getElementById('nameLookup') || document.getElementById('profileFullName');
+        const start = activeInput.selectionStart ?? activeInput.value.length;
+        const end = activeInput.selectionEnd ?? activeInput.value.length;
         const val = activeInput.value;
         activeInput.value = val.substring(0, start) + char + val.substring(end);
         activeInput.selectionStart = activeInput.selectionEnd = start + char.length;
         activeInput.focus();
+        activeInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     function backspaceChar() {
-        if (!activeInput) activeInput = document.getElementById('nameLookup');
+        if (!activeInput) activeInput = document.getElementById('nameLookup') || document.getElementById('profileFullName');
         const start = activeInput.selectionStart;
         const end = activeInput.selectionEnd;
         const val = activeInput.value;
@@ -382,6 +431,15 @@ if (!$currentUser) {
             activeInput.selectionStart = activeInput.selectionEnd = start;
         }
         activeInput.focus();
+        activeInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function setActiveInput(el) {
+        if (!el) return;
+        activeInput = el;
+        const label = el.getAttribute('placeholder') || el.id || 'Input';
+        const fieldLbl = document.getElementById('activeFieldLabel');
+        if (fieldLbl) fieldLbl.innerText = label;
     }
 
     function loadUserChats() {
@@ -431,31 +489,82 @@ if (!$currentUser) {
         renderVirtualKeyboard();
         loadUserChats();
 
-        const allInputs = document.querySelectorAll('input[type="text"], textarea');
+        const kbContainer = document.getElementById('keyboardContainer');
+
+        // Track focus on ALL input fields and textareas
+        const allInputs = document.querySelectorAll('input[type="text"], input[type="tel"], textarea');
         allInputs.forEach(el => {
             el.addEventListener('focus', () => {
-                activeInput = el;
-                const lbl = el.previousElementSibling ? el.previousElementSibling.innerText : el.id;
-                const fieldLbl = document.getElementById('activeFieldLabel');
-                if (fieldLbl) fieldLbl.innerText = lbl.replace('*', '').trim();
+                setActiveInput(el);
             });
         });
 
-        const kbContainer = document.getElementById('keyboardContainer');
-        document.getElementById('btnToggleKeyboard').addEventListener('click', () => {
-            kbContainer.style.display = (kbContainer.style.display === 'none' || !kbContainer.style.display) ? 'flex' : 'none';
+        // Quick toggle buttons for keyboard
+        document.querySelectorAll('.btn-open-kb').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = btn.getAttribute('data-target');
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    setActiveInput(targetEl);
+                    targetEl.focus();
+                }
+                kbContainer.style.display = 'flex';
+                kbContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
         });
-        document.getElementById('btnCloseKeyboard').addEventListener('click', () => {
+
+        document.getElementById('btnCloseKeyboard')?.addEventListener('click', () => {
             kbContainer.style.display = 'none';
         });
 
-        document.getElementById('btnSpaceBar').addEventListener('click', () => insertChar(' '));
-        document.getElementById('btnBackspace').addEventListener('click', backspaceChar);
+        document.getElementById('btnSpaceBar')?.addEventListener('click', () => insertChar(' '));
+        document.getElementById('btnBackspace')?.addEventListener('click', backspaceChar);
 
-        // Submit form
-        document.getElementById('circumstanceRequestForm').addEventListener('submit', (e) => {
+        // Edit Profile Details Form Submit
+        document.getElementById('editProfileDetailsForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const fullName = document.getElementById('profileFullName').value.trim();
+            const contact = document.getElementById('profileContact').value.trim();
+            const alertDiv = document.getElementById('profileUpdateAlert');
+
+            fetch('api.php?action=update_profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ full_name: fullName, contact: contact })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alertDiv.className = 'alert alert-success';
+                    alertDiv.innerText = '✓ ' + (data.message || 'Profile details saved successfully!');
+                    alertDiv.style.display = 'flex';
+
+                    // Update summary fields and question form sync
+                    document.getElementById('summaryFullName').innerText = fullName || 'Not set';
+                    document.getElementById('summaryContact').innerText = contact || 'Not set';
+                    if (document.getElementById('fullName')) document.getElementById('fullName').value = fullName;
+                    if (document.getElementById('contactNumber')) document.getElementById('contactNumber').value = contact;
+
+                    setTimeout(() => { alertDiv.style.display = 'none'; }, 3500);
+                } else {
+                    alertDiv.className = 'alert alert-danger';
+                    alertDiv.innerText = data.error || 'Failed to update profile';
+                    alertDiv.style.display = 'flex';
+                }
+            })
+            .catch(() => {
+                alertDiv.className = 'alert alert-danger';
+                alertDiv.innerText = 'Network error updating profile.';
+                alertDiv.style.display = 'flex';
+            });
+        });
+
+        // Submit Consultation Request Form
+        document.getElementById('circumstanceRequestForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
             const fullName = document.getElementById('fullName').value.trim();
+            const contactNumber = document.getElementById('contactNumber').value.trim();
             const nameLookup = document.getElementById('nameLookup').value.trim();
             const relationship = document.getElementById('relationship').value.trim();
             const question = document.getElementById('question').value.trim();
@@ -464,7 +573,7 @@ if (!$currentUser) {
             fetch('api.php?action=circumstance_request', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fullName, nameLookup, relationship, question })
+                body: JSON.stringify({ fullName, contactNumber, nameLookup, relationship, question })
             })
             .then(res => res.json())
             .then(data => {
@@ -472,7 +581,9 @@ if (!$currentUser) {
                     alertDiv.className = 'alert alert-success';
                     alertDiv.innerText = '✓ ' + (data.message || 'Consultation inquiry submitted to admin successfully!');
                     alertDiv.style.display = 'flex';
-                    document.getElementById('circumstanceRequestForm').reset();
+                    document.getElementById('nameLookup').value = '';
+                    document.getElementById('relationship').value = '';
+                    document.getElementById('question').value = '';
                     loadUserChats();
                     setTimeout(() => { alertDiv.style.display = 'none'; }, 4000);
                 } else {
@@ -480,6 +591,11 @@ if (!$currentUser) {
                     alertDiv.innerText = data.error || 'Failed to submit inquiry';
                     alertDiv.style.display = 'flex';
                 }
+            })
+            .catch(() => {
+                alertDiv.className = 'alert alert-danger';
+                alertDiv.innerText = 'Network error submitting inquiry.';
+                alertDiv.style.display = 'flex';
             });
         });
     });

@@ -34,6 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = trim($data['username'] ?? '');
         $email = trim($data['email'] ?? '');
         $password = $data['password'] ?? '';
+        $fullName = trim($data['full_name'] ?? '');
+        $contact = trim($data['contact'] ?? '');
 
         if (empty($username) || empty($email) || empty($password)) {
             http_response_code(400);
@@ -51,9 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $db->prepare("INSERT INTO users (username, email, password, role, status) VALUES (?, ?, ?, 'public', 'pending')");
+        $stmt = $db->prepare("INSERT INTO users (username, email, password, full_name, contact, role, status) VALUES (?, ?, ?, ?, ?, 'public', 'pending')");
         try {
-            $stmt->execute([$username, $email, $hash]);
+            $stmt->execute([$username, $email, $hash, $fullName, $contact]);
             echo json_encode(['success' => true, 'message' => 'Account created! Pending admin approval.']);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -89,6 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'user' => [
                 'id' => $user['id'],
                 'username' => $user['username'],
+                'full_name' => $user['full_name'] ?? '',
+                'contact' => $user['contact'] ?? '',
                 'role' => $user['role'],
                 'status' => $user['status'],
                 'circumstance' => $user['circumstance']
@@ -105,11 +109,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Send User Chat Question
-    if ($action === 'send_user_chat') {
-        $nameLookup = trim($data['name_lookup'] ?? '');
+    // Update Profile (Name, Contact)
+    if ($action === 'update_profile') {
+        $fullName = trim($data['full_name'] ?? '');
+        $contact = trim($data['contact'] ?? '');
+
+        try {
+            $stmt = $db->prepare("UPDATE users SET full_name = ?, contact = ? WHERE id = ?");
+            $stmt->execute([$fullName, $contact, $currentUser['id']]);
+            echo json_encode(['success' => true, 'message' => 'Profile details updated successfully!']);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to update profile: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    // Send User Chat Question / Circumstance Consultation Request
+    if ($action === 'send_user_chat' || $action === 'circumstance_request') {
+        $nameLookup = trim($data['name_lookup'] ?? $data['nameLookup'] ?? '');
         $relationship = trim($data['relationship'] ?? '');
-        $name = trim($data['name'] ?? '');
+        $name = trim($data['name'] ?? $data['fullName'] ?? '');
+        $contact = trim($data['contact'] ?? $data['contactNumber'] ?? '');
         $question = trim($data['question'] ?? '');
 
         if (empty($question)) {
@@ -122,11 +143,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $db->prepare("INSERT INTO user_chats (user_id, sender, name_lookup, relationship, name, message) VALUES (?, 'user', ?, ?, ?, ?)");
             $stmt->execute([$currentUser['id'], $nameLookup, $relationship, $name, $question]);
 
-            // Update user status
-            $db->prepare("UPDATE users SET req_status = 'pending', req_name_lookup = ?, req_relationship = ?, req_name = ?, req_question = ?, req_submitted_at = CURRENT_TIMESTAMP WHERE id = ?")
-               ->execute([$nameLookup, $relationship, $name, $question, $currentUser['id']]);
+            // Update user status and full_name/contact if provided
+            $updateSql = "UPDATE users SET req_status = 'pending', req_name_lookup = ?, req_relationship = ?, req_name = ?, req_question = ?, req_submitted_at = CURRENT_TIMESTAMP";
+            $params = [$nameLookup, $relationship, $name, $question];
+            if (!empty($name)) {
+                $updateSql .= ", full_name = ?";
+                $params[] = $name;
+            }
+            if (!empty($contact)) {
+                $updateSql .= ", contact = ?";
+                $params[] = $contact;
+            }
+            $updateSql .= " WHERE id = ?";
+            $params[] = $currentUser['id'];
 
-            echo json_encode(['success' => true, 'message' => 'Message sent to admin successfully!']);
+            $db->prepare($updateSql)->execute($params);
+
+            echo json_encode(['success' => true, 'message' => 'Consultation inquiry submitted to admin successfully!']);
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['error' => 'Failed to send message: ' . $e->getMessage()]);
@@ -350,29 +383,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             echo json_encode(['error' => 'Account must be logged in and approved to view record details.']);
             exit;
         }
+
         $id = $_GET['id'] ?? null;
-        $stmt = $db->prepare("SELECT id, name, total, single, origin, meanings, notes, created_at FROM calculations WHERE id = ?");
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing record id']);
+            exit;
+        }
+
+        $stmt = $db->prepare("SELECT * FROM calculations WHERE id = ?");
         $stmt->execute([$id]);
-        $row = $stmt->fetch();
-        if ($row) {
-            echo json_encode($row, JSON_UNESCAPED_UNICODE);
-        } else {
+        $record = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$record) {
             http_response_code(404);
             echo json_encode(['error' => 'Record not found']);
+            exit;
         }
+
+        echo json_encode($record, JSON_UNESCAPED_UNICODE);
         exit;
     }
 
     if ($action === 'get_user_chats') {
-        if (!$currentUser || $currentUser['status'] !== 'approved') {
-            http_response_code(403);
+        if (!$currentUser) {
+            http_response_code(401);
             echo json_encode(['error' => 'Unauthorized']);
             exit;
         }
-        $targetUserId = $_GET['user_id'] ?? $currentUser['id'];
-        // Non-admins can only view their own chats
-        if ($currentUser['role'] !== 'admin' && (int)$targetUserId !== (int)$currentUser['id']) {
-            $targetUserId = $currentUser['id'];
+
+        $targetUserId = $currentUser['id'];
+        if ($currentUser['role'] === 'admin' && isset($_GET['user_id'])) {
+            $targetUserId = (int)$_GET['user_id'];
         }
 
         $stmt = $db->prepare("SELECT id, user_id, sender, name_lookup, relationship, name, message, created_at FROM user_chats WHERE user_id = ? ORDER BY id ASC");
@@ -387,7 +428,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             echo json_encode(['error' => 'Admin privileges required']);
             exit;
         }
-        $stmt = $db->query("SELECT id, username, email, role, status, circumstance, req_name_lookup, req_relationship, req_name, req_question, req_submitted_at, req_admin_reply, req_status, req_replied_at, created_at FROM users ORDER BY id DESC");
+        $stmt = $db->query("SELECT id, username, email, full_name, contact, role, status, circumstance, req_name_lookup, req_relationship, req_name, req_question, req_submitted_at, req_admin_reply, req_status, req_replied_at, created_at FROM users ORDER BY id DESC");
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         exit;
     }

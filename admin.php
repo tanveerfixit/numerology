@@ -416,6 +416,9 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
             <!-- Info Card -->
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1rem; font-size: 0.85rem; background: var(--surface-subtle); padding: 1rem; border-radius: 0; border: 1px solid var(--border-subtle);">
                 <div><strong>User ID:</strong> #${u.id}</div>
+                <div><strong>Username:</strong> ${escapeHtml(u.username)}</div>
+                <div><strong>Full Name:</strong> ${escapeHtml(u.full_name || '—')}</div>
+                <div><strong>Contact:</strong> ${escapeHtml(u.contact || '—')}</div>
                 <div><strong>Email:</strong> ${escapeHtml(u.email)}</div>
                 <div><strong>Joined:</strong> ${u.created_at || '—'}</div>
                 <div>

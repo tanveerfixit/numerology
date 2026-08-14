@@ -38,6 +38,8 @@ try {
             username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
+            full_name TEXT DEFAULT NULL,
+            contact TEXT DEFAULT NULL,
             role TEXT CHECK(role IN ('public','staff','admin')) DEFAULT 'public',
             status TEXT CHECK(status IN ('pending','approved','rejected')) DEFAULT 'pending',
             circumstance TEXT DEFAULT NULL,
@@ -73,6 +75,8 @@ try {
     $existingCols = array_column($columns, 'name');
 
     $colsToAdd = [
+        'full_name' => 'TEXT DEFAULT NULL',
+        'contact' => 'TEXT DEFAULT NULL',
         'circumstance' => 'TEXT DEFAULT NULL',
         'req_name_lookup' => 'TEXT DEFAULT NULL',
         'req_relationship' => 'TEXT DEFAULT NULL',
@@ -95,7 +99,7 @@ try {
     $row = $stmt->fetch();
     if ($row['cnt'] == 0) {
         $adminPass = password_hash('admin123', PASSWORD_DEFAULT);
-        $seed = $db->prepare("INSERT INTO users (username, email, password, role, status) VALUES (?, ?, ?, 'admin', 'approved')");
+        $seed = $db->prepare("INSERT INTO users (username, email, password, full_name, contact, role, status) VALUES (?, ?, ?, 'Administrator', '+1 000-000-0000', 'admin', 'approved')");
         $seed->execute(['admin', 'admin@example.com', $adminPass]);
     }
 } catch (PDOException $e) {
