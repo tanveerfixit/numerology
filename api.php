@@ -267,6 +267,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['success' => true]);
             exit;
         }
+    }
+
+    // Admin Element Settings endpoints
+    if (in_array($action, ['save_element_settings', 'reset_element_settings'])) {
+        if (!$currentUser || $currentUser['role'] !== 'admin') {
+            http_response_code(403);
+            echo json_encode(['error' => 'Admin privileges required']);
+            exit;
+        }
 
         // Save Element Colors Configuration
         if ($action === 'save_element_settings') {
