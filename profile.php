@@ -4,27 +4,30 @@ $pageTitle = 'Member Profile & Consultation Stream';
 require_once __DIR__ . '/includes/header.php';
 
 requireLogin();
+if (!$currentUser) {
+    header('Location: index.php?auth=login');
+    exit;
+}
 ?>
 
 <style>
     .profile-dashboard-layout {
         display: grid;
         grid-template-columns: 320px 1fr;
-        gap: 1.75rem;
+        gap: 1.5rem;
         align-items: flex-start;
     }
 
-    @media (max-width: 860px) {
+    @media (max-width: 840px) {
         .profile-dashboard-layout {
             grid-template-columns: 1fr;
-            gap: 1.25rem;
         }
     }
 
     .profile-card-panel {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 1.5rem;
         box-shadow: var(--shadow-sm);
         display: flex;
@@ -32,76 +35,76 @@ requireLogin();
         gap: 1.25rem;
     }
 
+    /* Left Account Card */
     .user-profile-header-card {
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
-        padding-bottom: 1.25rem;
+        padding-bottom: 1rem;
         border-bottom: 1px solid var(--border-subtle);
     }
 
     .large-user-avatar {
         width: 64px;
         height: 64px;
-        border-radius: var(--radius-full);
         background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
         color: #ffffff;
-        font-size: 1.65rem;
-        font-weight: 700;
+        font-size: 1.8rem;
+        font-weight: 800;
+        border-radius: 0 !important;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 0.75rem;
-        box-shadow: var(--shadow-sm);
+        margin-bottom: 0.85rem;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
     }
 
-    .profile-meta-list {
+    .profile-info-list {
         display: flex;
         flex-direction: column;
-        gap: 0.85rem;
+        gap: 0.65rem;
+        font-size: 0.88rem;
     }
 
-    .meta-data-group {
+    .info-list-item {
         display: flex;
-        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.4rem 0;
+        border-bottom: 1px dashed var(--border-subtle);
     }
 
-    .meta-data-label {
-        font-size: 0.72rem;
-        font-weight: 700;
-        text-transform: uppercase;
+    .info-item-label {
         color: var(--text-muted);
-        letter-spacing: 0.04em;
-    }
-
-    .meta-data-value {
-        font-size: 0.92rem;
+        font-size: 0.8rem;
         font-weight: 600;
-        color: var(--text-primary);
-        margin-top: 0.15rem;
     }
 
-    /* Consultation Stream */
+    .info-item-val {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    /* Chat / Consultation Stream */
     .chat-stream-container {
         background: var(--surface-subtle);
         border: 1px solid var(--border-medium);
-        border-radius: var(--radius-md);
-        padding: 1.15rem;
-        max-height: 420px;
+        border-radius: 0;
+        padding: 1rem;
+        max-height: 350px;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 0.85rem;
+        gap: 0.75rem;
     }
 
-    .chat-bubble-stream {
-        max-width: 82%;
-        padding: 0.85rem 1.1rem;
-        border-radius: var(--radius-md);
-        font-size: 0.9rem;
+    .stream-bubble {
+        padding: 0.75rem 1rem;
+        border-radius: 0;
+        font-size: 0.88rem;
         line-height: 1.5;
-        position: relative;
+        max-width: 85%;
     }
 
     .user-stream-bubble {
@@ -109,7 +112,6 @@ requireLogin();
         background: var(--primary-light);
         border: 1px solid var(--primary-border);
         color: #1e3a8a;
-        border-bottom-right-radius: 2px;
     }
 
     .admin-stream-bubble {
@@ -118,7 +120,6 @@ requireLogin();
         border: 1px solid var(--border-medium);
         color: var(--text-primary);
         box-shadow: var(--shadow-xs);
-        border-bottom-left-radius: 2px;
     }
 
     .stream-bubble-header {
@@ -138,6 +139,80 @@ requireLogin();
         display: flex;
         flex-direction: column;
         gap: 0.85rem;
+    }
+
+    /* Keyboard drawer inside profile: zero border radius */
+    .keyboard-drawer-card {
+        background: #ffffff;
+        border: 1px solid var(--border-medium);
+        border-radius: 0;
+        padding: 1.25rem;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        animation: fadeIn 0.15s ease-in-out;
+    }
+
+    .kb-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 0.6rem;
+    }
+
+    .kb-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .kb-special-keys-row {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .kb-grid-matrix {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+        gap: 0.45rem;
+        direction: rtl;
+    }
+
+    .kb-key-tile {
+        background: #ffffff;
+        border: 1px solid var(--border-medium);
+        border-radius: 0;
+        height: 58px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.25rem 0.35rem;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.12s ease;
+        box-shadow: var(--shadow-xs);
+    }
+
+    .kb-key-tile:hover {
+        background: var(--surface-subtle);
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .kb-arabic-glyph {
+        font-family: var(--font-arabic);
+        font-size: 1.85rem;
+        line-height: 1;
+        color: var(--text-primary);
+    }
+
+    .kb-val-num {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: var(--accent-gold);
     }
 </style>
 
@@ -162,21 +237,28 @@ requireLogin();
                 </div>
             </div>
 
-            <div class="profile-meta-list">
-                <div class="meta-data-group">
-                    <span class="meta-data-label">Account Email</span>
-                    <span class="meta-data-value"><?php echo htmlspecialchars($currentUser['email']); ?></span>
+            <div class="profile-info-list">
+                <div class="info-list-item">
+                    <span class="info-item-label">Account ID</span>
+                    <span class="info-item-val">#<?php echo $currentUser['id']; ?></span>
                 </div>
-                <div class="meta-data-group">
-                    <span class="meta-data-label">Membership Type</span>
-                    <span class="meta-data-value">
-                        <?php echo ucfirst(htmlspecialchars($currentUser['role'])); ?> Access
-                    </span>
+                <div class="info-list-item">
+                    <span class="info-item-label">Email Address</span>
+                    <span class="info-item-val" style="font-size: 0.82rem; word-break: break-all;"><?php echo htmlspecialchars($currentUser['email']); ?></span>
+                </div>
+                <div class="info-list-item">
+                    <span class="info-item-label">Member Since</span>
+                    <span class="info-item-val" style="font-size: 0.8rem;"><?php echo htmlspecialchars($currentUser['created_at'] ?? '—'); ?></span>
                 </div>
             </div>
 
-            <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5;">
-                <strong>💡 Consultation Guidance:</strong> You can submit specific inquiries to our administration team. All questions and replies remain organized in your persistent consultation stream.
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+                <h3 style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.04em;">
+                    Current Circumstance
+                </h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+                    <?php echo !empty($currentUser['circumstance']) ? nl2br(htmlspecialchars($currentUser['circumstance'])) : '<em style="color: var(--text-muted);">No circumstance recorded. Submit below.</em>'; ?>
+                </p>
             </div>
         </div>
 
@@ -206,16 +288,16 @@ requireLogin();
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                             <label class="form-label" for="nameLookup" style="margin-bottom: 0;">Target Name *</label>
-                            <button id="btnToggleKeyboard" type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 600;">
+                            <button id="btnToggleKeyboard" type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 2px;">
                                 ⌨️ Urdu Keyboard
                             </button>
                         </div>
-                        <input type="text" id="nameLookup" class="form-control" required placeholder="e.g. احمد / فاطمہ" style="font-family: var(--font-arabic); font-size: 1.1rem; direction: rtl;">
+                        <input type="text" id="nameLookup" class="form-control" required placeholder="e.g. احمد / فاطمہ" style="font-family: var(--font-arabic); font-size: 1.1rem; direction: rtl; border-radius: 0;">
                     </div>
 
                     <div>
                         <label class="form-label" for="relationship">Relationship / Connection *</label>
-                        <input type="text" id="relationship" class="form-control" required placeholder="e.g. Self, Spouse, Business Partner">
+                        <input type="text" id="relationship" class="form-control" required placeholder="e.g. Self, Spouse, Business Partner" style="border-radius: 0;">
                     </div>
                 </div>
 
@@ -223,26 +305,26 @@ requireLogin();
                 <div class="keyboard-drawer-card" id="keyboardContainer" style="display: none; margin-top: 0.5rem;">
                     <div class="kb-header-row">
                         <span class="kb-title">⌨️ Virtual Urdu Keyboard (Target: <span id="activeFieldLabel" style="color: var(--primary);">Target Name</span>)</span>
-                        <button id="btnCloseKeyboard" type="button" class="btn btn-secondary btn-sm" style="color: var(--danger);">✕ Close</button>
+                        <button id="btnCloseKeyboard" type="button" class="btn btn-secondary btn-sm" style="color: var(--danger); border-radius: 2px;">✕ Close</button>
                     </div>
                     <div class="kb-special-keys-row">
-                        <button id="btnSpaceBar" type="button" class="btn btn-secondary" style="flex: 2; padding: 0.5rem;">Space Bar ␣</button>
-                        <button id="btnBackspace" type="button" class="btn btn-danger" style="flex: 1; padding: 0.5rem;">Backspace ⌫</button>
+                        <button id="btnSpaceBar" type="button" class="btn btn-secondary" style="flex: 2; padding: 0.5rem; border-radius: 2px;">Space Bar ␣</button>
+                        <button id="btnBackspace" type="button" class="btn btn-danger" style="flex: 1; padding: 0.5rem; border-radius: 2px;">Backspace ⌫</button>
                     </div>
                     <div class="kb-grid-matrix" id="lettersGrid"></div>
                 </div>
 
                 <div>
                     <label class="form-label" for="fullName">Your Full Name (for verification) *</label>
-                    <input type="text" id="fullName" class="form-control" required placeholder="Enter your full registered name">
+                    <input type="text" id="fullName" class="form-control" required placeholder="Enter your full registered name" style="border-radius: 0;">
                 </div>
 
                 <div>
                     <label class="form-label" for="question">Detailed Question / Specific Circumstance *</label>
-                    <textarea id="question" rows="3" class="form-control" required placeholder="Type your question or circumstance details here for the admin..."></textarea>
+                    <textarea id="question" rows="3" class="form-control" required placeholder="Type your question or circumstance details here for the admin..." style="border-radius: 0;"></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="justify-content: center; padding: 0.65rem;">
+                <button type="submit" class="btn btn-primary" style="justify-content: center; padding: 0.65rem; border-radius: 2px;">
                     ✉️ Submit Question to Admin
                 </button>
             </form>
@@ -262,7 +344,7 @@ requireLogin();
         { char: 'ض' }, { char: 'ظ' }, { char: 'غ' }
     ];
 
-    let activeInputField = document.getElementById('nameLookup');
+    let activeInput = document.getElementById('nameLookup');
 
     function renderVirtualKeyboard() {
         const grid = document.getElementById('lettersGrid');
@@ -278,28 +360,28 @@ requireLogin();
     }
 
     function insertChar(char) {
-        if (!activeInputField) activeInputField = document.getElementById('nameLookup');
-        const start = activeInputField.selectionStart || activeInputField.value.length;
-        const end = activeInputField.selectionEnd || activeInputField.value.length;
-        const val = activeInputField.value;
-        activeInputField.value = val.substring(0, start) + char + val.substring(end);
-        activeInputField.selectionStart = activeInputField.selectionEnd = start + char.length;
-        activeInputField.focus();
+        if (!activeInput) activeInput = document.getElementById('nameLookup');
+        const start = activeInput.selectionStart || activeInput.value.length;
+        const end = activeInput.selectionEnd || activeInput.value.length;
+        const val = activeInput.value;
+        activeInput.value = val.substring(0, start) + char + val.substring(end);
+        activeInput.selectionStart = activeInput.selectionEnd = start + char.length;
+        activeInput.focus();
     }
 
     function backspaceChar() {
-        if (!activeInputField) activeInputField = document.getElementById('nameLookup');
-        const start = activeInputField.selectionStart;
-        const end = activeInputField.selectionEnd;
-        const val = activeInputField.value;
+        if (!activeInput) activeInput = document.getElementById('nameLookup');
+        const start = activeInput.selectionStart;
+        const end = activeInput.selectionEnd;
+        const val = activeInput.value;
         if (start === end && start > 0) {
-            activeInputField.value = val.substring(0, start - 1) + val.substring(end);
-            activeInputField.selectionStart = activeInputField.selectionEnd = start - 1;
+            activeInput.value = val.substring(0, start - 1) + val.substring(end);
+            activeInput.selectionStart = activeInput.selectionEnd = start - 1;
         } else if (start !== end) {
-            activeInputField.value = val.substring(0, start) + val.substring(end);
-            activeInputField.selectionStart = activeInputField.selectionEnd = start;
+            activeInput.value = val.substring(0, start) + val.substring(end);
+            activeInput.selectionStart = activeInput.selectionEnd = start;
         }
-        activeInputField.focus();
+        activeInput.focus();
     }
 
     function loadUserChats() {
@@ -307,8 +389,10 @@ requireLogin();
         .then(res => res.json())
         .then(messages => {
             const chatBox = document.getElementById('chatBoxThread');
+            if (!chatBox) return;
+
             if (!Array.isArray(messages) || messages.length === 0) {
-                chatBox.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 0.88rem; padding: 2rem;">No consultation messages yet. Submit your first inquiry below!</div>';
+                chatBox.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 2rem;">No consultation dialogues submitted yet. Ask your question below.</div>';
                 return;
             }
 
@@ -316,17 +400,17 @@ requireLogin();
             messages.forEach(m => {
                 const isUser = m.sender === 'user';
                 const bubbleClass = isUser ? 'user-stream-bubble' : 'admin-stream-bubble';
-                const senderTitle = isUser ? '👤 You (Inquiry)' : '🛡️ Admin Response';
+                const senderLabel = isUser ? '👤 You (Inquiry)' : '🛡️ Admin Scholar Reply';
                 const details = m.name_lookup ? `
-                    <div style="font-size: 0.75rem; background: rgba(0,0,0,0.03); border-radius: 4px; padding: 0.25rem 0.45rem; margin-bottom: 0.35rem;">
-                        <strong>Target:</strong> ${escapeHtml(m.name_lookup)} | <strong>Rel:</strong> ${escapeHtml(m.relationship)} | <strong>Name:</strong> ${escapeHtml(m.name)}
+                    <div style="font-size: 0.76rem; background: rgba(0,0,0,0.03); border-radius: 0; padding: 0.25rem 0.45rem; margin-bottom: 0.35rem;">
+                        <strong>Target Name:</strong> ${escapeHtml(m.name_lookup)} | <strong>Relation:</strong> ${escapeHtml(m.relationship || 'N/A')}
                     </div>
                 ` : '';
 
                 html += `
-                    <div class="chat-bubble-stream ${bubbleClass}">
+                    <div class="stream-bubble ${bubbleClass}">
                         <div class="stream-bubble-header">
-                            <strong style="color: var(--text-primary);">${senderTitle}</strong>
+                            <strong style="color: var(--text-primary);">${senderLabel}</strong>
                             <span>${m.created_at || ''}</span>
                         </div>
                         ${details}
@@ -336,9 +420,6 @@ requireLogin();
             });
             chatBox.innerHTML = html;
             chatBox.scrollTop = chatBox.scrollHeight;
-        })
-        .catch(() => {
-            document.getElementById('chatBoxThread').innerHTML = '<div style="color:var(--danger); text-align:center; padding:1rem;">Failed to load chat history.</div>';
         });
     }
 
@@ -350,13 +431,13 @@ requireLogin();
         renderVirtualKeyboard();
         loadUserChats();
 
-        const allInputs = document.querySelectorAll('input[type="text"], input[type="search"], textarea');
+        const allInputs = document.querySelectorAll('input[type="text"], textarea');
         allInputs.forEach(el => {
             el.addEventListener('focus', () => {
-                activeInputField = el;
-                const label = el.placeholder || el.id || 'Input';
-                const lblEl = document.getElementById('activeFieldLabel');
-                if (lblEl) lblEl.innerText = label;
+                activeInput = el;
+                const lbl = el.previousElementSibling ? el.previousElementSibling.innerText : el.id;
+                const fieldLbl = document.getElementById('activeFieldLabel');
+                if (fieldLbl) fieldLbl.innerText = lbl.replace('*', '').trim();
             });
         });
 
@@ -371,44 +452,34 @@ requireLogin();
         document.getElementById('btnSpaceBar').addEventListener('click', () => insertChar(' '));
         document.getElementById('btnBackspace').addEventListener('click', backspaceChar);
 
-        const form = document.getElementById('circumstanceRequestForm');
-        form.addEventListener('submit', (e) => {
+        // Submit form
+        document.getElementById('circumstanceRequestForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const name_lookup = document.getElementById('nameLookup').value.trim();
+            const fullName = document.getElementById('fullName').value.trim();
+            const nameLookup = document.getElementById('nameLookup').value.trim();
             const relationship = document.getElementById('relationship').value.trim();
-            const name = document.getElementById('fullName').value.trim();
             const question = document.getElementById('question').value.trim();
             const alertDiv = document.getElementById('requestAlert');
 
-            fetch('api.php?action=send_user_chat', {
+            fetch('api.php?action=circumstance_request', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name_lookup, relationship, name, question })
+                body: JSON.stringify({ fullName, nameLookup, relationship, question })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
                     alertDiv.className = 'alert alert-success';
-                    alertDiv.innerText = '✓ ' + (data.message || 'Question submitted successfully!');
+                    alertDiv.innerText = '✓ ' + (data.message || 'Consultation inquiry submitted to admin successfully!');
                     alertDiv.style.display = 'flex';
-
-                    // Clear form inputs
-                    form.reset();
-
-                    // Reload stream
+                    document.getElementById('circumstanceRequestForm').reset();
                     loadUserChats();
-
                     setTimeout(() => { alertDiv.style.display = 'none'; }, 4000);
                 } else {
                     alertDiv.className = 'alert alert-danger';
-                    alertDiv.innerText = data.error || 'Submission failed.';
+                    alertDiv.innerText = data.error || 'Failed to submit inquiry';
                     alertDiv.style.display = 'flex';
                 }
-            })
-            .catch(() => {
-                alertDiv.className = 'alert alert-danger';
-                alertDiv.innerText = 'Network error submitting request.';
-                alertDiv.style.display = 'flex';
             });
         });
     });

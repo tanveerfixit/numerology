@@ -79,10 +79,12 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
             --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
 
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
-            --radius-full: 9999px;
+            /* Radius Rules: 0 for inputs, divs, bg, cards, badges; 2px minimum for buttons */
+            --radius-btn: 2px;
+            --radius-sm: 0px;
+            --radius-md: 0px;
+            --radius-lg: 0px;
+            --radius-full: 0px;
             
             --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-arabic: 'Amiri', serif;
@@ -92,6 +94,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            border-radius: 0;
         }
 
         body {
@@ -118,6 +121,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             top: 0;
             z-index: 100;
             box-shadow: var(--shadow-xs);
+            border-radius: 0;
         }
 
         .header-left {
@@ -138,7 +142,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             width: 38px;
             height: 38px;
             background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-            border-radius: var(--radius-md);
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -167,6 +171,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             color: var(--text-muted);
             letter-spacing: 0.03em;
             text-transform: uppercase;
+            border-radius: 0;
         }
 
         /* Nav Links */
@@ -178,7 +183,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
         .nav-item-link {
             padding: 0.45rem 0.85rem;
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-btn);
             color: var(--text-secondary);
             font-weight: 500;
             font-size: 0.88rem;
@@ -207,13 +212,13 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             gap: 0.75rem;
         }
 
-        /* Buttons Design System */
-        .btn {
+        /* Buttons Design System: Minimum 2px radius */
+        button, .btn {
             background: #ffffff;
             border: 1px solid var(--border-medium);
             color: var(--text-primary);
             padding: 0.45rem 0.95rem;
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-btn) !important;
             cursor: pointer;
             font-weight: 500;
             font-size: 0.88rem;
@@ -244,6 +249,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             border-color: var(--primary);
             color: #ffffff;
             box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+            border-radius: var(--radius-btn) !important;
         }
 
         .btn-primary:hover {
@@ -257,6 +263,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             background: var(--surface-subtle);
             border-color: var(--border-subtle);
             color: var(--text-primary);
+            border-radius: var(--radius-btn) !important;
         }
 
         .btn-secondary:hover {
@@ -267,6 +274,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             background: var(--danger-bg);
             border-color: var(--danger-border);
             color: var(--danger);
+            border-radius: var(--radius-btn) !important;
         }
 
         .btn-danger:hover {
@@ -277,13 +285,13 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         .btn-sm {
             padding: 0.32rem 0.65rem;
             font-size: 0.8rem;
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-btn) !important;
         }
 
         .btn-lg {
             padding: 0.7rem 1.4rem;
             font-size: 1rem;
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-btn) !important;
             font-weight: 600;
         }
 
@@ -297,7 +305,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             background: #ffffff;
             border: 1px solid var(--border-medium);
             padding: 0.35rem 0.75rem 0.35rem 0.45rem;
-            border-radius: var(--radius-full);
+            border-radius: var(--radius-btn) !important;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -319,7 +327,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             height: 26px;
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: #ffffff;
-            border-radius: var(--radius-full);
+            border-radius: 0 !important;
             font-size: 0.75rem;
             font-weight: 700;
             display: flex;
@@ -335,7 +343,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             right: 0;
             background: #ffffff;
             border: 1px solid var(--border-medium);
-            border-radius: var(--radius-md);
+            border-radius: 0 !important;
             box-shadow: var(--shadow-lg);
             min-width: 210px;
             z-index: 250;
@@ -359,6 +367,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
+            border-radius: 0 !important;
         }
 
         .dropdown-header-name {
@@ -383,6 +392,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             font-size: 0.85rem;
             font-weight: 500;
             transition: background 0.12s ease;
+            border-radius: 0 !important;
         }
 
         .dropdown-item:hover {
@@ -404,13 +414,13 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             color: var(--danger);
         }
 
-        /* Modern Status Badges */
+        /* Badges: Zero border-radius */
         .status-badge {
             font-size: 0.7rem;
             font-weight: 600;
             letter-spacing: 0.02em;
             padding: 0.15rem 0.5rem;
-            border-radius: var(--radius-full);
+            border-radius: 0 !important;
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
@@ -425,7 +435,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             font-size: 0.68rem;
             font-weight: 700;
             padding: 0.12rem 0.45rem;
-            border-radius: var(--radius-sm);
+            border-radius: 0 !important;
             text-transform: uppercase;
         }
         .role-admin { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; }
@@ -437,34 +447,34 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             color: #ffffff;
             font-size: 0.7rem;
             font-weight: 700;
-            border-radius: var(--radius-full);
+            border-radius: 0 !important;
             padding: 0.1rem 0.4rem;
             line-height: 1;
         }
 
-        /* Form Controls */
-        .form-control {
+        /* Form Controls: Strictly ZERO border radius */
+        input, textarea, select, .form-control {
             width: 100%;
             padding: 0.55rem 0.8rem;
             background: #ffffff;
             border: 1px solid var(--border-medium);
-            border-radius: var(--radius-md);
+            border-radius: 0 !important;
             font-size: 0.92rem;
             font-family: inherit;
             color: var(--text-primary);
             transition: all 0.15s ease;
         }
 
-        .form-control:focus {
+        input:focus, textarea:focus, select:focus, .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
         }
 
-        /* Alerts */
+        /* Alerts: Zero border radius */
         .alert {
             padding: 0.85rem 1.15rem;
-            border-radius: var(--radius-md);
+            border-radius: 0 !important;
             font-size: 0.88rem;
             margin-bottom: 1.25rem;
             display: flex;

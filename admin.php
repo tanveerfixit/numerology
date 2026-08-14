@@ -6,11 +6,11 @@ require_once __DIR__ . '/includes/header.php';
 requireLogin();
 if (!$currentUser || $currentUser['role'] !== 'admin') {
     echo '<main class="container" style="text-align: center; padding: 4rem 1.5rem;">
-            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: var(--radius-lg); max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-md);">
+            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: 0; max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-md);">
                 <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🛡️</div>
                 <h2 style="color: var(--danger); font-size: 1.35rem; margin-bottom: 0.5rem;">Administrator Access Restricted</h2>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">You must possess verified Administrator role privileges to view the management console.</p>
-                <a href="index.php" class="btn btn-primary">Return to Home</a>
+                <a href="index.php" class="btn btn-primary" style="border-radius: 2px;">Return to Home</a>
             </div>
           </main>';
     require_once __DIR__ . '/includes/footer.php';
@@ -25,7 +25,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         gap: 1.75rem;
     }
 
-    /* Executive KPI Stats */
+    /* Executive KPI Stats: Zero radius */
     .admin-kpi-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -46,7 +46,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
     .kpi-card {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 1.25rem;
         box-shadow: var(--shadow-sm);
         display: flex;
@@ -57,7 +57,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
     .kpi-icon-box {
         width: 46px;
         height: 46px;
-        border-radius: var(--radius-md);
+        border-radius: 0;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -90,7 +90,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
     .admin-card-panel {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 1.5rem;
         box-shadow: var(--shadow-sm);
         display: flex;
@@ -132,7 +132,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
     .user-table-wrapper {
         overflow-x: auto;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-md);
+        border-radius: 0;
     }
 
     .user-data-table {
@@ -185,7 +185,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         font-size: 0.72rem;
         font-weight: 700;
         padding: 0.15rem 0.5rem;
-        border-radius: var(--radius-full);
+        border-radius: 0;
         display: inline-flex;
         align-items: center;
         gap: 0.25rem;
@@ -195,7 +195,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
     .admin-chat-thread-box {
         background: var(--surface-subtle);
         border: 1px solid var(--border-medium);
-        border-radius: var(--radius-md);
+        border-radius: 0;
         padding: 1rem;
         max-height: 380px;
         overflow-y: auto;
@@ -206,7 +206,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
 
     .stream-bubble {
         padding: 0.75rem 1rem;
-        border-radius: var(--radius-md);
+        border-radius: 0;
         font-size: 0.88rem;
         line-height: 1.5;
         position: relative;
@@ -285,7 +285,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                     </h2>
                     <p class="admin-sub-text">Inspect user profiles, approve new registrations, configure authorization roles, and reply to circumstance consultations.</p>
                 </div>
-                <button onclick="loadUsers()" class="btn btn-secondary btn-sm">🔄 Refresh Directory</button>
+                <button onclick="loadUsers()" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">🔄 Refresh Directory</button>
             </div>
 
             <div class="user-table-wrapper">
@@ -312,12 +312,12 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
 
 <!-- Profile & Single Chat Thread Modal -->
 <div id="userProfileModal" class="modal-overlay-custom">
-    <div class="modal-card-box" style="max-width: 720px; text-align: left; max-height: 90vh; overflow-y: auto;">
+    <div class="modal-card-box" style="max-width: 720px; text-align: left; max-height: 90vh; overflow-y: auto; border-radius: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem;">
             <h3 id="profileModalTitle" style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
                 <span>👤</span> User Profile & Consultation Thread
             </h3>
-            <button onclick="closeProfileModal()" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem;">✕ Close</button>
+            <button onclick="closeProfileModal()" type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem; border-radius: 2px;">✕ Close</button>
         </div>
 
         <div id="profileModalBody">
@@ -377,13 +377,13 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                     <td style="font-weight: 600; color: var(--text-muted);">#${u.id}</td>
                     <td>
                         <a class="user-profile-link" onclick="openUserProfile(${u.id})">
-                            <span class="user-avatar-circle" style="width: 22px; height: 22px; font-size: 0.68rem;">${escapeHtml(u.username.charAt(0).toUpperCase())}</span>
+                            <span class="user-avatar-circle" style="width: 22px; height: 22px; font-size: 0.68rem; border-radius: 0;">${escapeHtml(u.username.charAt(0).toUpperCase())}</span>
                             <span>${escapeHtml(u.username)}</span>
                         </a>
                     </td>
                     <td style="color: var(--text-secondary); font-size: 0.85rem;">${escapeHtml(u.email)}</td>
                     <td>
-                        <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.2rem 0.45rem; font-size: 0.78rem;">
+                        <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.2rem 0.45rem; font-size: 0.78rem; border-radius: 0;">
                             <option value="public" ${u.role === 'public' ? 'selected' : ''}>Public</option>
                             <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
                             <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
@@ -394,8 +394,8 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                     </td>
                     <td>${reqBadge}</td>
                     <td style="text-align: right; white-space: nowrap;">
-                        ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; background: var(--success); border-color: var(--success);">Approve</button>` : ''}
-                        <button onclick="openUserProfile(${u.id})" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;">
+                        ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>` : ''}
+                        <button onclick="openUserProfile(${u.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; border-radius: 2px;">
                             ${u.req_status === 'pending' ? '💬 Reply' : 'Inspect'}
                         </button>
                     </td>
@@ -414,13 +414,13 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
 
         document.getElementById('profileModalBody').innerHTML = `
             <!-- Info Card -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1rem; font-size: 0.85rem; background: var(--surface-subtle); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1rem; font-size: 0.85rem; background: var(--surface-subtle); padding: 1rem; border-radius: 0; border: 1px solid var(--border-subtle);">
                 <div><strong>User ID:</strong> #${u.id}</div>
                 <div><strong>Email:</strong> ${escapeHtml(u.email)}</div>
                 <div><strong>Joined:</strong> ${u.created_at || '—'}</div>
                 <div>
                     <strong>Role:</strong> 
-                    <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.15rem 0.35rem; font-size: 0.78rem; display: inline-block; margin-left: 0.3rem;">
+                    <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.15rem 0.35rem; font-size: 0.78rem; display: inline-block; margin-left: 0.3rem; border-radius: 0;">
                         <option value="public" ${u.role === 'public' ? 'selected' : ''}>Public</option>
                         <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
                         <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
@@ -430,7 +430,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                     <strong>Status:</strong> <span class="status-badge status-${u.status}">${u.status}</span>
                 </div>
                 <div>
-                    ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: var(--success); border-color: var(--success);">Approve Account Now</button>` : ''}
+                    ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve Account Now</button>` : ''}
                 </div>
             </div>
 
@@ -438,7 +438,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
             <div style="margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                     <strong style="font-size: 0.95rem; color: var(--text-primary);">💬 Consultation Stream</strong>
-                    <button onclick="clearChatHistory(${u.id})" class="btn btn-danger btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;">🗑️ Clear Thread History</button>
+                    <button onclick="clearChatHistory(${u.id})" type="button" class="btn btn-danger btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 2px;">🗑️ Clear Thread History</button>
                 </div>
                 <div id="adminChatContainer" class="admin-chat-thread-box">
                     <div style="text-align: center; color: var(--text-muted); padding: 1rem;">Loading messages...</div>
@@ -450,9 +450,9 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                 <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">
                     Send Consultation Reply:
                 </label>
-                <textarea id="replyMsg_${u.id}" class="form-control" rows="3" placeholder="Type your response to ${escapeHtml(u.username)}..."></textarea>
+                <textarea id="replyMsg_${u.id}" class="form-control" rows="3" placeholder="Type your response to ${escapeHtml(u.username)}..." style="border-radius: 0;"></textarea>
                 <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.6rem;">
-                    <button onclick="sendAdminReply(${u.id})" class="btn btn-primary btn-sm">✉️ Send Reply</button>
+                    <button onclick="sendAdminReply(${u.id})" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">✉️ Send Reply</button>
                 </div>
             </div>
         `;
@@ -478,7 +478,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                 const bubbleClass = isUser ? 'stream-bubble-user' : 'stream-bubble-admin';
                 const senderTitle = isUser ? '👤 User Inquiry' : '🛡️ Admin Response';
                 const details = m.name_lookup ? `
-                    <div style="font-size: 0.76rem; background: rgba(0,0,0,0.03); border-radius: 4px; padding: 0.25rem 0.45rem; margin-bottom: 0.35rem;">
+                    <div style="font-size: 0.76rem; background: rgba(0,0,0,0.03); border-radius: 0; padding: 0.25rem 0.45rem; margin-bottom: 0.35rem;">
                         <strong>Target Name:</strong> ${escapeHtml(m.name_lookup)} | <strong>Relation:</strong> ${escapeHtml(m.relationship || 'N/A')}
                     </div>
                 ` : '';
@@ -489,7 +489,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                             <strong style="color: var(--text-primary);">${senderTitle}</strong>
                             <div style="display: flex; align-items: center; gap: 0.4rem;">
                                 <span>${m.created_at || ''}</span>
-                                <button onclick="deleteSingleMessage(${m.id}, ${m.user_id})" class="btn btn-danger btn-sm" style="font-size: 0.65rem; padding: 0.05rem 0.3rem;">Del</button>
+                                <button onclick="deleteSingleMessage(${m.id}, ${m.user_id})" type="button" class="btn btn-danger btn-sm" style="font-size: 0.65rem; padding: 0.05rem 0.3rem; border-radius: 2px;">Del</button>
                             </div>
                         </div>
                         ${details}

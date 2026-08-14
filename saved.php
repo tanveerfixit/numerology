@@ -6,11 +6,11 @@ require_once __DIR__ . '/includes/header.php';
 requireLogin();
 if (!$currentUser || $currentUser['status'] !== 'approved') {
     echo '<main class="container" style="text-align: center; padding: 3rem 1.5rem;">
-            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: var(--radius-lg); max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-md);">
+            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: 0; max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-md);">
                 <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🔒</div>
                 <h2 style="font-size: 1.35rem; color: var(--text-primary); margin-bottom: 0.5rem;">Account Approval Required</h2>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">Your account must be approved by an administrator to view and manage saved calculation history records.</p>
-                <a href="calculator.php" class="btn btn-primary">Return to Calculator</a>
+                <a href="calculator.php" class="btn btn-primary" style="border-radius: 2px;">Return to Calculator</a>
             </div>
           </main>';
     require_once __DIR__ . '/includes/footer.php';
@@ -22,7 +22,7 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
     .history-card-wrapper {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         box-shadow: var(--shadow-sm);
         padding: 1.5rem;
         display: flex;
@@ -83,7 +83,7 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         width: 100%;
         padding: 0.48rem 0.75rem 0.48rem 2.2rem;
         border: 1px solid var(--border-medium);
-        border-radius: var(--radius-md);
+        border-radius: 0 !important;
         font-size: 0.88rem;
         font-family: inherit;
         background: var(--surface-subtle);
@@ -95,7 +95,7 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         outline: none;
         border-color: var(--primary);
         background: #ffffff;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
     }
 
     .element-filter-pills {
@@ -111,7 +111,7 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         font-size: 0.78rem;
         font-weight: 600;
         padding: 0.32rem 0.65rem;
-        border-radius: var(--radius-full);
+        border-radius: 2px !important;
         cursor: pointer;
         transition: all 0.12s ease;
     }
@@ -131,7 +131,7 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
     .table-container-modern {
         overflow-x: auto;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-md);
+        border-radius: 0;
     }
 
     .data-grid-table {
@@ -193,7 +193,7 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         font-weight: 700;
         font-size: 0.82rem;
         padding: 0.15rem 0.5rem;
-        border-radius: var(--radius-full);
+        border-radius: 0;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -213,7 +213,7 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
     .form-drawer-card {
         background: var(--surface-subtle);
         border: 1px solid var(--border-medium);
-        border-radius: var(--radius-md);
+        border-radius: 0;
         padding: 1.25rem;
         display: none;
         animation: fadeIn 0.15s ease-in-out;
@@ -236,12 +236,12 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         <!-- Top Title Bar -->
         <div class="history-header-bar">
             <div class="history-title-group">
-                <a href="calculator.php" class="btn btn-secondary btn-sm" title="Return to Calculator">← Calculator</a>
+                <a href="calculator.php" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="Return to Calculator">← Calculator</a>
                 <h1 class="history-title-text">Saved Calculation Records</h1>
             </div>
             <div style="display: flex; gap: 0.45rem;">
-                <button id="btnAddNew" class="btn btn-primary btn-sm">+ Add New Record</button>
-                <button onclick="loadHistory()" class="btn btn-secondary btn-sm" title="Refresh list">🔄 Refresh</button>
+                <button id="btnAddNew" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">+ Add New Record</button>
+                <button onclick="loadHistory()" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="Refresh list">🔄 Refresh</button>
             </div>
         </div>
 
@@ -249,34 +249,34 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         <div id="addEditRecordForm" class="form-drawer-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
                 <strong id="formTitle" style="font-size: 1rem; color: var(--text-primary);">Add Calculation Record</strong>
-                <button id="btnCancelForm" class="btn btn-sm btn-secondary" style="padding: 0.15rem 0.5rem;">✕ Close</button>
+                <button id="btnCancelForm" type="button" class="btn btn-sm btn-secondary" style="padding: 0.15rem 0.5rem; border-radius: 2px;">✕ Close</button>
             </div>
             <input type="hidden" id="editRecordId">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin-bottom: 0.85rem;">
                 <div>
                     <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Name (Arabic/Urdu) *</label>
-                    <input type="text" id="formName" class="form-control" style="font-family: var(--font-arabic); font-size: 1.15rem; direction: rtl;">
+                    <input type="text" id="formName" class="form-control" style="font-family: var(--font-arabic); font-size: 1.15rem; direction: rtl; border-radius: 0;">
                 </div>
                 <div>
                     <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Total Abjad *</label>
-                    <input type="number" id="formTotal" class="form-control">
+                    <input type="number" id="formTotal" class="form-control" style="border-radius: 0;">
                 </div>
                 <div>
                     <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Single Root (1-9) *</label>
-                    <input type="number" id="formSingle" class="form-control">
+                    <input type="number" id="formSingle" class="form-control" style="border-radius: 0;">
                 </div>
                 <div>
                     <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Origin</label>
-                    <input type="text" id="formOrigin" class="form-control" placeholder="e.g. Arabic, Persian">
+                    <input type="text" id="formOrigin" class="form-control" placeholder="e.g. Arabic, Persian" style="border-radius: 0;">
                 </div>
                 <div style="grid-column: span 2;">
                     <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Meanings</label>
-                    <input type="text" id="formMeanings" class="form-control" placeholder="e.g. The Praised One, Exalted">
+                    <input type="text" id="formMeanings" class="form-control" placeholder="e.g. The Praised One, Exalted" style="border-radius: 0;">
                 </div>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                <button id="btnCancelFormBottom" class="btn btn-secondary btn-sm">Cancel</button>
-                <button id="btnSubmitForm" class="btn btn-primary btn-sm">Save Record</button>
+                <button id="btnCancelFormBottom" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">Cancel</button>
+                <button id="btnSubmitForm" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">Save Record</button>
             </div>
         </div>
 
@@ -288,11 +288,11 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
             </div>
 
             <div class="element-filter-pills">
-                <button class="elem-filter-btn active" data-elem="">All Elements</button>
-                <button class="elem-filter-btn" data-elem="Fire">🔥 Fire</button>
-                <button class="elem-filter-btn" data-elem="Air">💨 Air</button>
-                <button class="elem-filter-btn" data-elem="Water">💧 Water</button>
-                <button class="elem-filter-btn" data-elem="Earth">🪨 Earth</button>
+                <button type="button" class="elem-filter-btn active" data-elem="">All Elements</button>
+                <button type="button" class="elem-filter-btn" data-elem="Fire">🔥 Fire</button>
+                <button type="button" class="elem-filter-btn" data-elem="Air">💨 Air</button>
+                <button type="button" class="elem-filter-btn" data-elem="Water">💧 Water</button>
+                <button type="button" class="elem-filter-btn" data-elem="Earth">🪨 Earth</button>
             </div>
         </div>
 
@@ -320,7 +320,7 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
         <div class="pagination-bar-row">
             <div style="display: flex; align-items: center; gap: 0.4rem;">
                 <span>Show:</span>
-                <select id="pageSizeSelect" class="form-control" style="width: auto; padding: 0.2rem 0.5rem; font-size: 0.8rem;">
+                <select id="pageSizeSelect" class="form-control" style="width: auto; padding: 0.2rem 0.5rem; font-size: 0.8rem; border-radius: 0;">
                     <option value="10">10</option>
                     <option value="25" selected>25</option>
                     <option value="50">50</option>
@@ -330,8 +330,8 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
             </div>
             <div id="pageInfoText" style="font-weight: 500;">Page 1 of 1</div>
             <div style="display: flex; gap: 0.35rem;">
-                <button id="btnPrevPage" class="btn btn-secondary btn-sm">Previous</button>
-                <button id="btnNextPage" class="btn btn-secondary btn-sm">Next</button>
+                <button id="btnPrevPage" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">Previous</button>
+                <button id="btnNextPage" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">Next</button>
             </div>
         </div>
     </div>
@@ -468,9 +468,9 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
                     <td><span style="color: var(--text-secondary); font-size: 0.85rem;">${escapeHtml(item.meanings || '—')}</span></td>
                     <td style="text-align: center;">${elemInfo.html}</td>
                     <td style="text-align: right; white-space: nowrap;">
-                        <a href="view_name.php?id=${item.id}" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Inspect</a>
-                        <button onclick="editRecord(${item.id})" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Edit</button>
-                        <button onclick="deleteRecord(${item.id})" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Del</button>
+                        <a href="view_name.php?id=${item.id}" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 2px;">Inspect</a>
+                        <button onclick="editRecord(${item.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 2px;">Edit</button>
+                        <button onclick="deleteRecord(${item.id})" type="button" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 2px;">Del</button>
                     </td>
                 </tr>
             `;

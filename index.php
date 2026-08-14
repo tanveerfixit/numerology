@@ -60,7 +60,7 @@ $errorMsg = $_GET['error'] ?? '';
     .hero-playground-card {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 1.5rem;
         box-shadow: var(--shadow-lg);
         position: relative;
@@ -73,6 +73,7 @@ $errorMsg = $_GET['error'] ?? '';
         margin-bottom: 1rem;
         padding-bottom: 0.75rem;
         border-bottom: 1px solid var(--border-subtle);
+        border-radius: 0;
     }
 
     .playground-title {
@@ -94,14 +95,14 @@ $errorMsg = $_GET['error'] ?? '';
         background: var(--success-bg);
         border: 1px solid var(--success-border);
         padding: 0.15rem 0.5rem;
-        border-radius: var(--radius-full);
+        border-radius: 0;
     }
 
     .live-dot {
         width: 6px;
         height: 6px;
         background: var(--success);
-        border-radius: 50%;
+        border-radius: 0;
         animation: pulse 1.5s infinite;
     }
 
@@ -116,7 +117,7 @@ $errorMsg = $_GET['error'] ?? '';
         padding: 0.75rem 1rem;
         background: var(--surface-subtle);
         border: 1px solid var(--border-medium);
-        border-radius: var(--radius-md);
+        border-radius: 0 !important;
         color: var(--text-primary);
         font-family: var(--font-arabic);
         font-size: 1.5rem;
@@ -128,7 +129,7 @@ $errorMsg = $_GET['error'] ?? '';
         outline: none;
         border-color: var(--primary);
         background: #ffffff;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
     }
 
     .hero-metrics-row {
@@ -141,7 +142,7 @@ $errorMsg = $_GET['error'] ?? '';
     .hero-metric-box {
         background: var(--surface-subtle);
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-md);
+        border-radius: 0;
         padding: 0.75rem 1rem;
         text-align: center;
     }
@@ -173,7 +174,7 @@ $errorMsg = $_GET['error'] ?? '';
     .micro-elem-card {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-sm);
+        border-radius: 0;
         padding: 0.4rem 0.5rem;
         text-align: center;
     }
@@ -189,12 +190,13 @@ $errorMsg = $_GET['error'] ?? '';
     .micro-meter-track {
         height: 4px;
         background: var(--surface-subtle);
-        border-radius: 2px;
+        border-radius: 0;
         overflow: hidden;
     }
 
     .micro-meter-bar {
         height: 100%;
+        border-radius: 0;
         transition: width 0.3s ease;
     }
 
@@ -251,7 +253,7 @@ $errorMsg = $_GET['error'] ?? '';
     .element-card {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 1.25rem;
         display: flex;
         flex-direction: column;
@@ -285,7 +287,7 @@ $errorMsg = $_GET['error'] ?? '';
     .elem-icon-badge {
         width: 38px;
         height: 38px;
-        border-radius: var(--radius-md);
+        border-radius: 0;
         background: var(--elem-bg);
         color: var(--elem-color);
         display: flex;
@@ -300,7 +302,7 @@ $errorMsg = $_GET['error'] ?? '';
         color: var(--text-secondary);
         background: var(--surface-subtle);
         padding: 0.2rem 0.5rem;
-        border-radius: var(--radius-sm);
+        border-radius: 0;
     }
 
     .elem-title {
@@ -317,7 +319,7 @@ $errorMsg = $_GET['error'] ?? '';
         direction: rtl;
         padding: 0.5rem 0.65rem;
         background: var(--surface-subtle);
-        border-radius: var(--radius-sm);
+        border-radius: 0;
         margin: 0.65rem 0;
         letter-spacing: 0.25rem;
         text-align: center;
@@ -351,7 +353,7 @@ $errorMsg = $_GET['error'] ?? '';
     .knowledge-card {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 1.4rem;
         display: flex;
         flex-direction: column;
@@ -368,7 +370,7 @@ $errorMsg = $_GET['error'] ?? '';
     .k-icon-wrapper {
         width: 42px;
         height: 42px;
-        border-radius: var(--radius-md);
+        border-radius: 0;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -394,7 +396,7 @@ $errorMsg = $_GET['error'] ?? '';
     .auth-wrapper-card {
         background: #ffffff;
         border: 1px solid var(--border-medium);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 2rem;
         max-width: 440px;
         margin: 2.5rem auto;
@@ -407,7 +409,7 @@ $errorMsg = $_GET['error'] ?? '';
         gap: 0.35rem;
         background: var(--surface-subtle);
         padding: 0.25rem;
-        border-radius: var(--radius-md);
+        border-radius: 0;
         margin-bottom: 1.5rem;
     }
 
@@ -418,7 +420,7 @@ $errorMsg = $_GET['error'] ?? '';
         font-size: 0.88rem;
         font-weight: 600;
         color: var(--text-secondary);
-        border-radius: var(--radius-sm);
+        border-radius: 2px !important;
         cursor: pointer;
         transition: all 0.15s ease;
     }
@@ -444,7 +446,7 @@ $errorMsg = $_GET['error'] ?? '';
 
 <main class="container">
     <?php if ($currentUser && !empty($currentUser['circumstance'])): ?>
-        <div class="alert alert-info" style="border-radius: var(--radius-md);">
+        <div class="alert alert-info" style="border-radius: 0;">
             <span style="font-size: 1.2rem;">📌</span>
             <div>
                 <strong>Active Circumstance Consultation:</strong>
@@ -456,14 +458,14 @@ $errorMsg = $_GET['error'] ?? '';
     <?php endif; ?>
 
     <?php if ($errorMsg === 'pending'): ?>
-        <div class="alert alert-warning">
+        <div class="alert alert-warning" style="border-radius: 0;">
             <span>⏳</span>
             <div>
                 <strong>Account Pending Approval:</strong> Your registration has been received and is awaiting administrator verification. Basic calculator access is open.
             </div>
         </div>
     <?php elseif ($errorMsg === 'unauthorized'): ?>
-        <div class="alert alert-danger">
+        <div class="alert alert-danger" style="border-radius: 0;">
             <span>⚠️</span>
             <div><strong>Access Restricted:</strong> You do not possess the required privilege role to view that area.</div>
         </div>
@@ -473,8 +475,8 @@ $errorMsg = $_GET['error'] ?? '';
         <!-- Dedicated Tabbed Auth Card -->
         <div class="auth-wrapper-card">
             <div class="auth-tab-buttons">
-                <a href="index.php?auth=login" class="auth-tab-btn <?php echo $authMode === 'login' ? 'active' : ''; ?>" style="text-align: center; text-decoration: none;">Account Login</a>
-                <a href="index.php?auth=signup" class="auth-tab-btn <?php echo $authMode === 'signup' ? 'active' : ''; ?>" style="text-align: center; text-decoration: none;">Create Account</a>
+                <a href="index.php?auth=login" class="auth-tab-btn <?php echo $authMode === 'login' ? 'active' : ''; ?>" style="text-align: center; text-decoration: none; border-radius: 2px;">Account Login</a>
+                <a href="index.php?auth=signup" class="auth-tab-btn <?php echo $authMode === 'signup' ? 'active' : ''; ?>" style="text-align: center; text-decoration: none; border-radius: 2px;">Create Account</a>
             </div>
 
             <?php if ($authMode === 'login'): ?>
@@ -488,7 +490,7 @@ $errorMsg = $_GET['error'] ?? '';
                         <label class="form-label" for="loginPassword">Password</label>
                         <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required autocomplete="current-password">
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.65rem; margin-top: 0.5rem;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.65rem; margin-top: 0.5rem; border-radius: 2px;">
                         Sign In →
                     </button>
                 </form>
@@ -510,7 +512,7 @@ $errorMsg = $_GET['error'] ?? '';
                         <label class="form-label" for="signupPassword">Password</label>
                         <input type="password" id="signupPassword" class="form-control" placeholder="••••••••" required autocomplete="new-password">
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.65rem; margin-top: 0.5rem;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.65rem; margin-top: 0.5rem; border-radius: 2px;">
                         Create Free Account →
                     </button>
                 </form>
@@ -532,11 +534,11 @@ $errorMsg = $_GET['error'] ?? '';
                     Discover the ancient Semitic numerical values of letters, four elemental temperaments (Fire, Air, Water, Earth), and classical geomantic figure alignments.
                 </p>
                 <div class="hero-cta-group">
-                    <a href="calculator.php" class="btn btn-primary btn-lg">
+                    <a href="calculator.php" class="btn btn-primary btn-lg" style="border-radius: 2px;">
                         <span>🧮 Full Calculator Workbench</span>
                         <span>→</span>
                     </a>
-                    <a href="#elementsSection" class="btn btn-secondary btn-lg">
+                    <a href="#elementsSection" class="btn btn-secondary btn-lg" style="border-radius: 2px;">
                         <span>Learn 4 Elements</span>
                     </a>
                 </div>

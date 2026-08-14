@@ -6,11 +6,11 @@ require_once __DIR__ . '/includes/header.php';
 requireLogin();
 if (!$currentUser || $currentUser['status'] !== 'approved') {
     echo '<main class="container" style="text-align: center; padding: 3rem 1.5rem;">
-            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: var(--radius-lg); max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-md);">
+            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: 0; max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-md);">
                 <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🔒</div>
                 <h2 style="font-size: 1.35rem; color: var(--text-primary); margin-bottom: 0.5rem;">Account Approval Required</h2>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">Your account must be approved by an administrator to view name record details and notes.</p>
-                <a href="calculator.php" class="btn btn-primary">Return to Calculator</a>
+                <a href="calculator.php" class="btn btn-primary" style="border-radius: 2px;">Return to Calculator</a>
             </div>
           </main>';
     require_once __DIR__ . '/includes/footer.php';
@@ -40,7 +40,7 @@ $recordId = $_GET['id'] ?? null;
     .detail-card-panel {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 1.75rem;
         box-shadow: var(--shadow-sm);
         display: flex;
@@ -80,7 +80,7 @@ $recordId = $_GET['id'] ?? null;
     .metric-panel-item {
         background: var(--surface-subtle);
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-md);
+        border-radius: 0;
         padding: 0.85rem 1rem;
         display: flex;
         flex-direction: column;
@@ -115,7 +115,7 @@ $recordId = $_GET['id'] ?? null;
     }
 
     .elem-status-box {
-        border-radius: var(--radius-md);
+        border-radius: 0;
         padding: 0.75rem 0.85rem;
         display: flex;
         flex-direction: column;
@@ -140,7 +140,7 @@ $recordId = $_GET['id'] ?? null;
         width: 100%;
         padding: 0.85rem 1rem;
         border: 1px solid var(--border-medium);
-        border-radius: var(--radius-md);
+        border-radius: 0 !important;
         font-size: 0.92rem;
         font-family: inherit;
         line-height: 1.6;
@@ -151,7 +151,7 @@ $recordId = $_GET['id'] ?? null;
     .notes-textarea-control:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
     }
 </style>
 
@@ -159,10 +159,10 @@ $recordId = $_GET['id'] ?? null;
     <div class="name-detail-page">
         <!-- Breadcrumb / Actions -->
         <div class="detail-top-nav">
-            <a href="saved.php" class="btn btn-secondary btn-sm">← Back to Saved Records</a>
+            <a href="saved.php" class="btn btn-secondary btn-sm" style="border-radius: 2px;">← Back to Saved Records</a>
             <div style="display: flex; gap: 0.45rem;">
-                <button id="btnEditName" class="btn btn-secondary btn-sm">✏️ Edit Details</button>
-                <button id="btnDeleteName" class="btn btn-danger btn-sm">🗑️ Delete Entry</button>
+                <button id="btnEditName" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">✏️ Edit Details</button>
+                <button id="btnDeleteName" type="button" class="btn btn-danger btn-sm" style="border-radius: 2px;">🗑️ Delete Entry</button>
             </div>
         </div>
 
@@ -231,47 +231,47 @@ $recordId = $_GET['id'] ?? null;
                 <textarea id="nameNotesInput" class="notes-textarea-control" rows="5" placeholder="Enter personalized notes, spiritual insights, or consultation records for this specific name..."></textarea>
                 
                 <div style="display: flex; justify-content: flex-end;">
-                    <button id="btnSaveNotes" class="btn btn-primary">💾 Save Specific Notes</button>
+                    <button id="btnSaveNotes" type="button" class="btn btn-primary" style="border-radius: 2px;">💾 Save Specific Notes</button>
                 </div>
             </div>
         </div>
 
         <!-- Inline Edit Modal -->
         <div id="editModalOverlay" class="modal-overlay-custom">
-            <div class="modal-card-box" style="text-align: left; max-width: 520px;">
+            <div class="modal-card-box" style="text-align: left; max-width: 520px; border-radius: 0;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
                     <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">Edit Name Record</h3>
-                    <button id="btnCancelEditTop" class="btn btn-sm btn-secondary" style="padding: 0.15rem 0.45rem;">✕</button>
+                    <button id="btnCancelEditTop" type="button" class="btn btn-sm btn-secondary" style="padding: 0.15rem 0.45rem; border-radius: 2px;">✕</button>
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 0.85rem;">
                     <div>
                         <label class="form-label" for="editName">Name (Arabic/Urdu) *</label>
-                        <input type="text" id="editName" class="form-control" style="font-family: var(--font-arabic); font-size: 1.25rem; direction: rtl;">
+                        <input type="text" id="editName" class="form-control" style="font-family: var(--font-arabic); font-size: 1.25rem; direction: rtl; border-radius: 0;">
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                         <div>
                             <label class="form-label" for="editTotal">Total Abjad *</label>
-                            <input type="number" id="editTotal" class="form-control">
+                            <input type="number" id="editTotal" class="form-control" style="border-radius: 0;">
                         </div>
                         <div>
                             <label class="form-label" for="editSingle">Single Root *</label>
-                            <input type="number" id="editSingle" class="form-control">
+                            <input type="number" id="editSingle" class="form-control" style="border-radius: 0;">
                         </div>
                     </div>
                     <div>
                         <label class="form-label" for="editOrigin">Origin</label>
-                        <input type="text" id="editOrigin" class="form-control">
+                        <input type="text" id="editOrigin" class="form-control" style="border-radius: 0;">
                     </div>
                     <div>
                         <label class="form-label" for="editMeanings">Meanings</label>
-                        <input type="text" id="editMeanings" class="form-control">
+                        <input type="text" id="editMeanings" class="form-control" style="border-radius: 0;">
                     </div>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
-                    <button id="btnCancelEdit" class="btn btn-secondary btn-sm">Cancel</button>
-                    <button id="btnSubmitEdit" class="btn btn-primary btn-sm">Save Changes</button>
+                    <button id="btnCancelEdit" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">Cancel</button>
+                    <button id="btnSubmitEdit" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -352,26 +352,26 @@ $recordId = $_GET['id'] ?? null;
         document.getElementById('elementsContainer').innerHTML = `
             <div class="elem-status-box elem-box-fire">
                 <div class="elem-box-header"><span>🔥 Fire (آتشی)</span><span>${pFire}%</span></div>
-                <div style="height: 4px; background: rgba(234,88,12,0.15); border-radius: 2px; overflow: hidden;">
-                    <div style="width: ${pFire}%; height: 100%; background: var(--fire-color);"></div>
+                <div style="height: 4px; background: rgba(234,88,12,0.15); border-radius: 0; overflow: hidden;">
+                    <div style="width: ${pFire}%; height: 100%; background: var(--fire-color); border-radius: 0;"></div>
                 </div>
             </div>
             <div class="elem-status-box elem-box-air">
                 <div class="elem-box-header"><span>💨 Air (بادی)</span><span>${pAir}%</span></div>
-                <div style="height: 4px; background: rgba(2,132,199,0.15); border-radius: 2px; overflow: hidden;">
-                    <div style="width: ${pAir}%; height: 100%; background: var(--air-color);"></div>
+                <div style="height: 4px; background: rgba(2,132,199,0.15); border-radius: 0; overflow: hidden;">
+                    <div style="width: ${pAir}%; height: 100%; background: var(--air-color); border-radius: 0;"></div>
                 </div>
             </div>
             <div class="elem-status-box elem-box-water">
                 <div class="elem-box-header"><span>💧 Water (آبی)</span><span>${pWater}%</span></div>
-                <div style="height: 4px; background: rgba(37,99,235,0.15); border-radius: 2px; overflow: hidden;">
-                    <div style="width: ${pWater}%; height: 100%; background: var(--water-color);"></div>
+                <div style="height: 4px; background: rgba(37,99,235,0.15); border-radius: 0; overflow: hidden;">
+                    <div style="width: ${pWater}%; height: 100%; background: var(--water-color); border-radius: 0;"></div>
                 </div>
             </div>
             <div class="elem-status-box elem-box-earth">
                 <div class="elem-box-header"><span>🪨 Earth (خاکی)</span><span>${pEarth}%</span></div>
-                <div style="height: 4px; background: rgba(22,163,74,0.15); border-radius: 2px; overflow: hidden;">
-                    <div style="width: ${pEarth}%; height: 100%; background: var(--earth-color);"></div>
+                <div style="height: 4px; background: rgba(22,163,74,0.15); border-radius: 0; overflow: hidden;">
+                    <div style="width: ${pEarth}%; height: 100%; background: var(--earth-color); border-radius: 0;"></div>
                 </div>
             </div>
         `;

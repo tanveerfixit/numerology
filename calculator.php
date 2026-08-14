@@ -9,7 +9,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
 ?>
 
 <style>
-    /* Calculator Page Layout */
+    /* Calculator Page Layout: Zero border-radius on inputs, divs, cards; 2px on buttons */
     .calc-page-wrapper {
         max-width: 980px;
         margin: 0 auto;
@@ -21,7 +21,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
     .workbench-card {
         background: var(--surface-card);
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 1.5rem;
         box-shadow: var(--shadow-sm);
         display: flex;
@@ -49,6 +49,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
         font-size: 0.75rem;
         color: var(--text-muted);
         font-weight: 500;
+        border-radius: 0;
     }
 
     .main-calc-input {
@@ -56,7 +57,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
         padding: 0.9rem 1.15rem;
         background: #ffffff;
         border: 2px solid var(--border-medium);
-        border-radius: var(--radius-md);
+        border-radius: 0 !important;
         color: var(--text-primary);
         font-family: var(--font-arabic);
         font-size: 1.85rem;
@@ -68,7 +69,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
     .main-calc-input:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
         background: #ffffff;
     }
 
@@ -89,7 +90,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
     .element-telemetry-item {
         background: var(--surface-subtle);
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-md);
+        border-radius: 0;
         padding: 0.65rem 0.85rem;
         display: flex;
         flex-direction: column;
@@ -108,13 +109,13 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
         width: 100%;
         height: 6px;
         background: #e2e8f0;
-        border-radius: var(--radius-full);
+        border-radius: 0;
         overflow: hidden;
     }
 
     .elem-bar-fill-custom {
         height: 100%;
-        border-radius: var(--radius-full);
+        border-radius: 0;
         transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -160,7 +161,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
         width: 100%;
         padding: 0.38rem 0.65rem;
         border: 1px solid var(--border-medium);
-        border-radius: var(--radius-sm);
+        border-radius: 0 !important;
         font-size: 0.85rem;
         font-family: inherit;
     }
@@ -174,7 +175,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
     .results-display-card {
         background: #ffffff;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 1.5rem;
         box-shadow: var(--shadow-sm);
         display: grid;
@@ -254,7 +255,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
     .letter-chip {
         background: #ffffff;
         border: 1px solid var(--border-medium);
-        border-radius: var(--radius-md);
+        border-radius: 0;
         padding: 0.35rem 0.65rem;
         display: flex;
         flex-direction: column;
@@ -286,7 +287,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
     .chip-elem-dot {
         width: 6px;
         height: 6px;
-        border-radius: 50%;
+        border-radius: 0;
         margin-top: 2px;
     }
 
@@ -302,7 +303,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
     .keyboard-drawer-card {
         background: #ffffff;
         border: 1px solid var(--border-medium);
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 1.25rem;
         box-shadow: var(--shadow-md);
         display: flex;
@@ -345,7 +346,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
     .kb-key-tile {
         background: #ffffff;
         border: 1px solid var(--border-medium);
-        border-radius: var(--radius-md);
+        border-radius: 0;
         height: 58px;
         display: flex;
         flex-direction: column;
@@ -402,7 +403,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
 
     .modal-card-box {
         background: #ffffff;
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         border: 1px solid var(--border-subtle);
         max-width: 480px;
         width: 100%;
@@ -422,7 +423,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
     <div class="calc-page-wrapper">
 
         <?php if ($currentUser && !empty($userCircumstance)): ?>
-            <div class="alert alert-info">
+            <div class="alert alert-info" style="border-radius: 0;">
                 <span style="font-size: 1.2rem;">📌</span>
                 <div>
                     <strong>Your Circumstance Note:</strong>
@@ -441,7 +442,7 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
                     <span>🔤</span> Name or Text Input (Arabic / Urdu / Persian)
                 </span>
                 <div style="display: flex; align-items: center; gap: 0.6rem;">
-                    <button id="btnToggleKeyboard" type="button" class="btn btn-sm" style="background: var(--primary-light); color: var(--primary); border-color: var(--primary-border); font-weight: 600; padding: 0.28rem 0.75rem;">
+                    <button id="btnToggleKeyboard" type="button" class="btn btn-sm" style="background: var(--primary-light); color: var(--primary); border-color: var(--primary-border); font-weight: 600; padding: 0.28rem 0.75rem; border-radius: 2px;">
                         ⌨️ Urdu Keyboard
                     </button>
                     <span class="input-stats-badge" id="charCountLabel">0 characters</span>
@@ -457,12 +458,12 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
                     <span class="kb-title">
                         ⌨️ Urdu / Arabic Virtual Keyboard (Target: <span id="activeFieldLabel" style="color: var(--primary);">Main Input</span>)
                     </span>
-                    <button id="btnCloseKeyboard" class="btn btn-sm btn-secondary" style="color: var(--danger);">✕ Close Keyboard</button>
+                    <button id="btnCloseKeyboard" type="button" class="btn btn-sm btn-secondary" style="color: var(--danger); border-radius: 2px;">✕ Close Keyboard</button>
                 </div>
 
                 <div class="kb-special-keys-row">
-                    <button id="btnSpaceBar" class="btn btn-secondary" style="flex: 2; padding: 0.5rem;">Space Bar ␣</button>
-                    <button id="btnBackspace" class="btn btn-danger" style="flex: 1; padding: 0.5rem;">Backspace ⌫</button>
+                    <button id="btnSpaceBar" type="button" class="btn btn-secondary" style="flex: 2; padding: 0.5rem; border-radius: 2px;">Space Bar ␣</button>
+                    <button id="btnBackspace" type="button" class="btn btn-danger" style="flex: 1; padding: 0.5rem; border-radius: 2px;">Backspace ⌫</button>
                 </div>
 
                 <div class="kb-grid-matrix" id="lettersGrid"></div>
@@ -514,10 +515,10 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
             <!-- Action Toolbar & Metadata Inputs -->
             <div class="calc-toolbar-row">
                 <div class="toolbar-left-buttons">
-                    <button id="btnClear" class="btn btn-secondary btn-sm" title="Clear input fields">✕ Clear</button>
-                    <button id="btnCopyResult" class="btn btn-secondary btn-sm" title="Copy breakdown to clipboard">📋 Copy</button>
-                    <button id="btnSave" class="btn btn-primary btn-sm">💾 Save Record</button>
-                    <button id="btnMemo" class="btn btn-secondary btn-sm">📜 Saved History</button>
+                    <button id="btnClear" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="Clear input fields">✕ Clear</button>
+                    <button id="btnCopyResult" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="Copy breakdown to clipboard">📋 Copy</button>
+                    <button id="btnSave" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">💾 Save Record</button>
+                    <button id="btnMemo" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">📜 Saved History</button>
                 </div>
 
                 <div class="metadata-inputs-group">
@@ -579,10 +580,10 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
             Saving calculations or managing the saved names history database is strictly reserved for Staff and Admin accounts.
         </p>
         <div id="promptAuthButtons" style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 0.75rem;">
-            <a href="index.php?auth=login" class="btn btn-primary" style="flex: 1; padding: 0.55rem;">Sign In</a>
-            <a href="index.php?auth=signup" class="btn btn-secondary" style="flex: 1; padding: 0.55rem;">Create Account</a>
+            <a href="index.php?auth=login" class="btn btn-primary" style="flex: 1; padding: 0.55rem; border-radius: 2px;">Sign In</a>
+            <a href="index.php?auth=signup" class="btn btn-secondary" style="flex: 1; padding: 0.55rem; border-radius: 2px;">Create Account</a>
         </div>
-        <button id="btnClosePrompt" class="btn btn-sm btn-secondary" style="width: 100%;">Dismiss</button>
+        <button id="btnClosePrompt" type="button" class="btn btn-sm btn-secondary" style="width: 100%; border-radius: 2px;">Dismiss</button>
     </div>
 </div>
 
