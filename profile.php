@@ -1,215 +1,160 @@
 <?php
 // profile.php
-$pageTitle = 'My Profile & Circumstance Chat History';
+$pageTitle = 'Member Profile & Consultation Stream';
 require_once __DIR__ . '/includes/header.php';
 
 requireLogin();
 ?>
 
 <style>
-    .profile-container {
+    .profile-dashboard-layout {
         display: grid;
-        grid-template-columns: 1fr 1.6fr;
-        gap: 1.5rem;
-        max-width: 1050px;
-        margin: 0 auto;
+        grid-template-columns: 320px 1fr;
+        gap: 1.75rem;
+        align-items: flex-start;
     }
 
-    @media (max-width: 768px) {
-        .profile-container {
+    @media (max-width: 860px) {
+        .profile-dashboard-layout {
             grid-template-columns: 1fr;
+            gap: 1.25rem;
         }
     }
 
-    .profile-card {
+    .profile-card-panel {
         background: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 10px;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
         padding: 1.5rem;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
     }
 
-    .profile-title {
-        font-size: 1.2rem;
+    .user-profile-header-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .large-user-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: var(--radius-full);
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: #ffffff;
+        font-size: 1.65rem;
         font-weight: 700;
-        color: #0f172a;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid #e2e8f0;
-        padding-bottom: 0.5rem;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-    }
-
-    .info-group {
+        justify-content: center;
         margin-bottom: 0.75rem;
+        box-shadow: var(--shadow-sm);
     }
 
-    .info-label {
-        font-size: 0.75rem;
-        font-weight: 600;
+    .profile-meta-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+
+    .meta-data-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .meta-data-label {
+        font-size: 0.72rem;
+        font-weight: 700;
         text-transform: uppercase;
-        color: #64748b;
+        color: var(--text-muted);
         letter-spacing: 0.04em;
     }
 
-    .info-val {
-        font-size: 0.95rem;
-        color: #0f172a;
-        font-weight: 500;
+    .meta-data-value {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-top: 0.15rem;
     }
 
-    /* Single Chat Thread Styles */
-    .chat-box-wrapper {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 1rem;
-        max-height: 400px;
+    /* Consultation Stream */
+    .chat-stream-container {
+        background: var(--surface-subtle);
+        border: 1px solid var(--border-medium);
+        border-radius: var(--radius-md);
+        padding: 1.15rem;
+        max-height: 420px;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
-        margin-bottom: 1.25rem;
+        gap: 0.85rem;
     }
 
-    .chat-bubble {
-        max-width: 85%;
-        padding: 0.75rem 1rem;
-        border-radius: 10px;
-        font-size: 0.88rem;
+    .chat-bubble-stream {
+        max-width: 82%;
+        padding: 0.85rem 1.1rem;
+        border-radius: var(--radius-md);
+        font-size: 0.9rem;
         line-height: 1.5;
         position: relative;
     }
 
-    .chat-user {
+    .user-stream-bubble {
         align-self: flex-end;
-        background: #eff6ff;
-        border: 1px solid #bfdbfe;
+        background: var(--primary-light);
+        border: 1px solid var(--primary-border);
         color: #1e3a8a;
         border-bottom-right-radius: 2px;
     }
 
-    .chat-admin {
+    .admin-stream-bubble {
         align-self: flex-start;
         background: #ffffff;
-        border: 1px solid #cbd5e1;
-        color: #0f172a;
+        border: 1px solid var(--border-medium);
+        color: var(--text-primary);
+        box-shadow: var(--shadow-xs);
         border-bottom-left-radius: 2px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
 
-    .chat-meta {
-        font-size: 0.7rem;
-        color: #64748b;
-        margin-bottom: 0.25rem;
+    .stream-bubble-header {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        font-size: 0.72rem;
+        margin-bottom: 0.35rem;
+        color: var(--text-muted);
         gap: 1rem;
     }
 
-    .form-group {
-        margin-bottom: 0.85rem;
-    }
-
-    .form-group label {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 500;
-        color: #475569;
-        margin-bottom: 0.25rem;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 0.5rem 0.75rem;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        font-family: inherit;
-    }
-
-    .form-control:focus {
-        outline: none;
-        border-color: #2563eb;
-    }
-
-    /* Built-in Urdu Keyboard */
-    .chart-section {
-        margin-top: 1.25rem;
+    /* Query Form */
+    .query-form-card {
+        border-top: 1px solid var(--border-subtle);
+        padding-top: 1.25rem;
         display: flex;
         flex-direction: column;
-        gap: 0.6rem;
-        max-width: 1050px;
-        margin-left: auto;
-        margin-right: auto;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 10px;
-        padding: 1rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-    }
-
-    .letters-grid {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.45rem;
-        direction: rtl;
-    }
-
-    .letter-card {
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        cursor: pointer;
-        user-select: none;
-        width: 54px;
-        height: 54px;
-        transition: all 0.12s ease;
-    }
-
-    .letter-card:hover {
-        background: #f1f5f9;
-        border-color: #2563eb;
-    }
-
-    .letter-arabic {
-        position: absolute;
-        font-family: 'Amiri', serif;
-        font-size: 1.7rem;
-        color: #0f172a;
-        line-height: 1;
+        gap: 0.85rem;
     }
 </style>
 
 <main class="container">
-    <div class="profile-container">
-        <!-- Account Overview Card -->
-        <div class="profile-card">
-            <h2 class="profile-title">
-                <span>👤 Account Overview</span>
-            </h2>
-            
-            <div class="info-group">
-                <div class="info-label">Username</div>
-                <div class="info-val"><?php echo htmlspecialchars($currentUser['username']); ?></div>
-            </div>
-
-            <div class="info-group">
-                <div class="info-label">Email Address</div>
-                <div class="info-val"><?php echo htmlspecialchars($currentUser['email']); ?></div>
-            </div>
-
-            <div class="info-group">
-                <div class="info-label">Account Role & Status</div>
-                <div style="display: flex; gap: 0.4rem; align-items: center; margin-top: 0.2rem;">
-                    <span class="user-badge" style="text-transform: capitalize; font-weight: 600; color: #0f172a;">
-                        Role: <?php echo htmlspecialchars($currentUser['role']); ?>
+    <div class="profile-dashboard-layout">
+        <!-- Left: Account & Identity Card -->
+        <div class="profile-card-panel">
+            <div class="user-profile-header-card">
+                <div class="large-user-avatar">
+                    <?php echo strtoupper(substr($currentUser['username'], 0, 1)); ?>
+                </div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">
+                    <?php echo htmlspecialchars($currentUser['username']); ?>
+                </h2>
+                <div style="display: flex; gap: 0.4rem; align-items: center; margin-top: 0.4rem;">
+                    <span class="role-badge role-<?php echo htmlspecialchars($currentUser['role']); ?>">
+                        <?php echo htmlspecialchars($currentUser['role']); ?>
                     </span>
                     <span class="status-badge status-<?php echo htmlspecialchars($currentUser['status']); ?>">
                         <?php echo htmlspecialchars($currentUser['status']); ?>
@@ -217,68 +162,92 @@ requireLogin();
                 </div>
             </div>
 
-            <!-- Quick Instructions -->
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.85rem; margin-top: 1rem; font-size: 0.8rem; color: #475569; line-height: 1.5;">
-                ℹ️ <strong>Circumstance Q&A Chat:</strong> You can ask questions to the admin at any time using the form. All your past questions and admin replies are safely stored in your chat history log.
+            <div class="profile-meta-list">
+                <div class="meta-data-group">
+                    <span class="meta-data-label">Account Email</span>
+                    <span class="meta-data-value"><?php echo htmlspecialchars($currentUser['email']); ?></span>
+                </div>
+                <div class="meta-data-group">
+                    <span class="meta-data-label">Membership Type</span>
+                    <span class="meta-data-value">
+                        <?php echo ucfirst(htmlspecialchars($currentUser['role'])); ?> Access
+                    </span>
+                </div>
+            </div>
+
+            <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5;">
+                <strong>💡 Consultation Guidance:</strong> You can submit specific inquiries to our administration team. All questions and replies remain organized in your persistent consultation stream.
             </div>
         </div>
 
-        <!-- Single Chat History & Request Form Card -->
-        <div class="profile-card">
-            <div class="profile-title">
-                <span>💬 Circumstance Chat History & Request</span>
-                <button id="btnToggleKeyboard" class="btn btn-sm" style="border-color: #2563eb; color: #2563eb; font-weight: 600;">Urdu Keyboard ⌨️</button>
+        <!-- Right: Consultation Stream & Question Composer -->
+        <div class="profile-card-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.85rem;">
+                <div>
+                    <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.45rem;">
+                        <span>💬</span> Consultation Dialogue & Inquiries
+                    </h2>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.15rem;">Private direct thread between your account and the administrative scholars.</p>
+                </div>
+                <button id="btnToggleKeyboard" class="btn btn-secondary btn-sm" style="font-weight: 600;">
+                    ⌨️ Urdu Keyboard
+                </button>
             </div>
 
-            <!-- Chat History Thread Box -->
-            <div id="chatBoxThread" class="chat-box-wrapper">
-                <div style="text-align: center; color: #64748b; font-size: 0.85rem;">Loading chat history...</div>
+            <!-- Messages Stream Box -->
+            <div id="chatBoxThread" class="chat-stream-container">
+                <div style="text-align: center; color: var(--text-muted); font-size: 0.88rem; padding: 2rem;">Loading consultation history...</div>
             </div>
 
             <div id="requestAlert" style="display: none;"></div>
 
-            <!-- Ask New Question Form -->
-            <form id="circumstanceRequestForm" style="border-top: 1px solid #e2e8f0; padding-top: 1rem;">
-                <h4 style="font-size: 0.95rem; color: #0f172a; margin-bottom: 0.75rem;">Ask a New Question / Circumstance Query</h4>
+            <!-- Ask New Question / Submit Consultation Query -->
+            <form id="circumstanceRequestForm" class="query-form-card">
+                <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">
+                    Ask a New Consultation Question
+                </h3>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                    <div class="form-group">
-                        <label for="nameLookup">Name Lookup *</label>
-                        <input type="text" id="nameLookup" class="form-control" required placeholder="Target name to lookup">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div>
+                        <label class="form-label" for="nameLookup">Target Name to Analyze *</label>
+                        <input type="text" id="nameLookup" class="form-control" required placeholder="e.g. احمد / فاطمہ" style="font-family: var(--font-arabic); font-size: 1.1rem; direction: rtl;">
                     </div>
 
-                    <div class="form-group">
-                        <label for="relationship">Relationship *</label>
-                        <input type="text" id="relationship" class="form-control" required placeholder="e.g. Self, Spouse, Partner">
+                    <div>
+                        <label class="form-label" for="relationship">Relationship / Connection *</label>
+                        <input type="text" id="relationship" class="form-control" required placeholder="e.g. Self, Spouse, Business Partner">
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="fullName">Full Name *</label>
-                    <input type="text" id="fullName" class="form-control" required placeholder="Enter full name for verification">
+                <div>
+                    <label class="form-label" for="fullName">Your Full Name (for verification) *</label>
+                    <input type="text" id="fullName" class="form-control" required placeholder="Enter your full registered name">
                 </div>
 
-                <div class="form-group">
-                    <label for="question">Question / Query Details *</label>
-                    <textarea id="question" rows="3" class="form-control" required placeholder="State your question for the admin..."></textarea>
+                <div>
+                    <label class="form-label" for="question">Detailed Question / Specific Circumstance *</label>
+                    <textarea id="question" rows="3" class="form-control" required placeholder="Type your question or circumstance details here for the admin..."></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.55rem;">Send Question to Admin ✉️</button>
+                <button type="submit" class="btn btn-primary" style="justify-content: center; padding: 0.65rem;">
+                    ✉️ Submit Question to Admin
+                </button>
             </form>
-        </div>
-    </div>
 
-    <!-- Built-in Urdu Keyboard (DEFAULT HIDDEN) -->
-    <div class="chart-section" id="keyboardContainer" style="display: none; margin-top: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.4rem;">
-            <span style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">Built-in Urdu Keyboard ⌨️ (Active Target: <span id="activeFieldLabel" style="color: #2563eb;">Name Lookup</span>)</span>
-            <button id="btnCloseKeyboard" class="btn btn-sm" style="color: #dc2626;">✕ Hide</button>
+            <!-- Virtual Urdu Keyboard Drawer (Default Hidden) -->
+            <div class="keyboard-drawer-card" id="keyboardContainer" style="display: none; margin-top: 1rem;">
+                <div class="kb-header-row">
+                    <span class="kb-title">⌨️ Virtual Urdu Keyboard (Target: <span id="activeFieldLabel" style="color: var(--primary);">Target Name</span>)</span>
+                    <button id="btnCloseKeyboard" class="btn btn-secondary btn-sm" style="color: var(--danger);">✕ Close</button>
+                </div>
+                <div class="kb-special-keys-row">
+                    <button id="btnSpaceBar" class="btn btn-secondary" style="flex: 2; padding: 0.5rem;">Space Bar ␣</button>
+                    <button id="btnBackspace" class="btn btn-danger" style="flex: 1; padding: 0.5rem;">Backspace ⌫</button>
+                </div>
+                <div class="kb-grid-matrix" id="lettersGrid"></div>
+            </div>
+
         </div>
-        <div id="keyboardActionRow" style="display: flex; gap: 0.5rem; width: 100%;">
-            <button id="btnSpaceBar" class="btn btn-primary" style="flex: 1; padding: 0.4rem 0;">Space Bar ␣</button>
-            <button id="btnBackspace" class="btn btn-danger" style="flex: 1; padding: 0.4rem 0;">Backspace ⌫</button>
-        </div>
-        <div class="letters-grid" id="lettersGrid"></div>
     </div>
 </main>
 
@@ -295,14 +264,14 @@ requireLogin();
 
     let activeInputField = document.getElementById('nameLookup');
 
-    function renderMainGrid() {
+    function renderVirtualKeyboard() {
         const grid = document.getElementById('lettersGrid');
         if (!grid) return;
         grid.innerHTML = '';
         letterData.forEach(item => {
             const card = document.createElement('div');
-            card.className = 'letter-card';
-            card.innerHTML = `<span class="letter-arabic">${item.char}</span>`;
+            card.className = 'kb-key-tile';
+            card.innerHTML = `<span class="kb-arabic-glyph">${item.char}</span>`;
             card.onclick = () => insertChar(item.char);
             grid.appendChild(card);
         });
@@ -339,25 +308,29 @@ requireLogin();
         .then(messages => {
             const chatBox = document.getElementById('chatBoxThread');
             if (!Array.isArray(messages) || messages.length === 0) {
-                chatBox.innerHTML = '<div style="text-align: center; color: #64748b; font-size: 0.85rem; padding: 1rem;">No chat history yet. Ask your first question below!</div>';
+                chatBox.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 0.88rem; padding: 2rem;">No consultation messages yet. Submit your first inquiry below!</div>';
                 return;
             }
 
             let html = '';
             messages.forEach(m => {
                 const isUser = m.sender === 'user';
-                const bubbleClass = isUser ? 'chat-user' : 'chat-admin';
-                const senderTitle = isUser ? '👤 You' : '🛡️ Admin Reply';
-                const details = m.name_lookup ? `<div style="font-size: 0.75rem; border-bottom: 1px solid rgba(0,0,0,0.06); padding-bottom: 0.25rem; margin-bottom: 0.25rem;"><strong>Target:</strong> ${escapeHtml(m.name_lookup)} | <strong>Rel:</strong> ${escapeHtml(m.relationship)} | <strong>Name:</strong> ${escapeHtml(m.name)}</div>` : '';
+                const bubbleClass = isUser ? 'user-stream-bubble' : 'admin-stream-bubble';
+                const senderTitle = isUser ? '👤 You (Inquiry)' : '🛡️ Admin Response';
+                const details = m.name_lookup ? `
+                    <div style="font-size: 0.75rem; background: rgba(0,0,0,0.03); border-radius: 4px; padding: 0.25rem 0.45rem; margin-bottom: 0.35rem;">
+                        <strong>Target:</strong> ${escapeHtml(m.name_lookup)} | <strong>Rel:</strong> ${escapeHtml(m.relationship)} | <strong>Name:</strong> ${escapeHtml(m.name)}
+                    </div>
+                ` : '';
 
                 html += `
-                    <div class="chat-bubble ${bubbleClass}">
-                        <div class="chat-meta">
-                            <strong>${senderTitle}</strong>
+                    <div class="chat-bubble-stream ${bubbleClass}">
+                        <div class="stream-bubble-header">
+                            <strong style="color: var(--text-primary);">${senderTitle}</strong>
                             <span>${m.created_at || ''}</span>
                         </div>
                         ${details}
-                        <div>${nl2br(escapeHtml(m.message))}</div>
+                        <div style="white-space: pre-wrap;">${escapeHtml(m.message)}</div>
                     </div>
                 `;
             });
@@ -365,7 +338,7 @@ requireLogin();
             chatBox.scrollTop = chatBox.scrollHeight;
         })
         .catch(() => {
-            document.getElementById('chatBoxThread').innerHTML = '<div style="color:#dc2626; text-align:center;">Failed to load chat history.</div>';
+            document.getElementById('chatBoxThread').innerHTML = '<div style="color:var(--danger); text-align:center; padding:1rem;">Failed to load chat history.</div>';
         });
     }
 
@@ -373,12 +346,8 @@ requireLogin();
         return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    function nl2br(str) {
-        return (str || '').replace(/\n/g, "<br>");
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-        renderMainGrid();
+        renderVirtualKeyboard();
         loadUserChats();
 
         const allInputs = document.querySelectorAll('input[type="text"], input[type="search"], textarea');
@@ -393,11 +362,7 @@ requireLogin();
 
         const kbContainer = document.getElementById('keyboardContainer');
         document.getElementById('btnToggleKeyboard').addEventListener('click', () => {
-            if (kbContainer.style.display === 'none' || !kbContainer.style.display) {
-                kbContainer.style.display = 'flex';
-            } else {
-                kbContainer.style.display = 'none';
-            }
+            kbContainer.style.display = (kbContainer.style.display === 'none' || !kbContainer.style.display) ? 'flex' : 'none';
         });
         document.getElementById('btnCloseKeyboard').addEventListener('click', () => {
             kbContainer.style.display = 'none';
@@ -424,29 +389,26 @@ requireLogin();
             .then(data => {
                 if (data.success) {
                     alertDiv.className = 'alert alert-success';
-                    alertDiv.innerText = data.message || 'Question sent successfully!';
-                    alertDiv.style.display = 'block';
+                    alertDiv.innerText = '✓ ' + (data.message || 'Question submitted successfully!');
+                    alertDiv.style.display = 'flex';
 
-                    // CLEAR ALL INPUT FIELDS so user can ask again cleanly
-                    document.getElementById('nameLookup').value = '';
-                    document.getElementById('relationship').value = '';
-                    document.getElementById('fullName').value = '';
-                    document.getElementById('question').value = '';
+                    // Clear form inputs
+                    form.reset();
 
-                    // Reload chat history thread
+                    // Reload stream
                     loadUserChats();
 
                     setTimeout(() => { alertDiv.style.display = 'none'; }, 4000);
                 } else {
                     alertDiv.className = 'alert alert-danger';
                     alertDiv.innerText = data.error || 'Submission failed.';
-                    alertDiv.style.display = 'block';
+                    alertDiv.style.display = 'flex';
                 }
             })
             .catch(() => {
                 alertDiv.className = 'alert alert-danger';
                 alertDiv.innerText = 'Network error submitting request.';
-                alertDiv.style.display = 'block';
+                alertDiv.style.display = 'flex';
             });
         });
     });

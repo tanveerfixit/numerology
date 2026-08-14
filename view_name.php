@@ -1,14 +1,17 @@
 <?php
 // view_name.php
-$pageTitle = 'Single Name Details & Notes';
+$pageTitle = 'Name Inspection & Specific Notes';
 require_once __DIR__ . '/includes/header.php';
 
 requireLogin();
 if (!$currentUser || $currentUser['status'] !== 'approved') {
-    echo '<main style="text-align: center; padding: 2rem 1rem;">
-            <h2>Account Approval Required</h2>
-            <p>Your account must be logged in and approved by an administrator to view name record details.</p>
-            <a href="calculator.php" class="btn btn-primary">Return to Calculator</a>
+    echo '<main class="container" style="text-align: center; padding: 3rem 1.5rem;">
+            <div style="background: #ffffff; border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: var(--radius-lg); max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-md);">
+                <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🔒</div>
+                <h2 style="font-size: 1.35rem; color: var(--text-primary); margin-bottom: 0.5rem;">Account Approval Required</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">Your account must be approved by an administrator to view name record details and notes.</p>
+                <a href="calculator.php" class="btn btn-primary">Return to Calculator</a>
+            </div>
           </main>';
     require_once __DIR__ . '/includes/footer.php';
     exit;
@@ -18,184 +21,261 @@ $recordId = $_GET['id'] ?? null;
 ?>
 
 <style>
-    main.container-name-detail {
-        width: 100%;
-        max-width: 950px;
+    .name-detail-page {
+        max-width: 920px;
         margin: 0 auto;
-        padding: 0.75rem 1rem;
-        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
     }
 
-    .detail-card {
+    .detail-top-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .detail-card-panel {
         background: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 1.25rem;
-        margin-bottom: 1rem;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 1.75rem;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
     }
 
-    .name-title-arabic {
-        font-family: 'Amiri', serif;
-        font-size: 2.8rem;
-        color: #0f172a;
+    .name-calligraphy-banner {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 1.25rem;
+    }
+
+    .name-arabic-hero {
+        font-family: var(--font-arabic);
+        font-size: 3.2rem;
+        font-weight: 700;
+        color: var(--text-primary);
         direction: rtl;
-        line-height: 1.2;
+        line-height: 1.15;
     }
 
-    .metrics-grid {
+    .metrics-stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-        gap: 0.75rem;
-        margin: 1rem 0;
-        background: #f8fafc;
-        padding: 0.85rem;
-        border-radius: 6px;
-        border: 1px solid #e2e8f0;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
     }
 
-    .metric-item {
+    @media (max-width: 640px) {
+        .metrics-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .metric-panel-item {
+        background: var(--surface-subtle);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        padding: 0.85rem 1rem;
         display: flex;
         flex-direction: column;
     }
 
-    .metric-label {
+    .metric-panel-label {
         font-size: 0.72rem;
-        color: #64748b;
-        font-weight: 600;
+        font-weight: 700;
         text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.04em;
     }
 
-    .metric-val {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #0f172a;
+    .metric-panel-value {
+        font-size: 1.6rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-top: 0.2rem;
     }
 
-    .elements-box {
-        display: flex;
+    /* Elements Breakdown */
+    .elements-status-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
         gap: 0.75rem;
-        flex-wrap: wrap;
-        margin-top: 0.5rem;
     }
 
-    .elem-pill {
-        flex: 1;
-        min-width: 100px;
-        padding: 0.5rem;
-        border-radius: 6px;
-        text-align: center;
-        font-size: 0.85rem;
+    @media (max-width: 640px) {
+        .elements-status-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .elem-status-box {
+        border-radius: var(--radius-md);
+        padding: 0.75rem 0.85rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        border: 1px solid transparent;
+    }
+
+    .elem-box-fire { background: var(--fire-bg); color: var(--fire-color); border-color: var(--fire-border); }
+    .elem-box-air { background: var(--air-bg); color: var(--air-color); border-color: var(--air-border); }
+    .elem-box-water { background: var(--water-bg); color: var(--water-color); border-color: var(--water-border); }
+    .elem-box-earth { background: var(--earth-bg); color: var(--earth-color); border-color: var(--earth-border); }
+
+    .elem-box-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.82rem;
         font-weight: 700;
     }
 
-    .elem-fire { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
-    .elem-air { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-    .elem-water { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-    .elem-earth { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+    /* Notes section */
+    .notes-textarea-control {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        border: 1px solid var(--border-medium);
+        border-radius: var(--radius-md);
+        font-size: 0.92rem;
+        font-family: inherit;
+        line-height: 1.6;
+        color: var(--text-primary);
+        resize: vertical;
+    }
+
+    .notes-textarea-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
 </style>
 
-<main class="container-name-detail">
-    <!-- Top Action Line -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
-        <a href="saved.php" class="btn btn-sm">← Back to Saved List</a>
-        <div style="display: flex; gap: 0.4rem;">
-            <button id="btnEditName" class="btn btn-sm">Edit Entry ✏️</button>
-            <button id="btnDeleteName" class="btn btn-danger btn-sm">Delete Entry 🗑️</button>
+<main class="container">
+    <div class="name-detail-page">
+        <!-- Breadcrumb / Actions -->
+        <div class="detail-top-nav">
+            <a href="saved.php" class="btn btn-secondary btn-sm">← Back to Saved Records</a>
+            <div style="display: flex; gap: 0.45rem;">
+                <button id="btnEditName" class="btn btn-secondary btn-sm">✏️ Edit Details</button>
+                <button id="btnDeleteName" class="btn btn-danger btn-sm">🗑️ Delete Entry</button>
+            </div>
         </div>
-    </div>
 
-    <div id="detailLoading" style="text-align: center; padding: 2rem; color: #64748b;">Loading name record details...</div>
+        <div id="detailLoading" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+            <span>⏳ Loading calculation record details...</span>
+        </div>
 
-    <div id="detailContent" style="display: none;">
-        <!-- Header Name Card -->
-        <div class="detail-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div id="detailContent" style="display: none; flex-direction: column; gap: 1.5rem;">
+            <!-- Main Name Information Card -->
+            <div class="detail-card-panel">
+                <div class="name-calligraphy-banner">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                            <span class="role-badge role-public">RECORD #<span id="nameIdDisplay"></span></span>
+                        </div>
+                        <h1 id="nameArabicDisplay" class="name-arabic-hero">--</h1>
+                    </div>
+                    <div style="text-align: right; font-size: 0.78rem; color: var(--text-muted);">
+                        <span>Saved on:</span>
+                        <div id="createdAtDisplay" style="font-weight: 600; color: var(--text-secondary); margin-top: 0.15rem;">--</div>
+                    </div>
+                </div>
+
+                <!-- 4 Metrics KPI -->
+                <div class="metrics-stats-grid">
+                    <div class="metric-panel-item">
+                        <span class="metric-panel-label">Total Abjad Sum</span>
+                        <span id="totalDisplay" class="metric-panel-value" style="color: var(--accent-gold);">0</span>
+                    </div>
+                    <div class="metric-panel-item">
+                        <span class="metric-panel-label">Single Digital Root</span>
+                        <span id="singleDisplay" class="metric-panel-value" style="color: var(--primary);">0</span>
+                    </div>
+                    <div class="metric-panel-item">
+                        <span class="metric-panel-label">Origin</span>
+                        <span id="originDisplay" class="metric-panel-value" style="font-size: 1.15rem; font-weight: 600;">—</span>
+                    </div>
+                    <div class="metric-panel-item">
+                        <span class="metric-panel-label">Meanings</span>
+                        <span id="meaningsDisplay" class="metric-panel-value" style="font-size: 1.15rem; font-weight: 600;">—</span>
+                    </div>
+                </div>
+
+                <!-- 4 Elements Breakdown Meters -->
                 <div>
-                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">RECORD ID #<span id="nameIdDisplay"></span></span>
-                    <h1 id="nameArabicDisplay" class="name-title-arabic">--</h1>
-                </div>
-                <div style="text-align: right; font-size: 0.75rem; color: #64748b;">
-                    Saved on: <span id="createdAtDisplay"></span>
-                </div>
-            </div>
-
-            <!-- Key Metrics -->
-            <div class="metrics-grid">
-                <div class="metric-item">
-                    <span class="metric-label">Total Abjad Sum</span>
-                    <span id="totalDisplay" class="metric-val" style="color: #d97706;">0</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Single Root</span>
-                    <span id="singleDisplay" class="metric-val" style="color: #2563eb;">0</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Origin</span>
-                    <span id="originDisplay" class="metric-val" style="font-size: 1.05rem;">-</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Meanings</span>
-                    <span id="meaningsDisplay" class="metric-val" style="font-size: 1.05rem;">-</span>
+                    <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em;">
+                        Elemental Temperament Breakdown
+                    </span>
+                    <div id="elementsContainer" class="elements-status-grid"></div>
                 </div>
             </div>
 
-            <!-- Elemental Breakdown -->
-            <div style="margin-top: 1rem;">
-                <strong style="font-size: 0.85rem; color: #475569;">Elemental Temperament Breakdown:</strong>
-                <div id="elementsContainer" class="elements-box"></div>
+            <!-- Notes & Observations Card -->
+            <div class="detail-card-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                            <span>📝</span> Specialized Analysis & Personal Notes
+                        </h2>
+                        <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.15rem;">Record historical chronogram context, personal spiritual observations, or client consultations for this name.</p>
+                    </div>
+                </div>
+
+                <div id="notesAlert" style="display: none;"></div>
+
+                <textarea id="nameNotesInput" class="notes-textarea-control" rows="5" placeholder="Enter personalized notes, spiritual insights, or consultation records for this specific name..."></textarea>
+                
+                <div style="display: flex; justify-content: flex-end;">
+                    <button id="btnSaveNotes" class="btn btn-primary">💾 Save Specific Notes</button>
+                </div>
             </div>
         </div>
 
-        <!-- Specific Custom Notes Card -->
-        <div class="detail-card">
-            <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.35rem;">
-                <span>📌 Specific Notes for this Name</span>
-            </h3>
-            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 0.75rem;">Write custom observations, spiritual notes, or analysis specifically for this name entry.</p>
+        <!-- Inline Edit Modal -->
+        <div id="editModalOverlay" class="modal-overlay-custom">
+            <div class="modal-card-box" style="text-align: left; max-width: 520px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">Edit Name Record</h3>
+                    <button id="btnCancelEditTop" class="btn btn-sm btn-secondary" style="padding: 0.15rem 0.45rem;">✕</button>
+                </div>
 
-            <div id="notesAlert" style="display: none;"></div>
-
-            <textarea id="nameNotesInput" rows="5" style="width: 100%; padding: 0.65rem; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit;" placeholder="Write custom notes for this name entry..."></textarea>
-            
-            <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
-                <button id="btnSaveNotes" class="btn btn-primary">Save Specific Notes 💾</button>
-            </div>
-        </div>
-
-        <!-- Inline Edit Modal Form -->
-        <div id="editModalOverlay" style="display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(15,23,42,0.4); align-items: center; justify-content: center; z-index:1000; padding: 1rem;">
-            <div style="background: #ffffff; border-radius: 8px; border: 1px solid #cbd5e1; width: 100%; max-width: 500px; padding: 1.25rem;">
-                <h3 style="margin-bottom: 0.75rem; font-size: 1.05rem; color: #0f172a;">Edit Name Record</h3>
-                <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.85rem;">
                     <div>
-                        <label style="font-size: 0.75rem; color: #64748b;">Name *</label>
-                        <input type="text" id="editName" class="calc-input" style="width: 100%; font-size: 1.1rem; padding: 0.3rem 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        <label class="form-label" for="editName">Name (Arabic/Urdu) *</label>
+                        <input type="text" id="editName" class="form-control" style="font-family: var(--font-arabic); font-size: 1.25rem; direction: rtl;">
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                         <div>
-                            <label style="font-size: 0.75rem; color: #64748b;">Total *</label>
-                            <input type="number" id="editTotal" class="calc-input" style="width: 100%; font-size: 1rem; padding: 0.3rem 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px; direction: ltr;">
+                            <label class="form-label" for="editTotal">Total Abjad *</label>
+                            <input type="number" id="editTotal" class="form-control">
                         </div>
                         <div>
-                            <label style="font-size: 0.75rem; color: #64748b;">Single Root *</label>
-                            <input type="number" id="editSingle" class="calc-input" style="width: 100%; font-size: 1rem; padding: 0.3rem 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px; direction: ltr;">
+                            <label class="form-label" for="editSingle">Single Root *</label>
+                            <input type="number" id="editSingle" class="form-control">
                         </div>
                     </div>
                     <div>
-                        <label style="font-size: 0.75rem; color: #64748b;">Origin</label>
-                        <input type="text" id="editOrigin" class="calc-input" style="width: 100%; font-size: 0.9rem; padding: 0.3rem 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        <label class="form-label" for="editOrigin">Origin</label>
+                        <input type="text" id="editOrigin" class="form-control">
                     </div>
                     <div>
-                        <label style="font-size: 0.75rem; color: #64748b;">Meanings</label>
-                        <input type="text" id="editMeanings" class="calc-input" style="width: 100%; font-size: 0.9rem; padding: 0.3rem 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        <label class="form-label" for="editMeanings">Meanings</label>
+                        <input type="text" id="editMeanings" class="form-control">
                     </div>
                 </div>
-                <div style="display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 1rem;">
-                    <button id="btnCancelEdit" class="btn btn-sm">Cancel</button>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
+                    <button id="btnCancelEdit" class="btn btn-secondary btn-sm">Cancel</button>
                     <button id="btnSubmitEdit" class="btn btn-primary btn-sm">Save Changes</button>
                 </div>
             </div>
         </div>
+
     </div>
 </main>
 
@@ -237,15 +317,15 @@ $recordId = $_GET['id'] ?? null;
             document.getElementById('nameArabicDisplay').innerText = data.name;
             document.getElementById('totalDisplay').innerText = data.total;
             document.getElementById('singleDisplay').innerText = data.single;
-            document.getElementById('originDisplay').innerText = data.origin || '-';
-            document.getElementById('meaningsDisplay').innerText = data.meanings || '-';
-            document.getElementById('createdAtDisplay').innerText = data.created_at || '-';
+            document.getElementById('originDisplay').innerText = data.origin || '—';
+            document.getElementById('meaningsDisplay').innerText = data.meanings || '—';
+            document.getElementById('createdAtDisplay').innerText = data.created_at || '—';
             document.getElementById('nameNotesInput').value = data.notes || '';
 
             renderElementBreakdown(data.name);
 
             document.getElementById('detailLoading').style.display = 'none';
-            document.getElementById('detailContent').style.display = 'block';
+            document.getElementById('detailContent').style.display = 'flex';
         })
         .catch(() => {
             document.getElementById('detailLoading').innerText = 'Failed to load record details.';
@@ -270,10 +350,30 @@ $recordId = $_GET['id'] ?? null;
         let pEarth = totalVal ? Math.round((counts.Earth / totalVal) * 100) : 0;
 
         document.getElementById('elementsContainer').innerHTML = `
-            <div class="elem-pill elem-fire">🔥 Fire (آتشی): ${pFire}%</div>
-            <div class="elem-pill elem-air">💨 Air (بادی): ${pAir}%</div>
-            <div class="elem-pill elem-water">💧 Water (آبی): ${pWater}%</div>
-            <div class="elem-pill elem-earth">🪨 Earth (خاکی): ${pEarth}%</div>
+            <div class="elem-status-box elem-box-fire">
+                <div class="elem-box-header"><span>🔥 Fire (آتشی)</span><span>${pFire}%</span></div>
+                <div style="height: 4px; background: rgba(234,88,12,0.15); border-radius: 2px; overflow: hidden;">
+                    <div style="width: ${pFire}%; height: 100%; background: var(--fire-color);"></div>
+                </div>
+            </div>
+            <div class="elem-status-box elem-box-air">
+                <div class="elem-box-header"><span>💨 Air (بادی)</span><span>${pAir}%</span></div>
+                <div style="height: 4px; background: rgba(2,132,199,0.15); border-radius: 2px; overflow: hidden;">
+                    <div style="width: ${pAir}%; height: 100%; background: var(--air-color);"></div>
+                </div>
+            </div>
+            <div class="elem-status-box elem-box-water">
+                <div class="elem-box-header"><span>💧 Water (آبی)</span><span>${pWater}%</span></div>
+                <div style="height: 4px; background: rgba(37,99,235,0.15); border-radius: 2px; overflow: hidden;">
+                    <div style="width: ${pWater}%; height: 100%; background: var(--water-color);"></div>
+                </div>
+            </div>
+            <div class="elem-status-box elem-box-earth">
+                <div class="elem-box-header"><span>🪨 Earth (خاکی)</span><span>${pEarth}%</span></div>
+                <div style="height: 4px; background: rgba(22,163,74,0.15); border-radius: 2px; overflow: hidden;">
+                    <div style="width: ${pEarth}%; height: 100%; background: var(--earth-color);"></div>
+                </div>
+            </div>
         `;
     }
 
@@ -294,14 +394,18 @@ $recordId = $_GET['id'] ?? null;
             .then(data => {
                 if (data.success) {
                     alertDiv.className = 'alert alert-success';
-                    alertDiv.innerText = data.message || 'Notes saved successfully!';
-                    alertDiv.style.display = 'block';
+                    alertDiv.innerText = '✓ ' + (data.message || 'Notes updated successfully!');
+                    alertDiv.style.display = 'flex';
                     setTimeout(() => { alertDiv.style.display = 'none'; }, 3000);
-                } else alert('Failed to save notes: ' + (data.error || ''));
+                } else {
+                    alertDiv.className = 'alert alert-danger';
+                    alertDiv.innerText = 'Failed to save notes: ' + (data.error || '');
+                    alertDiv.style.display = 'flex';
+                }
             });
         });
 
-        // Edit Entry Action
+        // Edit Modal Handlers
         document.getElementById('btnEditName').addEventListener('click', () => {
             if (!nameRecord) return;
             document.getElementById('editName').value = nameRecord.name;
@@ -312,9 +416,9 @@ $recordId = $_GET['id'] ?? null;
             document.getElementById('editModalOverlay').style.display = 'flex';
         });
 
-        document.getElementById('btnCancelEdit').addEventListener('click', () => {
-            document.getElementById('editModalOverlay').style.display = 'none';
-        });
+        const closeEdit = () => { document.getElementById('editModalOverlay').style.display = 'none'; };
+        document.getElementById('btnCancelEdit').addEventListener('click', closeEdit);
+        document.getElementById('btnCancelEditTop').addEventListener('click', closeEdit);
 
         document.getElementById('btnSubmitEdit').addEventListener('click', () => {
             const name = document.getElementById('editName').value.trim();
@@ -324,7 +428,7 @@ $recordId = $_GET['id'] ?? null;
             const meanings = document.getElementById('editMeanings').value.trim();
 
             if (!name || isNaN(total) || isNaN(single)) {
-                alert('Please fill Name, Total, and Single Root.');
+                alert('Please fill out Name, Total Abjad, and Single Root.');
                 return;
             }
 
@@ -336,15 +440,15 @@ $recordId = $_GET['id'] ?? null;
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    document.getElementById('editModalOverlay').style.display = 'none';
+                    closeEdit();
                     loadNameDetail();
-                } else alert('Failed to edit record');
+                } else alert('Failed to edit record: ' + (data.error || ''));
             });
         });
 
-        // Delete Entry Action
+        // Delete Record Action
         document.getElementById('btnDeleteName').addEventListener('click', () => {
-            if (!confirm('Are you sure you want to delete this name record?')) return;
+            if (!confirm('Are you sure you want to permanently delete this calculation record?')) return;
             fetch('api.php?action=delete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -354,7 +458,7 @@ $recordId = $_GET['id'] ?? null;
             .then(data => {
                 if (data.success) {
                     window.location.href = 'saved.php';
-                } else alert('Failed to delete record');
+                } else alert('Failed to delete record: ' + (data.error || ''));
             });
         });
     });
