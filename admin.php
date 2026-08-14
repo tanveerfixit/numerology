@@ -315,20 +315,24 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
     .admin-chat-thread-box {
         background: var(--surface-subtle);
         border: 1px solid var(--border-medium);
-        padding: 0.85rem;
-        max-height: 340px;
+        padding: 0.65rem 0.85rem;
+        max-height: 200px;
         overflow-y: auto;
+        overflow-x: hidden;
         display: flex;
         flex-direction: column;
-        gap: 0.65rem;
+        gap: 0.5rem;
+        box-sizing: border-box;
     }
 
     .stream-bubble {
-        padding: 0.65rem 0.85rem;
-        font-size: 0.86rem;
-        line-height: 1.45;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.84rem;
+        line-height: 1.4;
         position: relative;
-        max-width: 88%;
+        max-width: 90%;
+        box-sizing: border-box;
+        word-break: break-word;
     }
 
     .stream-bubble-user {
@@ -349,36 +353,39 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.72rem;
-        margin-bottom: 0.25rem;
+        font-size: 0.7rem;
+        margin-bottom: 0.2rem;
         color: var(--text-muted);
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
 
     /* Built-in Virtual Urdu Keyboard in Modal */
     .admin-kb-drawer {
         background: #ffffff;
         border: 1px solid var(--border-medium);
-        padding: 0.75rem;
-        margin-top: 0.5rem;
+        padding: 0.5rem;
+        margin-top: 0.4rem;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.35rem;
+        box-sizing: border-box;
+        max-height: 130px;
+        overflow-y: auto;
     }
 
     .admin-kb-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
-        gap: 0.25rem;
+        grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+        gap: 0.2rem;
         direction: rtl;
     }
 
     .admin-kb-tile {
         background: var(--surface-subtle);
         border: 1px solid var(--border-medium);
-        padding: 0.35rem 0.15rem;
+        padding: 0.25rem 0.1rem;
         font-family: var(--font-arabic);
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         font-weight: 700;
         cursor: pointer;
         text-align: center;
@@ -392,6 +399,34 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         background: var(--primary-light);
         border-color: var(--primary);
         color: var(--primary);
+    }
+
+    /* 4 Elements Setting Grid */
+    .elem-modal-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        box-sizing: border-box;
+    }
+
+    @media (max-width: 520px) {
+        .elem-modal-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .elem-setting-card {
+        background: var(--surface-subtle);
+        border: 1px solid var(--border-subtle);
+        padding: 0.75rem;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        box-sizing: border-box;
+        width: 100%;
+        overflow: hidden;
     }
 </style>
 
@@ -521,80 +556,80 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
 
 <!-- 4 Elements Color Configuration Modal -->
 <div id="elemSettingsModal" class="modal-overlay-custom" style="display: none;">
-    <div class="modal-card-box" style="max-width: 620px; width: 95%; max-height: 90vh; overflow-y: auto; text-align: left; border-radius: 0;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+    <div class="modal-card-box" style="max-width: 580px; width: 95%; max-height: 85vh; overflow-y: auto; text-align: left; padding: 1.25rem; border-radius: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.65rem; margin-bottom: 0.85rem;">
             <div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
                     <span>🎨</span> 4 Elements Color Configuration
                 </h3>
-                <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">Customize global theme colors for Fire, Air, Water, and Earth.</p>
+                <p style="font-size: 0.76rem; color: var(--text-muted); margin-top: 0.1rem;">Customize global theme colors for Fire, Air, Water, and Earth.</p>
             </div>
             <button id="btnCloseElemSettings" type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem; border-radius: 2px;">✕ Close</button>
         </div>
 
         <div id="elemColorAlert" style="display: none; margin-bottom: 0.75rem;"></div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem; margin-bottom: 1.25rem;">
+        <div class="elem-modal-grid">
             <!-- Fire -->
-            <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 0.85rem; border-radius: 0; display: flex; flex-direction: column; gap: 0.45rem;">
+            <div class="elem-setting-card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong style="font-size: 0.88rem; color: var(--text-primary);">🔥 Fire (آتشی)</strong>
-                    <span id="previewBadgeFire" style="padding: 0.12rem 0.45rem; font-size: 0.7rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['fire']); ?>; color: #000000; border-radius: 0;">Preview</span>
+                    <strong style="font-size: 0.85rem; color: var(--text-primary);">🔥 Fire (آتشی)</strong>
+                    <span id="previewBadgeFire" style="padding: 0.1rem 0.4rem; font-size: 0.68rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['fire']); ?>; color: #000000; border-radius: 0;">Preview</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <input type="color" id="elemPickerFire" value="<?php echo htmlspecialchars($elemColors['fire']); ?>" style="width: 38px; height: 34px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent;">
-                    <input type="text" id="elemHexFire" class="form-control" value="<?php echo htmlspecialchars($elemColors['fire']); ?>" style="font-family: monospace; font-size: 0.85rem; text-transform: lowercase; border-radius: 0; height: 34px; padding: 0.25rem 0.4rem;">
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                    <input type="color" id="elemPickerFire" value="<?php echo htmlspecialchars($elemColors['fire']); ?>" style="width: 36px; height: 32px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent; flex-shrink: 0;">
+                    <input type="text" id="elemHexFire" class="form-control" value="<?php echo htmlspecialchars($elemColors['fire']); ?>" style="font-family: monospace; font-size: 0.82rem; text-transform: lowercase; border-radius: 0; height: 32px; padding: 0.2rem 0.35rem; width: 100%;">
                 </div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">Default: Yellow (<code>#eab308</code>)</div>
+                <div style="font-size: 0.68rem; color: var(--text-muted);">Default: Yellow (<code>#eab308</code>)</div>
             </div>
 
             <!-- Air -->
-            <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 0.85rem; border-radius: 0; display: flex; flex-direction: column; gap: 0.45rem;">
+            <div class="elem-setting-card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong style="font-size: 0.88rem; color: var(--text-primary);">💨 Air (بادی)</strong>
-                    <span id="previewBadgeAir" style="padding: 0.12rem 0.45rem; font-size: 0.7rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['air']); ?>; color: #ffffff; border-radius: 0;">Preview</span>
+                    <strong style="font-size: 0.85rem; color: var(--text-primary);">💨 Air (بادی)</strong>
+                    <span id="previewBadgeAir" style="padding: 0.1rem 0.4rem; font-size: 0.68rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['air']); ?>; color: #ffffff; border-radius: 0;">Preview</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <input type="color" id="elemPickerAir" value="<?php echo htmlspecialchars($elemColors['air']); ?>" style="width: 38px; height: 34px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent;">
-                    <input type="text" id="elemHexAir" class="form-control" value="<?php echo htmlspecialchars($elemColors['air']); ?>" style="font-family: monospace; font-size: 0.85rem; text-transform: lowercase; border-radius: 0; height: 34px; padding: 0.25rem 0.4rem;">
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                    <input type="color" id="elemPickerAir" value="<?php echo htmlspecialchars($elemColors['air']); ?>" style="width: 36px; height: 32px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent; flex-shrink: 0;">
+                    <input type="text" id="elemHexAir" class="form-control" value="<?php echo htmlspecialchars($elemColors['air']); ?>" style="font-family: monospace; font-size: 0.82rem; text-transform: lowercase; border-radius: 0; height: 32px; padding: 0.2rem 0.35rem; width: 100%;">
                 </div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">Default: Red (<code>#dc2626</code>)</div>
+                <div style="font-size: 0.68rem; color: var(--text-muted);">Default: Red (<code>#dc2626</code>)</div>
             </div>
 
             <!-- Water -->
-            <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 0.85rem; border-radius: 0; display: flex; flex-direction: column; gap: 0.45rem;">
+            <div class="elem-setting-card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong style="font-size: 0.88rem; color: var(--text-primary);">💧 Water (آبی)</strong>
-                    <span id="previewBadgeWater" style="padding: 0.12rem 0.45rem; font-size: 0.7rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['water']); ?>; color: #ffffff; border-radius: 0;">Preview</span>
+                    <strong style="font-size: 0.85rem; color: var(--text-primary);">💧 Water (آبی)</strong>
+                    <span id="previewBadgeWater" style="padding: 0.1rem 0.4rem; font-size: 0.68rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['water']); ?>; color: #ffffff; border-radius: 0;">Preview</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <input type="color" id="elemPickerWater" value="<?php echo htmlspecialchars($elemColors['water']); ?>" style="width: 38px; height: 34px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent;">
-                    <input type="text" id="elemHexWater" class="form-control" value="<?php echo htmlspecialchars($elemColors['water']); ?>" style="font-family: monospace; font-size: 0.85rem; text-transform: lowercase; border-radius: 0; height: 34px; padding: 0.25rem 0.4rem;">
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                    <input type="color" id="elemPickerWater" value="<?php echo htmlspecialchars($elemColors['water']); ?>" style="width: 36px; height: 32px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent; flex-shrink: 0;">
+                    <input type="text" id="elemHexWater" class="form-control" value="<?php echo htmlspecialchars($elemColors['water']); ?>" style="font-family: monospace; font-size: 0.82rem; text-transform: lowercase; border-radius: 0; height: 32px; padding: 0.2rem 0.35rem; width: 100%;">
                 </div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">Default: Blue (<code>#2563eb</code>)</div>
+                <div style="font-size: 0.68rem; color: var(--text-muted);">Default: Blue (<code>#2563eb</code>)</div>
             </div>
 
             <!-- Earth -->
-            <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 0.85rem; border-radius: 0; display: flex; flex-direction: column; gap: 0.45rem;">
+            <div class="elem-setting-card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong style="font-size: 0.88rem; color: var(--text-primary);">🪨 Earth (خاکی)</strong>
-                    <span id="previewBadgeEarth" style="padding: 0.12rem 0.45rem; font-size: 0.7rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['earth']); ?>; color: #ffffff; border-radius: 0;">Preview</span>
+                    <strong style="font-size: 0.85rem; color: var(--text-primary);">🪨 Earth (خاکی)</strong>
+                    <span id="previewBadgeEarth" style="padding: 0.1rem 0.4rem; font-size: 0.68rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['earth']); ?>; color: #ffffff; border-radius: 0;">Preview</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <input type="color" id="elemPickerEarth" value="<?php echo htmlspecialchars($elemColors['earth']); ?>" style="width: 38px; height: 34px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent;">
-                    <input type="text" id="elemHexEarth" class="form-control" value="<?php echo htmlspecialchars($elemColors['earth']); ?>" style="font-family: monospace; font-size: 0.85rem; text-transform: lowercase; border-radius: 0; height: 34px; padding: 0.25rem 0.4rem;">
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                    <input type="color" id="elemPickerEarth" value="<?php echo htmlspecialchars($elemColors['earth']); ?>" style="width: 36px; height: 32px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent; flex-shrink: 0;">
+                    <input type="text" id="elemHexEarth" class="form-control" value="<?php echo htmlspecialchars($elemColors['earth']); ?>" style="font-family: monospace; font-size: 0.82rem; text-transform: lowercase; border-radius: 0; height: 32px; padding: 0.2rem 0.35rem; width: 100%;">
                 </div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">Default: Black (<code>#0f172a</code>)</div>
+                <div style="font-size: 0.68rem; color: var(--text-muted);">Default: Black (<code>#0f172a</code>)</div>
             </div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
-            <button id="btnResetElemColors" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.65rem;">
+            <button id="btnResetElemColors" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px; font-size: 0.78rem;">
                 🔄 Reset Defaults
             </button>
             <div style="display: flex; gap: 0.4rem;">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('elemSettingsModal').style.display='none'" style="border-radius: 2px;">Cancel</button>
-                <button id="btnSaveElemColors" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('elemSettingsModal').style.display='none'" style="border-radius: 2px; font-size: 0.78rem;">Cancel</button>
+                <button id="btnSaveElemColors" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px; font-size: 0.78rem;">
                     💾 Save Colors
                 </button>
             </div>
@@ -812,62 +847,63 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         document.getElementById('profileModalTitle').innerHTML = `<span>👤</span> User Identity & Chat: <strong>${escapeHtml(u.username)}</strong>`;
 
         document.getElementById('profileModalBody').innerHTML = `
-            <!-- Info Identity Grid -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.65rem; margin-bottom: 1rem; font-size: 0.85rem; background: var(--surface-subtle); padding: 0.85rem; border-radius: 0; border: 1px solid var(--border-subtle);">
-                <div><strong>User ID:</strong> #${u.id}</div>
-                <div><strong>Username:</strong> ${escapeHtml(u.username)}</div>
-                <div><strong>Full Name:</strong> ${escapeHtml(u.full_name || '—')}</div>
-                <div><strong>Contact:</strong> ${escapeHtml(u.contact || '—')}</div>
-                <div style="grid-column: span 2; word-break: break-all;"><strong>Email:</strong> ${escapeHtml(u.email)}</div>
-                <div><strong>Joined:</strong> ${u.created_at || '—'}</div>
-                <div>
-                    <strong>Role:</strong> 
-                    <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.15rem 0.35rem; font-size: 0.78rem; display: inline-block; margin-left: 0.2rem; border-radius: 0;">
-                        <option value="public" ${u.role === 'public' ? 'selected' : ''}>Public</option>
-                        <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
-                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
-                    </select>
+            <!-- Info Identity Banner -->
+            <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 0.65rem 0.85rem; margin-bottom: 0.75rem; font-size: 0.82rem; border-radius: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.35rem; flex-wrap: wrap; gap: 0.4rem;">
+                    <div>
+                        <strong style="font-size: 0.9rem; color: var(--text-primary);">${escapeHtml(u.username)}</strong>
+                        <span style="color: var(--text-muted); font-size: 0.78rem; margin-left: 0.25rem;">(ID #${u.id})</span>
+                        ${u.full_name ? `<span style="color: var(--text-secondary); margin-left: 0.35rem; font-weight: 500;">• ${escapeHtml(u.full_name)}</span>` : ''}
+                    </div>
+                    <div style="display: flex; gap: 0.35rem; align-items: center;">
+                        <span class="status-badge status-${u.status}">${u.status}</span>
+                        <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.12rem 0.35rem; font-size: 0.75rem; border-radius: 0;">
+                            <option value="public" ${u.role === 'public' ? 'selected' : ''}>Public</option>
+                            <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
+                            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                        </select>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 0.4rem; align-items: center;">
-                    <strong>Status:</strong> <span class="status-badge status-${u.status}">${u.status}</span>
-                </div>
-                <div style="display: flex; gap: 0.3rem; align-items: center;">
-                    ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>` : ''}
-                    ${u.status !== 'rejected' ? `<button onclick="rejectUser(${u.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 2px; color: var(--danger);">Reject</button>` : ''}
-                    <button onclick="deleteUser(${u.id})" type="button" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 2px;">Delete</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; font-size: 0.78rem; color: var(--text-secondary);">
+                    <div>✉️ ${escapeHtml(u.email)} ${u.contact ? `| 📞 ${escapeHtml(u.contact)}` : ''}</div>
+                    <div style="display: flex; gap: 0.3rem;">
+                        ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.72rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>` : ''}
+                        ${u.status !== 'rejected' ? `<button onclick="rejectUser(${u.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.72rem; border-radius: 2px; color: var(--danger);">Reject</button>` : ''}
+                        <button onclick="deleteUser(${u.id})" type="button" class="btn btn-danger btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.72rem; border-radius: 2px;">Delete</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Single Consultation Chat Stream -->
-            <div style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <strong style="font-size: 0.92rem; color: var(--text-primary);">💬 Consultation Dialogue History</strong>
-                    <button onclick="clearChatHistory(${u.id})" type="button" class="btn btn-danger btn-sm" style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 2px;">🗑️ Clear Thread</button>
+            <div style="margin-bottom: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <strong style="font-size: 0.88rem; color: var(--text-primary);">💬 Consultation Dialogue History</strong>
+                    <button onclick="clearChatHistory(${u.id})" type="button" class="btn btn-danger btn-sm" style="font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 2px;">🗑️ Clear Thread</button>
                 </div>
                 <div id="adminChatContainer" class="admin-chat-thread-box">
-                    <div style="text-align: center; color: var(--text-muted); padding: 1rem;">Loading dialogue...</div>
+                    <div style="text-align: center; color: var(--text-muted); padding: 0.75rem; font-size: 0.82rem;">Loading dialogue...</div>
                 </div>
             </div>
 
             <!-- Admin Message Composer with Built-in Keyboard -->
-            <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.85rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                    <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0;">
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.65rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                    <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0;">
                         Send Administrative Reply:
                     </label>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleAdminKeyboard(${u.id})" style="font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 2px;">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleAdminKeyboard(${u.id})" style="font-size: 0.72rem; padding: 0.12rem 0.45rem; border-radius: 2px;">
                         ⌨️ Urdu Keyboard
                     </button>
                 </div>
-                <textarea id="replyMsg_${u.id}" class="form-control" rows="3" placeholder="Type your response or advice to ${escapeHtml(u.username)}..." style="border-radius: 0;"></textarea>
+                <textarea id="replyMsg_${u.id}" class="form-control" rows="2" placeholder="Type your response or advice to ${escapeHtml(u.username)}..." style="width: 100%; box-sizing: border-box; resize: vertical; min-height: 60px; max-height: 120px; font-size: 0.88rem; border-radius: 0;"></textarea>
 
                 <!-- Admin Virtual Urdu Keyboard Drawer -->
                 <div id="adminKbDrawer_${u.id}" class="admin-kb-drawer" style="display: none;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; font-weight: 600; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.35rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; font-weight: 600; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.25rem;">
                         <span>⌨️ Virtual Urdu Keyboard (Admin Reply)</span>
-                        <div style="display: flex; gap: 0.3rem;">
-                            <button type="button" onclick="adminInsertChar(' ', ${u.id})" class="btn btn-secondary btn-sm" style="padding: 0.1rem 0.4rem; font-size: 0.7rem; border-radius: 2px;">Space ␣</button>
-                            <button type="button" onclick="adminBackspaceChar(${u.id})" class="btn btn-danger btn-sm" style="padding: 0.1rem 0.4rem; font-size: 0.7rem; border-radius: 2px;">⌫</button>
+                        <div style="display: flex; gap: 0.25rem;">
+                            <button type="button" onclick="adminInsertChar(' ', ${u.id})" class="btn btn-secondary btn-sm" style="padding: 0.05rem 0.35rem; font-size: 0.68rem; border-radius: 2px;">Space ␣</button>
+                            <button type="button" onclick="adminBackspaceChar(${u.id})" class="btn btn-danger btn-sm" style="padding: 0.05rem 0.35rem; font-size: 0.68rem; border-radius: 2px;">⌫</button>
                         </div>
                     </div>
                     <div class="admin-kb-grid">
@@ -875,8 +911,8 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                     </div>
                 </div>
 
-                <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.6rem;">
-                    <button onclick="sendAdminReply(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.4rem 0.85rem; border-radius: 2px;">✉️ Send Reply to User</button>
+                <div style="display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 0.5rem;">
+                    <button onclick="sendAdminReply(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.35rem 0.75rem; border-radius: 2px;">✉️ Send Reply</button>
                 </div>
             </div>
         `;

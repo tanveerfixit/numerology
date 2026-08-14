@@ -489,6 +489,45 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         .alert-success { background: var(--success-bg); color: #166534; border: 1px solid var(--success-border); }
         .alert-info { background: var(--primary-light); color: #1e40af; border: 1px solid var(--primary-border); }
 
+        /* Universal Modal System */
+        .modal-overlay-custom {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .modal-card-box {
+            background: #ffffff;
+            border: 1px solid var(--border-medium);
+            border-radius: 0 !important;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-xl);
+            box-sizing: border-box;
+            animation: modalFadeIn 0.15s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
         /* Container */
         main.container {
             flex: 1;
