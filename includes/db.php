@@ -120,13 +120,15 @@ try {
         }
     }
 
-    // Seed default admin user if no admin exists
-    $stmt = $db->query("SELECT COUNT(*) as cnt FROM users WHERE role = 'admin'");
+    // Seed default accounts if users table is empty
+    $stmt = $db->query("SELECT COUNT(*) as cnt FROM users");
     $row = $stmt->fetch();
     if ($row['cnt'] == 0) {
-        $adminPass = password_hash('admin123', PASSWORD_DEFAULT);
-        $seed = $db->prepare("INSERT INTO users (username, email, password, full_name, contact, role, status) VALUES (?, ?, ?, 'Administrator', '+1 000-000-0000', 'admin', 'approved')");
-        $seed->execute(['admin', 'admin@example.com', $adminPass]);
+        $defaultPass = password_hash('Admin123', PASSWORD_DEFAULT);
+        $seed = $db->prepare("INSERT INTO users (username, email, password, full_name, contact, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $seed->execute(['admin', 'admin@numerology.pk', $defaultPass, 'Administrator', '+92 300 0000001', 'admin', 'approved']);
+        $seed->execute(['staff', 'staff@numerology.pk', $defaultPass, 'Staff Member', '+92 300 0000002', 'staff', 'approved']);
+        $seed->execute(['user', 'user@numerology.pk', $defaultPass, 'Standard User', '+92 300 0000003', 'public', 'approved']);
     }
 } catch (PDOException $e) {
     http_response_code(500);
