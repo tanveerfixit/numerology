@@ -267,6 +267,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['success' => true]);
             exit;
         }
+
+        // Save Element Colors Configuration
+        if ($action === 'save_element_settings') {
+            $fire = trim($data['fire'] ?? '#eab308');
+            $air = trim($data['air'] ?? '#dc2626');
+            $water = trim($data['water'] ?? '#2563eb');
+            $earth = trim($data['earth'] ?? '#0f172a');
+
+            try {
+                $stmt = $db->prepare("INSERT INTO site_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
+                $stmt->execute(['elem_color_fire', $fire]);
+                $stmt->execute(['elem_color_air', $air]);
+                $stmt->execute(['elem_color_water', $water]);
+                $stmt->execute(['elem_color_earth', $earth]);
+
+                echo json_encode(['success' => true, 'message' => 'Elemental color configuration saved successfully!']);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Failed to save element colors: ' . $e->getMessage()]);
+            }
+            exit;
+        }
+
+        // Reset Element Colors Configuration
+        if ($action === 'reset_element_settings') {
+            $defaultFire = '#eab308';
+            $defaultAir = '#dc2626';
+            $defaultWater = '#2563eb';
+            $defaultEarth = '#0f172a';
+
+            try {
+                $stmt = $db->prepare("INSERT INTO site_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
+                $stmt->execute(['elem_color_fire', $defaultFire]);
+                $stmt->execute(['elem_color_air', $defaultAir]);
+                $stmt->execute(['elem_color_water', $defaultWater]);
+                $stmt->execute(['elem_color_earth', $defaultEarth]);
+
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Elemental colors restored to defaults (Fire=Yellow, Air=Red, Water=Blue, Earth=Black)!',
+                    'colors' => [
+                        'fire' => $defaultFire,
+                        'air' => $defaultAir,
+                        'water' => $defaultWater,
+                        'earth' => $defaultEarth
+                    ]
+                ]);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Failed to reset colors: ' . $e->getMessage()]);
+            }
+            exit;
+        }
     }
 
     // Calculation endpoints - REQUIRE LOGGED IN AND APPROVED USER
@@ -460,6 +513,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             http_response_code(500);
             echo json_encode(['error' => $e->getMessage()]);
         }
+        exit;
+    }
+
+    if ($action === 'get_element_settings') {
+        echo json_encode(getElementColors($db));
         exit;
     }
 }

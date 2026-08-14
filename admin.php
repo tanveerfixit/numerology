@@ -276,6 +276,82 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
             </div>
         </div>
 
+        <!-- 4 Elements Theme & Color Settings Panel -->
+        <div class="admin-card-panel">
+            <div class="admin-header-row">
+                <div class="admin-title-group">
+                    <h2 class="admin-main-title">
+                        <span>🎨</span> 4 Elements Color Configuration
+                    </h2>
+                    <p class="admin-sub-text">Customize the global theme colors for the four natural elements (Fire, Air, Water, Earth) across the entire application.</p>
+                </div>
+                <div style="display: flex; gap: 0.45rem;">
+                    <button id="btnResetElemColors" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">
+                        🔄 Reset to Defaults
+                    </button>
+                    <button id="btnSaveElemColors" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">
+                        💾 Save Element Colors
+                    </button>
+                </div>
+            </div>
+
+            <div id="elemColorAlert" style="display: none;"></div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem;">
+                <!-- Fire -->
+                <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: 0; display: flex; flex-direction: column; gap: 0.6rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong style="font-size: 0.92rem; color: var(--text-primary);">🔥 Fire (آتشی)</strong>
+                        <span id="previewBadgeFire" style="padding: 0.15rem 0.5rem; font-size: 0.72rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['fire']); ?>; color: #000000; border-radius: 0;">Preview</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="color" id="elemPickerFire" value="<?php echo htmlspecialchars($elemColors['fire']); ?>" style="width: 42px; height: 36px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent;">
+                        <input type="text" id="elemHexFire" class="form-control" value="<?php echo htmlspecialchars($elemColors['fire']); ?>" style="font-family: monospace; font-size: 0.88rem; text-transform: lowercase; border-radius: 0;">
+                    </div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Default: Yellow (<code>#eab308</code>)</div>
+                </div>
+
+                <!-- Air -->
+                <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: 0; display: flex; flex-direction: column; gap: 0.6rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong style="font-size: 0.92rem; color: var(--text-primary);">💨 Air (بادی)</strong>
+                        <span id="previewBadgeAir" style="padding: 0.15rem 0.5rem; font-size: 0.72rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['air']); ?>; color: #ffffff; border-radius: 0;">Preview</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="color" id="elemPickerAir" value="<?php echo htmlspecialchars($elemColors['air']); ?>" style="width: 42px; height: 36px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent;">
+                        <input type="text" id="elemHexAir" class="form-control" value="<?php echo htmlspecialchars($elemColors['air']); ?>" style="font-family: monospace; font-size: 0.88rem; text-transform: lowercase; border-radius: 0;">
+                    </div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Default: Red (<code>#dc2626</code>)</div>
+                </div>
+
+                <!-- Water -->
+                <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: 0; display: flex; flex-direction: column; gap: 0.6rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong style="font-size: 0.92rem; color: var(--text-primary);">💧 Water (آبی)</strong>
+                        <span id="previewBadgeWater" style="padding: 0.15rem 0.5rem; font-size: 0.72rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['water']); ?>; color: #ffffff; border-radius: 0;">Preview</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="color" id="elemPickerWater" value="<?php echo htmlspecialchars($elemColors['water']); ?>" style="width: 42px; height: 36px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent;">
+                        <input type="text" id="elemHexWater" class="form-control" value="<?php echo htmlspecialchars($elemColors['water']); ?>" style="font-family: monospace; font-size: 0.88rem; text-transform: lowercase; border-radius: 0;">
+                    </div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Default: Blue (<code>#2563eb</code>)</div>
+                </div>
+
+                <!-- Earth -->
+                <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: 0; display: flex; flex-direction: column; gap: 0.6rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong style="font-size: 0.92rem; color: var(--text-primary);">🪨 Earth (خاکی)</strong>
+                        <span id="previewBadgeEarth" style="padding: 0.15rem 0.5rem; font-size: 0.72rem; font-weight: 700; background: <?php echo htmlspecialchars($elemColors['earth']); ?>; color: #ffffff; border-radius: 0;">Preview</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="color" id="elemPickerEarth" value="<?php echo htmlspecialchars($elemColors['earth']); ?>" style="width: 42px; height: 36px; padding: 0; border: 1px solid var(--border-medium); cursor: pointer; border-radius: 0; background: transparent;">
+                        <input type="text" id="elemHexEarth" class="form-control" value="<?php echo htmlspecialchars($elemColors['earth']); ?>" style="font-family: monospace; font-size: 0.88rem; text-transform: lowercase; border-radius: 0;">
+                    </div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Default: Black (<code>#0f172a</code>)</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Main User Management Panel -->
         <div class="admin-card-panel">
             <div class="admin-header-row">
@@ -600,7 +676,115 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    document.addEventListener('DOMContentLoaded', loadUsers);
+    // Element Theme Color Settings Logic
+    function bindColorPickers() {
+        const elements = ['Fire', 'Air', 'Water', 'Earth'];
+        elements.forEach(elem => {
+            const picker = document.getElementById('elemPicker' + elem);
+            const hexInput = document.getElementById('elemHex' + elem);
+            const badge = document.getElementById('previewBadge' + elem);
+
+            if (picker && hexInput) {
+                picker.addEventListener('input', () => {
+                    hexInput.value = picker.value;
+                    if (badge) badge.style.backgroundColor = picker.value;
+                    document.documentElement.style.setProperty('--' + elem.toLowerCase() + '-color', picker.value);
+                });
+
+                hexInput.addEventListener('input', () => {
+                    const val = hexInput.value.trim();
+                    if (/^#[0-9A-F]{6}$/i.test(val)) {
+                        picker.value = val;
+                        if (badge) badge.style.backgroundColor = val;
+                        document.documentElement.style.setProperty('--' + elem.toLowerCase() + '-color', val);
+                    }
+                });
+            }
+        });
+
+        // Save Element Colors
+        document.getElementById('btnSaveElemColors')?.addEventListener('click', () => {
+            const fire = document.getElementById('elemHexFire').value.trim();
+            const air = document.getElementById('elemHexAir').value.trim();
+            const water = document.getElementById('elemHexWater').value.trim();
+            const earth = document.getElementById('elemHexEarth').value.trim();
+            const alertDiv = document.getElementById('elemColorAlert');
+
+            fetch('api.php?action=save_element_settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fire, air, water, earth })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alertDiv.className = 'alert alert-success';
+                    alertDiv.innerText = '✓ ' + (data.message || 'Elemental colors saved successfully!');
+                    alertDiv.style.display = 'flex';
+                    setTimeout(() => { alertDiv.style.display = 'none'; }, 4000);
+                } else {
+                    alertDiv.className = 'alert alert-danger';
+                    alertDiv.innerText = data.error || 'Failed to save colors';
+                    alertDiv.style.display = 'flex';
+                }
+            })
+            .catch(() => {
+                alertDiv.className = 'alert alert-danger';
+                alertDiv.innerText = 'Network error saving element colors.';
+                alertDiv.style.display = 'flex';
+            });
+        });
+
+        // Reset Element Colors to Defaults (Fire=Yellow, Air=Red, Water=Blue, Earth=Black)
+        document.getElementById('btnResetElemColors')?.addEventListener('click', () => {
+            if (!confirm('Reset all 4 elemental colors to default values (Fire=Yellow, Air=Red, Water=Blue, Earth=Black)?')) return;
+            const alertDiv = document.getElementById('elemColorAlert');
+
+            fetch('api.php?action=reset_element_settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.colors) {
+                    const c = data.colors;
+                    document.getElementById('elemPickerFire').value = c.fire;
+                    document.getElementById('elemHexFire').value = c.fire;
+                    document.getElementById('previewBadgeFire').style.backgroundColor = c.fire;
+                    document.documentElement.style.setProperty('--fire-color', c.fire);
+
+                    document.getElementById('elemPickerAir').value = c.air;
+                    document.getElementById('elemHexAir').value = c.air;
+                    document.getElementById('previewBadgeAir').style.backgroundColor = c.air;
+                    document.documentElement.style.setProperty('--air-color', c.air);
+
+                    document.getElementById('elemPickerWater').value = c.water;
+                    document.getElementById('elemHexWater').value = c.water;
+                    document.getElementById('previewBadgeWater').style.backgroundColor = c.water;
+                    document.documentElement.style.setProperty('--water-color', c.water);
+
+                    document.getElementById('elemPickerEarth').value = c.earth;
+                    document.getElementById('elemHexEarth').value = c.earth;
+                    document.getElementById('previewBadgeEarth').style.backgroundColor = c.earth;
+                    document.documentElement.style.setProperty('--earth-color', c.earth);
+
+                    alertDiv.className = 'alert alert-success';
+                    alertDiv.innerText = '✓ ' + (data.message || 'Colors reset to defaults successfully!');
+                    alertDiv.style.display = 'flex';
+                    setTimeout(() => { alertDiv.style.display = 'none'; }, 4000);
+                } else {
+                    alertDiv.className = 'alert alert-danger';
+                    alertDiv.innerText = data.error || 'Failed to reset colors';
+                    alertDiv.style.display = 'flex';
+                }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadUsers();
+        bindColorPickers();
+    });
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

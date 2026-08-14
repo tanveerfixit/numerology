@@ -14,6 +14,7 @@ if ($currentUser && $currentUser['role'] === 'admin') {
         $pendingReqCount = 0;
     }
 }
+$elemColors = getElementColors($db);
 $isStaffOrAdmin = ($currentUser && in_array($currentUser['role'], ['staff', 'admin']) && $currentUser['status'] === 'approved');
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
@@ -49,21 +50,22 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             --accent-gold-light: #fef3c7;
             --accent-gold-border: #fde68a;
             
-            --fire-color: #ea580c;
-            --fire-bg: #fff7ed;
-            --fire-border: #ffedd5;
+            /* Four Elements Dynamic Colors (Defaults: Fire=Yellow, Air=Red, Water=Blue, Earth=Black) */
+            --fire-color: <?php echo htmlspecialchars($elemColors['fire']); ?>;
+            --fire-bg: rgba(234, 179, 8, 0.08);
+            --fire-border: rgba(234, 179, 8, 0.25);
             
-            --air-color: #0284c7;
-            --air-bg: #f0f9ff;
-            --air-border: #e0f2fe;
+            --air-color: <?php echo htmlspecialchars($elemColors['air']); ?>;
+            --air-bg: rgba(220, 38, 38, 0.08);
+            --air-border: rgba(220, 38, 38, 0.25);
             
-            --water-color: #2563eb;
-            --water-bg: #eff6ff;
-            --water-border: #dbeafe;
+            --water-color: <?php echo htmlspecialchars($elemColors['water']); ?>;
+            --water-bg: rgba(37, 99, 235, 0.08);
+            --water-border: rgba(37, 99, 235, 0.25);
             
-            --earth-color: #16a34a;
-            --earth-bg: #f0fdf4;
-            --earth-border: #dcfce7;
+            --earth-color: <?php echo htmlspecialchars($elemColors['earth']); ?>;
+            --earth-bg: rgba(15, 23, 42, 0.06);
+            --earth-border: rgba(15, 23, 42, 0.2);
             
             --danger: #dc2626;
             --danger-bg: #fef2f2;
@@ -508,6 +510,14 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             }
         }
     </style>
+    <script>
+        window.APP_ELEM_COLORS = {
+            fire: <?php echo json_encode($elemColors['fire']); ?>,
+            air: <?php echo json_encode($elemColors['air']); ?>,
+            water: <?php echo json_encode($elemColors['water']); ?>,
+            earth: <?php echo json_encode($elemColors['earth']); ?>
+        };
+    </script>
 </head>
 <body>
     <header class="app-header">

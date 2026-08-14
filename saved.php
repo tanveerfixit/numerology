@@ -231,10 +231,10 @@ if (!$currentUser || $currentUser['status'] !== 'approved') {
 
         const html = `
             <div style="display: inline-flex; gap: 0.45rem; align-items: center; justify-content: center; direction: ltr; font-weight: 700; font-size: 0.95rem;">
-                <span style="color: #d97706;" title="Fire (آتشی)">${pFire}</span>
-                <span style="color: #dc2626;" title="Air (بادی)">${pAir}</span>
-                <span style="color: #2563eb;" title="Water (آبی)">${pWater}</span>
-                <span style="color: #16a34a;" title="Earth (خاکی)">${pEarth}</span>
+                <span style="color: var(--fire-color);" title="Fire (آتشی)">${pFire}</span>
+                <span style="color: var(--air-color);" title="Air (بادی)">${pAir}</span>
+                <span style="color: var(--water-color);" title="Water (آبی)">${pWater}</span>
+                <span style="color: var(--earth-color);" title="Earth (خاکی)">${pEarth}</span>
             </div>
         `;
 

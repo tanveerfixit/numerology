@@ -70,6 +70,32 @@ try {
         );
     ");
 
+    // Create site_settings table for dynamic configuration (such as element colors)
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS site_settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        );
+    ");
+
+    // Seed default element colors (Fire=yellow, Air=red, Water=blue, Earth=black)
+    $defaultElemColors = [
+        'elem_color_fire' => '#eab308', // Yellow
+        'elem_color_air' => '#dc2626',  // Red
+        'elem_color_water' => '#2563eb', // Blue
+        'elem_color_earth' => '#0f172a'  // Black
+    ];
+
+    $checkSetting = $db->prepare("SELECT COUNT(*) FROM site_settings WHERE key = ?");
+    $insertSetting = $db->prepare("INSERT INTO site_settings (key, value) VALUES (?, ?)");
+
+    foreach ($defaultElemColors as $sKey => $sVal) {
+        $checkSetting->execute([$sKey]);
+        if ($checkSetting->fetchColumn() == 0) {
+            $insertSetting->execute([$sKey, $sVal]);
+        }
+    }
+
     // Migration check for existing databases
     $columns = $db->query("PRAGMA table_info(users)")->fetchAll();
     $existingCols = array_column($columns, 'name');
@@ -105,4 +131,29 @@ try {
 } catch (PDOException $e) {
     http_response_code(500);
     die(json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]));
+}
+
+/**
+ * Retrieve current elemental colors (Fire, Air, Water, Earth)
+ */
+function getElementColors($db) {
+    $defaults = [
+        'fire' => '#eab308', // Yellow
+        'air' => '#dc2626',  // Red
+        'water' => '#2563eb', // Blue
+        'earth' => '#0f172a'  // Black
+    ];
+
+    try {
+        $stmt = $db->query("SELECT key, value FROM site_settings WHERE key LIKE 'elem_color_%'");
+        $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        return [
+            'fire' => $rows['elem_color_fire'] ?? $defaults['fire'],
+            'air' => $rows['elem_color_air'] ?? $defaults['air'],
+            'water' => $rows['elem_color_water'] ?? $defaults['water'],
+            'earth' => $rows['elem_color_earth'] ?? $defaults['earth']
+        ];
+    } catch (Exception $e) {
+        return $defaults;
+    }
 }
