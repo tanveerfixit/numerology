@@ -21,168 +21,94 @@ function loadEnv($filePath) {
 
 $env = loadEnv(dirname(__DIR__) . '/.env');
 
-$dbDriver = $env['DB_DRIVER'] ?? 'mysql';
 $dbHost = $env['DB_HOST'] ?? 'srv2113.hstgr.io';
 $dbPort = $env['DB_PORT'] ?? '3306';
 $dbName = $env['DB_NAME'] ?? 'u583652021_numerology';
 $dbUser = $env['DB_USER'] ?? 'u583652021_number';
 $dbPass = $env['DB_PASS'] ?? 'Tani@8877';
 
-$dbPath = dirname(__DIR__) . '/abjad.db';
 $db = null;
+$hostsToTry = array_unique([$dbHost, '77.37.35.183', '127.0.0.1', 'localhost']);
+$lastException = null;
 
-// Connection Attempt Logic
-if ($dbDriver === 'mysql') {
-    // 1. Try specified host (e.g. srv2113.hstgr.io or IP)
-    $hostsToTry = array_unique([$dbHost, '127.0.0.1', 'localhost']);
-    foreach ($hostsToTry as $h) {
-        try {
-            $dsn = "mysql:host={$h};port={$dbPort};dbname={$dbName};charset=utf8mb4";
-            $db = new PDO($dsn, $dbUser, $dbPass, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
-                PDO::ATTR_TIMEOUT => 4
-            ]);
-            break; // Successfully connected!
-        } catch (Exception $ex) {
-            // Try next candidate host
-        }
-    }
-}
-
-// Fallback to SQLite if MySQL failed or if SQLite is explicitly chosen
-if (!$db) {
+foreach ($hostsToTry as $h) {
     try {
-        $db = new PDO('sqlite:' . $dbPath);
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    } catch (Exception $e) {
-        http_response_code(500);
-        die(json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]));
+        $dsn = "mysql:host={$h};port={$dbPort};dbname={$dbName};charset=utf8mb4";
+        $db = new PDO($dsn, $dbUser, $dbPass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
+            PDO::ATTR_TIMEOUT => 5
+        ]);
+        break; // Successfully connected!
+    } catch (Exception $ex) {
+        $lastException = $ex;
     }
 }
 
-// Initialize tables based on active driver
+if (!$db) {
+    http_response_code(500);
+    die(json_encode(['error' => 'MySQL Database connection failed: ' . ($lastException ? $lastException->getMessage() : 'Unable to connect to MySQL server.')]));
+}
+
+// Initialize MySQL Tables and Schemas
 try {
-    $activeDriver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS calculations (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            total INT NOT NULL,
+            single INT NOT NULL,
+            origin VARCHAR(255) DEFAULT NULL,
+            meanings TEXT DEFAULT NULL,
+            notes TEXT DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
 
-    if ($activeDriver === 'mysql') {
-        $db->exec("
-            CREATE TABLE IF NOT EXISTS calculations (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                total INT NOT NULL,
-                single INT NOT NULL,
-                origin VARCHAR(255) DEFAULT NULL,
-                meanings TEXT DEFAULT NULL,
-                notes TEXT DEFAULT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        ");
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(100) UNIQUE NOT NULL,
+            email VARCHAR(191) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            full_name VARCHAR(255) DEFAULT NULL,
+            contact VARCHAR(100) DEFAULT NULL,
+            role VARCHAR(20) DEFAULT 'public',
+            status VARCHAR(20) DEFAULT 'pending',
+            circumstance TEXT DEFAULT NULL,
+            req_name_lookup VARCHAR(255) DEFAULT NULL,
+            req_relationship VARCHAR(255) DEFAULT NULL,
+            req_name VARCHAR(255) DEFAULT NULL,
+            req_question TEXT DEFAULT NULL,
+            req_submitted_at TIMESTAMP NULL DEFAULT NULL,
+            req_admin_reply TEXT DEFAULT NULL,
+            req_status VARCHAR(20) DEFAULT 'none',
+            req_replied_at TIMESTAMP NULL DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
 
-        $db->exec("
-            CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(100) UNIQUE NOT NULL,
-                email VARCHAR(191) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                full_name VARCHAR(255) DEFAULT NULL,
-                contact VARCHAR(100) DEFAULT NULL,
-                role VARCHAR(20) DEFAULT 'public',
-                status VARCHAR(20) DEFAULT 'pending',
-                circumstance TEXT DEFAULT NULL,
-                req_name_lookup VARCHAR(255) DEFAULT NULL,
-                req_relationship VARCHAR(255) DEFAULT NULL,
-                req_name VARCHAR(255) DEFAULT NULL,
-                req_question TEXT DEFAULT NULL,
-                req_submitted_at TIMESTAMP NULL DEFAULT NULL,
-                req_admin_reply TEXT DEFAULT NULL,
-                req_status VARCHAR(20) DEFAULT 'none',
-                req_replied_at TIMESTAMP NULL DEFAULT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        ");
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS user_chats (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            sender VARCHAR(20) NOT NULL,
+            name_lookup VARCHAR(255) DEFAULT NULL,
+            relationship VARCHAR(255) DEFAULT NULL,
+            name VARCHAR(255) DEFAULT NULL,
+            message TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
 
-        $db->exec("
-            CREATE TABLE IF NOT EXISTS user_chats (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                user_id INT NOT NULL,
-                sender VARCHAR(20) NOT NULL,
-                name_lookup VARCHAR(255) DEFAULT NULL,
-                relationship VARCHAR(255) DEFAULT NULL,
-                name VARCHAR(255) DEFAULT NULL,
-                message TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        ");
-
-        $db->exec("
-            CREATE TABLE IF NOT EXISTS site_settings (
-                setting_key VARCHAR(100) PRIMARY KEY,
-                setting_value TEXT NOT NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        ");
-    } else {
-        // SQLite Schema
-        $db->exec("
-            CREATE TABLE IF NOT EXISTS calculations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                total INTEGER NOT NULL,
-                single INTEGER NOT NULL,
-                origin TEXT DEFAULT NULL,
-                meanings TEXT DEFAULT NULL,
-                notes TEXT DEFAULT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        ");
-
-        $db->exec("
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL,
-                full_name TEXT DEFAULT NULL,
-                contact TEXT DEFAULT NULL,
-                role TEXT CHECK(role IN ('public','staff','admin')) DEFAULT 'public',
-                status TEXT CHECK(status IN ('pending','approved','rejected')) DEFAULT 'pending',
-                circumstance TEXT DEFAULT NULL,
-                req_name_lookup TEXT DEFAULT NULL,
-                req_relationship TEXT DEFAULT NULL,
-                req_name TEXT DEFAULT NULL,
-                req_question TEXT DEFAULT NULL,
-                req_submitted_at TIMESTAMP DEFAULT NULL,
-                req_admin_reply TEXT DEFAULT NULL,
-                req_status TEXT CHECK(req_status IN ('none','pending','replied')) DEFAULT 'none',
-                req_replied_at TIMESTAMP DEFAULT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        ");
-
-        $db->exec("
-            CREATE TABLE IF NOT EXISTS user_chats (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                sender TEXT CHECK(sender IN ('user','admin')) NOT NULL,
-                name_lookup TEXT DEFAULT NULL,
-                relationship TEXT DEFAULT NULL,
-                name TEXT DEFAULT NULL,
-                message TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-            );
-        ");
-
-        $db->exec("
-            CREATE TABLE IF NOT EXISTS site_settings (
-                setting_key TEXT PRIMARY KEY,
-                setting_value TEXT NOT NULL
-            );
-        ");
-    }
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS site_settings (
+            setting_key VARCHAR(100) PRIMARY KEY,
+            setting_value TEXT NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
 
     // Seed default elemental theme colors if not exists
     $defaultElemColors = [
@@ -193,7 +119,7 @@ try {
     ];
 
     $checkSetting = $db->prepare("SELECT COUNT(*) FROM site_settings WHERE setting_key = ?");
-    $insertSetting = $db->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?)");
+    $insertSetting = $db->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
 
     foreach ($defaultElemColors as $sKey => $sVal) {
         $checkSetting->execute([$sKey]);
@@ -244,14 +170,9 @@ function getElementColors($db) {
 }
 
 /**
- * Upsert site setting value
+ * Upsert site setting value in MySQL
  */
 function setSiteSetting($db, $key, $value) {
-    $driver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
-    if ($driver === 'sqlite') {
-        $stmt = $db->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value");
-    } else {
-        $stmt = $db->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
-    }
+    $stmt = $db->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
     return $stmt->execute([$key, $value]);
 }

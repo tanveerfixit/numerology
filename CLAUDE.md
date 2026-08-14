@@ -6,8 +6,8 @@
 - Keep all local development and git commits local until requested.
 
 ## Tech Stack & Architecture Rules
-- **Technology Stack**: Pure PHP, SQLite (`abjad.db`), PDO. No Node.js server.
-- **Database**: Strict local SQLite file `abjad.db`. No online/external DB connection.
+- **Technology Stack**: Pure PHP, MySQL via PDO. No Node.js server.
+- **Database**: MySQL (`u583652021_numerology` on Hostinger / `.env`). All tables and queries use MySQL with `utf8mb4_unicode_ci` charset. No SQLite.
 - **Visual Theme**: Pure light theme ONLY (`#f8fafc`, `#ffffff`). No dark theme. Keep padding and margins minimal.
 - **Radius Guidelines**: Zero border radius (`border-radius: 0;`) across all inputs, divs, cards, backgrounds, badges, and modals. Minimum 2px radius (`border-radius: 2px;`) strictly for buttons.
 - **Public Calculator**: Calculator remains open to all users (including unauthenticated guests). Saving calculations and saved names history log (`saved.php`) are strictly reserved for Staff & Admin accounts.
