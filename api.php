@@ -36,10 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = $data['password'] ?? '';
         $fullName = trim($data['full_name'] ?? '');
         $contact = trim($data['contact'] ?? '');
+        $reqNameLookup = trim($data['req_name_lookup'] ?? '');
+        $reqRelationship = trim($data['req_relationship'] ?? '');
+        $reqQuestion = trim($data['req_question'] ?? '');
+        $hasConsultation = !empty($reqQuestion) || !empty($reqNameLookup) || !empty($data['request_info']);
 
         if (empty($username) || empty($email) || empty($password)) {
             http_response_code(400);
-            echo json_encode(['error' => 'All fields (username, email, password) are required']);
+            echo json_encode(['error' => 'All required fields (username, email, password) must be filled']);
             exit;
         }
 
@@ -53,10 +57,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $db->prepare("INSERT INTO users (username, email, password, full_name, contact, role, status) VALUES (?, ?, ?, ?, ?, 'public', 'pending')");
+        $reqStatus = $hasConsultation ? 'pending' : 'none';
+        $userStatus = 'pending'; // User starts in pending status; requires manual admin approval
+        $circumstance = !empty($reqQuestion) ? $reqQuestion : ($reqNameLookup ? "Inquiry for: $reqNameLookup" : null);
+
+        $stmt = $db->prepare("INSERT INTO users (username, email, password, full_name, contact, role, status, circumstance, req_name_lookup, req_relationship, req_name, req_question, req_submitted_at, req_status) VALUES (?, ?, ?, ?, ?, 'public', ?, ?, ?, ?, ?, ?, ?, ?)");
         try {
-            $stmt->execute([$username, $email, $hash, $fullName, $contact]);
-            echo json_encode(['success' => true, 'message' => 'Account created! Pending admin approval.']);
+            $submittedAt = $hasConsultation ? date('Y-m-d H:i:s') : null;
+            $stmt->execute([
+                $username,
+                $email,
+                $hash,
+                $fullName ?: $username,
+                $contact,
+                $userStatus,
+                $circumstance,
+                $reqNameLookup ?: null,
+                $reqRelationship ?: null,
+                $fullName ?: $username,
+                $reqQuestion ?: null,
+                $submittedAt,
+                $reqStatus
+            ]);
+            
+            $newUserId = (int)$db->lastInsertId();
+
+            if ($hasConsultation && (!empty($reqQuestion) || !empty($reqNameLookup))) {
+                $chatMsg = $reqQuestion ?: ("Inquiry and numerical inspection requested for target name: " . $reqNameLookup);
+                $chatStmt = $db->prepare("INSERT INTO user_chats (user_id, sender, name_lookup, relationship, name, message) VALUES (?, 'user', ?, ?, ?, ?)");
+                $chatStmt->execute([
+                    $newUserId,
+                    $reqNameLookup ?: null,
+                    $reqRelationship ?: null,
+                    $fullName ?: $username,
+                    $chatMsg
+                ]);
+            }
+
+            // Auto-login session for viewing profile & submitted question
+            startSession();
+            $_SESSION['user_id'] = $newUserId;
+            $_SESSION['user_role'] = 'public';
+
+            echo json_encode([
+                'success' => true,
+                'redirect' => $hasConsultation ? 'profile.php?submitted=1' : 'index.php',
+                'message' => $hasConsultation ? 'Account registered and consultation question submitted! Your account is pending manual approval by the admin.' : 'Account created! Pending admin approval.'
+            ]);
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['error' => 'Signup failed: ' . $e->getMessage()]);
@@ -85,6 +132,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
+        if ($user['status'] === 'disabled') {
+            http_response_code(403);
+            echo json_encode(['error' => 'Your account has been disabled by an administrator. Please contact support.']);
+            exit;
+        }
+
         $_SESSION['user_id'] = $user['id'];
         echo json_encode([
             'success' => true,
@@ -103,9 +156,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Require authentication for remaining POST actions
     $currentUser = getCurrentUser($db);
-    if (!$currentUser || $currentUser['status'] !== 'approved') {
+    if (!$currentUser) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized: Please log in to continue.']);
+        exit;
+    }
+
+    // For public users, submitting follow-up questions requires admin approval
+    if ($currentUser['role'] === 'public' && $currentUser['status'] !== 'approved') {
         http_response_code(403);
-        echo json_encode(['error' => 'Unauthorized: Account must be logged in and approved by admin.']);
+        echo json_encode(['error' => 'Your account is pending manual approval by the admin. Follow-up questions can only be sent once an administrator approves your account.']);
         exit;
     }
 
@@ -168,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Admin user management & chat endpoints
-    if (in_array($action, ['approve_user', 'reject_user', 'update_role', 'update_circumstance', 'send_admin_reply', 'delete_chat_message', 'clear_user_chat_history', 'delete_user'])) {
+    if (in_array($action, ['approve_user', 'reject_user', 'disable_user', 'enable_user', 'update_status', 'update_role', 'update_circumstance', 'send_admin_reply', 'delete_chat_message', 'clear_user_chat_history', 'delete_user'])) {
         if ($currentUser['role'] !== 'admin') {
             http_response_code(403);
             echo json_encode(['error' => 'Admin privileges required']);
@@ -226,8 +286,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        if ($action === 'approve_user') {
+        if ($action === 'approve_user' || $action === 'enable_user') {
             $stmt = $db->prepare("UPDATE users SET status = 'approved' WHERE id = ?");
+            $stmt->execute([$targetId]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
+        if ($action === 'disable_user') {
+            $stmt = $db->prepare("UPDATE users SET status = 'disabled' WHERE id = ?");
             $stmt->execute([$targetId]);
             echo json_encode(['success' => true]);
             exit;
@@ -236,6 +303,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'reject_user') {
             $stmt = $db->prepare("UPDATE users SET status = 'rejected' WHERE id = ?");
             $stmt->execute([$targetId]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
+        if ($action === 'update_status') {
+            $newStatus = $data['status'] ?? 'pending';
+            if (!in_array($newStatus, ['approved', 'disabled', 'pending', 'rejected'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid status value']);
+                exit;
+            }
+            $stmt = $db->prepare("UPDATE users SET status = ? WHERE id = ?");
+            $stmt->execute([$newStatus, $targetId]);
             echo json_encode(['success' => true]);
             exit;
         }

@@ -109,6 +109,7 @@ $recordId = $_GET['id'] ?? null;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 0.75rem;
+        direction: rtl;
     }
 
     @media (max-width: 640px) {

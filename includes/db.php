@@ -132,7 +132,7 @@ try {
     $stmt = $db->query("SELECT COUNT(*) as cnt FROM users");
     $row = $stmt->fetch();
     if ($row['cnt'] == 0) {
-        $defaultPass = password_hash('Admin123', PASSWORD_DEFAULT);
+        $defaultPass = password_hash('admin1122', PASSWORD_DEFAULT);
         $seed = $db->prepare("INSERT INTO users (username, email, password, full_name, contact, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $seed->execute(['admin', 'admin@numerology.pk', $defaultPass, 'Administrator', '+92 300 0000001', 'admin', 'approved']);
         $seed->execute(['staff', 'staff@numerology.pk', $defaultPass, 'Staff Member', '+92 300 0000002', 'staff', 'approved']);

@@ -5,6 +5,8 @@ require_once __DIR__ . '/includes/header.php';
 
 $authMode = $_GET['auth'] ?? '';
 $errorMsg = $_GET['error'] ?? '';
+$reqNameParam = trim($_GET['name'] ?? '');
+$isRequestMode = isset($_GET['request']) || $authMode === 'request' || !empty($reqNameParam);
 ?>
 
 <style>
@@ -20,8 +22,11 @@ $errorMsg = $_GET['error'] ?? '';
     @media (max-width: 900px) {
         .hero-container {
             grid-template-columns: 1fr;
-            padding: 1.5rem 0 2.5rem;
-            gap: 2rem;
+            padding: 1rem 0 2rem;
+            gap: 1.5rem;
+        }
+        .hero-text-col {
+            display: none !important;
         }
     }
 
@@ -162,42 +167,47 @@ $errorMsg = $_GET['error'] ?? '';
         margin-top: 0.15rem;
     }
 
-    /* Elements Micro Bar */
+    /* Elements Micro Circles */
     .hero-elements-meters {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 0.5rem;
-        margin-top: 0.75rem;
+        gap: 0.75rem;
+        margin-top: 0.85rem;
+        justify-items: center;
+        align-items: center;
         direction: rtl;
     }
 
-    .micro-elem-card {
-        background: #ffffff;
-        border: 1px solid var(--border-subtle);
-        border-radius: 0;
-        padding: 0.4rem 0.5rem;
-        text-align: center;
-    }
-
-    .micro-elem-title {
-        font-size: 0.68rem;
-        font-weight: 600;
+    .micro-elem-circle-wrap {
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.25rem;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
-    .micro-meter-track {
-        height: 4px;
-        background: var(--surface-subtle);
-        border-radius: 0;
-        overflow: hidden;
+    .micro-elem-circle {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: conic-gradient(var(--elem-col) 0%, var(--surface-subtle) 0% 100%);
+        transition: background 0.3s ease;
+        padding: 3.5px;
     }
 
-    .micro-meter-bar {
+    .micro-circle-inner {
+        width: 100%;
         height: 100%;
-        border-radius: 0;
-        transition: width 0.3s ease;
+        border-radius: 50%;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.76rem;
+        font-weight: 700;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     }
 
     /* Section Title */
@@ -237,6 +247,7 @@ $errorMsg = $_GET['error'] ?? '';
         grid-template-columns: repeat(4, 1fr);
         gap: 1.25rem;
         margin-bottom: 3.5rem;
+        direction: rtl;
     }
 
     @media (max-width: 900px) {
@@ -471,12 +482,14 @@ $errorMsg = $_GET['error'] ?? '';
         </div>
     <?php endif; ?>
 
-    <?php if ($authMode === 'login' || $authMode === 'signup'): ?>
+    <?php if ($authMode === 'login' || $authMode === 'signup' || $authMode === 'request'): ?>
         <!-- Dedicated Tabbed Auth Card -->
-        <div class="auth-wrapper-card">
+        <div class="auth-wrapper-card" style="max-width: 580px;">
             <div class="auth-tab-buttons">
                 <a href="index.php?auth=login" class="auth-tab-btn <?php echo $authMode === 'login' ? 'active' : ''; ?>" style="text-align: center; text-decoration: none; border-radius: 2px;">Account Login</a>
-                <a href="index.php?auth=signup" class="auth-tab-btn <?php echo $authMode === 'signup' ? 'active' : ''; ?>" style="text-align: center; text-decoration: none; border-radius: 2px;">Create Account</a>
+                <a href="index.php?auth=signup<?php echo $reqNameParam ? '&name='.urlencode($reqNameParam).'&request=1' : ''; ?>" class="auth-tab-btn <?php echo ($authMode === 'signup' || $authMode === 'request') ? 'active' : ''; ?>" style="text-align: center; text-decoration: none; border-radius: 2px;">
+                    <?php echo (isset($_GET['request']) || !empty($reqNameParam)) ? '✨ Request Info & Register' : 'Create Account'; ?>
+                </a>
             </div>
 
             <?php if ($authMode === 'login'): ?>
@@ -499,21 +512,85 @@ $errorMsg = $_GET['error'] ?? '';
                 </p>
             <?php else: ?>
                 <div id="signupAlert" style="display: none;"></div>
+
+                <?php if (isset($_GET['request']) || !empty($reqNameParam)): ?>
+                    <div style="background: var(--surface-subtle); border-left: 3px solid var(--primary); padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: var(--text-secondary);">
+                        <strong style="color: var(--text-primary); display: block; margin-bottom: 0.2rem;">✨ Numerology Consultation & Inquiry Request</strong>
+                        Register your account to send a request for in-depth numerology inspection (Abjad total, digital root, elemental temperament & recommendations) from our administrative scholars.
+                    </div>
+                <?php endif; ?>
+
                 <form id="signupForm">
-                    <div class="form-group-item">
-                        <label class="form-label" for="signupUsername">Desired Username</label>
-                        <input type="text" id="signupUsername" class="form-control" placeholder="e.g. tariq_ali" required autocomplete="username">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div class="form-group-item">
+                            <label class="form-label" for="signupUsername">Desired Username *</label>
+                            <input type="text" id="signupUsername" class="form-control" placeholder="e.g. tariq_ali" required autocomplete="username">
+                        </div>
+                        <div class="form-group-item">
+                            <label class="form-label" for="signupEmail">Email Address *</label>
+                            <input type="email" id="signupEmail" class="form-control" placeholder="tariq@example.com" required autocomplete="email">
+                        </div>
                     </div>
+
                     <div class="form-group-item">
-                        <label class="form-label" for="signupEmail">Email Address</label>
-                        <input type="email" id="signupEmail" class="form-control" placeholder="tariq@example.com" required autocomplete="email">
-                    </div>
-                    <div class="form-group-item">
-                        <label class="form-label" for="signupPassword">Password</label>
+                        <label class="form-label" for="signupPassword">Password *</label>
                         <input type="password" id="signupPassword" class="form-control" placeholder="••••••••" required autocomplete="new-password">
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.65rem; margin-top: 0.5rem; border-radius: 2px;">
-                        Create Free Account →
+
+                    <!-- Consultation Request Section -->
+                    <div style="background: #ffffff; border: 1px solid var(--border-medium); padding: 1rem; margin: 1rem 0; border-radius: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <span style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary);">
+                                📜 Numerology Information & Target Name Request
+                            </span>
+                            <button type="button" id="btnToggleUrduKb" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; border-radius: 2px;">
+                                ⌨️ Urdu Keyboard
+                            </button>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                            <div>
+                                <label class="form-label" for="signupReqName" style="font-size: 0.78rem;">Target Name (Urdu / Arabic)</label>
+                                <input type="text" id="signupReqName" class="form-control" placeholder="e.g. محمد / علی / فاطمہ..." value="<?php echo htmlspecialchars($reqNameParam); ?>" style="font-family: var(--font-arabic); font-size: 1.15rem; direction: rtl;">
+                            </div>
+                            <div>
+                                <label class="form-label" for="signupRelationship" style="font-size: 0.78rem;">Relationship</label>
+                                <input type="text" id="signupRelationship" class="form-control" placeholder="e.g. Self, Child, Spouse">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                            <div>
+                                <label class="form-label" for="signupFullName" style="font-size: 0.78rem;">Your Full Name (Optional)</label>
+                                <input type="text" id="signupFullName" class="form-control" placeholder="e.g. Tariq Mahmood">
+                            </div>
+                            <div>
+                                <label class="form-label" for="signupContact" style="font-size: 0.78rem;">Contact / Phone (Optional)</label>
+                                <input type="text" id="signupContact" class="form-control" placeholder="e.g. +92 300 1234567">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="signupQuestion" style="font-size: 0.78rem;">Consultation Question / Information to Inspect</label>
+                            <textarea id="signupQuestion" class="form-control" rows="2" placeholder="Please inspect this name according to numerology for temperament, digital root, compatibility, and guidance..."></textarea>
+                        </div>
+
+                        <!-- Virtual Urdu Keyboard Drawer in Signup -->
+                        <div id="signupKbContainer" style="display: none; margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px dashed var(--border-subtle);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary);">⌨️ Virtual Urdu Keyboard</span>
+                                <div style="display: flex; gap: 0.35rem;">
+                                    <button id="signupKbSpace" type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.72rem; border-radius: 2px;">Space</button>
+                                    <button id="signupKbBackspace" type="button" class="btn btn-danger btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.72rem; border-radius: 2px;">⌫</button>
+                                </div>
+                            </div>
+                            <div id="signupKbGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 0.3rem; direction: rtl;"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; margin-top: 0.25rem; font-weight: 700; border-radius: 2px; box-shadow: var(--shadow-sm);">
+                        <span>✨ Submit Request & Register Account</span>
+                        <span>→</span>
                     </button>
                 </form>
                 <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 1.25rem;">
@@ -558,61 +635,57 @@ $errorMsg = $_GET['error'] ?? '';
 
                 <div style="margin-bottom: 0.75rem;">
                     <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.25rem; display: block;">Type any Urdu / Arabic Name:</label>
-                    <input type="text" id="heroQuickInput" class="hero-input" placeholder="محمد / علی / فاطمہ..." value="محمد" autocomplete="off">
+                    <input type="text" id="heroQuickInput" class="hero-input" placeholder="محمد / علی / فاطمہ..." value="" autocomplete="off">
                 </div>
 
                 <div class="hero-metrics-row">
                     <div class="hero-metric-box">
                         <span class="hero-metric-label">Total Abjad Value</span>
-                        <div class="hero-metric-val" id="heroTotalVal" style="color: var(--accent-gold);">92</div>
+                        <div class="hero-metric-val" id="heroTotalVal" style="color: var(--accent-gold);">0</div>
                     </div>
                     <div class="hero-metric-box">
                         <span class="hero-metric-label">Single Digital Root</span>
-                        <div class="hero-metric-val" id="heroSingleVal" style="color: var(--primary);">2</div>
+                        <div class="hero-metric-val" id="heroSingleVal" style="color: var(--primary);">0</div>
                     </div>
                 </div>
 
                 <div class="hero-elements-meters">
-                    <div class="micro-elem-card">
-                        <div class="micro-elem-title" style="color: var(--fire-color);">
-                            <span>🔥 Fire</span>
-                            <span id="hero-pct-fire">87%</span>
-                        </div>
-                        <div class="micro-meter-track">
-                            <div id="hero-bar-fire" class="micro-meter-bar" style="width: 87%; background: var(--fire-color);"></div>
+                    <div class="micro-elem-circle-wrap" title="Fire">
+                        <div id="hero-circle-fire" class="micro-elem-circle" style="--elem-col: var(--fire-color);">
+                            <div class="micro-circle-inner">
+                                <span id="hero-pct-fire" style="color: var(--fire-color);">0%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="micro-elem-card">
-                        <div class="micro-elem-title" style="color: var(--air-color);">
-                            <span>💨 Air</span>
-                            <span id="hero-pct-air">0%</span>
-                        </div>
-                        <div class="micro-meter-track">
-                            <div id="hero-bar-air" class="micro-meter-bar" style="width: 0%; background: var(--air-color);"></div>
+                    <div class="micro-elem-circle-wrap" title="Air">
+                        <div id="hero-circle-air" class="micro-elem-circle" style="--elem-col: var(--air-color);">
+                            <div class="micro-circle-inner">
+                                <span id="hero-pct-air" style="color: var(--air-color);">0%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="micro-elem-card">
-                        <div class="micro-elem-title" style="color: var(--water-color);">
-                            <span>💧 Water</span>
-                            <span id="hero-pct-water">0%</span>
-                        </div>
-                        <div class="micro-meter-track">
-                            <div id="hero-bar-water" class="micro-meter-bar" style="width: 0%; background: var(--water-color);"></div>
+                    <div class="micro-elem-circle-wrap" title="Water">
+                        <div id="hero-circle-water" class="micro-elem-circle" style="--elem-col: var(--water-color);">
+                            <div class="micro-circle-inner">
+                                <span id="hero-pct-water" style="color: var(--water-color);">0%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="micro-elem-card">
-                        <div class="micro-elem-title" style="color: var(--earth-color);">
-                            <span>🪨 Earth</span>
-                            <span id="hero-pct-earth">13%</span>
-                        </div>
-                        <div class="micro-meter-track">
-                            <div id="hero-bar-earth" class="micro-meter-bar" style="width: 13%; background: var(--earth-color);"></div>
+                    <div class="micro-elem-circle-wrap" title="Earth">
+                        <div id="hero-circle-earth" class="micro-elem-circle" style="--elem-col: var(--earth-color);">
+                            <div class="micro-circle-inner">
+                                <span id="hero-pct-earth" style="color: var(--earth-color);">0%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div style="margin-top: 1rem; text-align: center;">
-                    <a href="calculator.php" style="font-size: 0.82rem; font-weight: 600; color: var(--primary); text-decoration: none;">
+                <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.55rem; text-align: center;">
+                    <button type="button" id="btnHeroRequestInfo" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.65rem 1rem; font-weight: 700; border-radius: 2px; box-shadow: var(--shadow-sm); cursor: pointer;">
+                        <span>✨ Request info</span>
+                        <span>→</span>
+                    </button>
+                    <a href="calculator.php" style="font-size: 0.82rem; font-weight: 600; color: var(--primary); text-decoration: none; padding: 0.15rem 0;">
                         Open full workbench with Urdu on-screen keyboard & breakdown →
                     </a>
                 </div>
@@ -792,14 +865,25 @@ $errorMsg = $_GET['error'] ?? '';
         const pWater = elemTotal ? Math.round((counts.water / elemTotal) * 100) : 0;
         const pEarth = elemTotal ? Math.round((counts.earth / elemTotal) * 100) : 0;
 
-        document.getElementById('hero-pct-fire').innerText = pFire + '%';
-        document.getElementById('hero-bar-fire').style.width = pFire + '%';
-        document.getElementById('hero-pct-air').innerText = pAir + '%';
-        document.getElementById('hero-bar-air').style.width = pAir + '%';
-        document.getElementById('hero-pct-water').innerText = pWater + '%';
-        document.getElementById('hero-bar-water').style.width = pWater + '%';
-        document.getElementById('hero-pct-earth').innerText = pEarth + '%';
-        document.getElementById('hero-bar-earth').style.width = pEarth + '%';
+        const pctFireEl = document.getElementById('hero-pct-fire');
+        const pctAirEl = document.getElementById('hero-pct-air');
+        const pctWaterEl = document.getElementById('hero-pct-water');
+        const pctEarthEl = document.getElementById('hero-pct-earth');
+
+        if (pctFireEl) pctFireEl.innerText = pFire + '%';
+        if (pctAirEl) pctAirEl.innerText = pAir + '%';
+        if (pctWaterEl) pctWaterEl.innerText = pWater + '%';
+        if (pctEarthEl) pctEarthEl.innerText = pEarth + '%';
+
+        const circleFire = document.getElementById('hero-circle-fire');
+        const circleAir = document.getElementById('hero-circle-air');
+        const circleWater = document.getElementById('hero-circle-water');
+        const circleEarth = document.getElementById('hero-circle-earth');
+
+        if (circleFire) circleFire.style.background = `conic-gradient(var(--fire-color) ${pFire}%, var(--surface-subtle) ${pFire}% 100%)`;
+        if (circleAir) circleAir.style.background = `conic-gradient(var(--air-color) ${pAir}%, var(--surface-subtle) ${pAir}% 100%)`;
+        if (circleWater) circleWater.style.background = `conic-gradient(var(--water-color) ${pWater}%, var(--surface-subtle) ${pWater}% 100%)`;
+        if (circleEarth) circleEarth.style.background = `conic-gradient(var(--earth-color) ${pEarth}%, var(--surface-subtle) ${pEarth}% 100%)`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -859,6 +943,85 @@ $errorMsg = $_GET['error'] ?? '';
             });
         }
 
+        // Hero Request Info Button Handler
+        const btnHeroReq = document.getElementById('btnHeroRequestInfo');
+        if (btnHeroReq) {
+            btnHeroReq.addEventListener('click', () => {
+                const nameVal = document.getElementById('heroQuickInput') ? document.getElementById('heroQuickInput').value.trim() : '';
+                <?php if ($currentUser): ?>
+                    window.location.href = 'profile.php' + (nameVal ? '?name=' + encodeURIComponent(nameVal) : '');
+                <?php else: ?>
+                    window.location.href = 'index.php?auth=signup&request=1' + (nameVal ? '&name=' + encodeURIComponent(nameVal) : '');
+                <?php endif; ?>
+            });
+        }
+
+        // Virtual Urdu Keyboard for Signup Request Target Name
+        const btnToggleKb = document.getElementById('btnToggleUrduKb');
+        const kbContainer = document.getElementById('signupKbContainer');
+        const targetInput = document.getElementById('signupReqName');
+        const kbGrid = document.getElementById('signupKbGrid');
+
+        if (btnToggleKb && kbContainer && kbGrid && targetInput) {
+            const kbLetters = [
+                'ا', 'آ', 'ب', 'پ', 'ت', 'ٹ', 'ث', 'ج', 'چ', 'ح', 'خ',
+                'د', 'ڈ', 'ذ', 'ر', 'ڑ', 'ز', 'ژ', 'س', 'ش', 'ص', 'ض',
+                'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ک', 'گ', 'ل', 'م', 'ن',
+                'ں', 'و', 'ہ', 'ھ', 'ء', 'ی', 'ے'
+            ];
+
+            kbLetters.forEach(ch => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn btn-secondary';
+                btn.style.cssText = 'padding: 0.35rem 0.2rem; font-family: var(--font-arabic); font-size: 1.15rem; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 0;';
+                btn.innerText = ch;
+                btn.onclick = () => {
+                    const start = targetInput.selectionStart ?? targetInput.value.length;
+                    const end = targetInput.selectionEnd ?? targetInput.value.length;
+                    const val = targetInput.value;
+                    targetInput.value = val.substring(0, start) + ch + val.substring(end);
+                    targetInput.selectionStart = targetInput.selectionEnd = start + ch.length;
+                    targetInput.focus();
+                };
+                kbGrid.appendChild(btn);
+            });
+
+            btnToggleKb.onclick = () => {
+                kbContainer.style.display = (kbContainer.style.display === 'none' || !kbContainer.style.display) ? 'block' : 'none';
+            };
+
+            const kbSpace = document.getElementById('signupKbSpace');
+            if (kbSpace) {
+                kbSpace.onclick = () => {
+                    const start = targetInput.selectionStart ?? targetInput.value.length;
+                    const end = targetInput.selectionEnd ?? targetInput.value.length;
+                    const val = targetInput.value;
+                    targetInput.value = val.substring(0, start) + ' ' + val.substring(end);
+                    targetInput.selectionStart = targetInput.selectionEnd = start + 1;
+                    targetInput.focus();
+                };
+            }
+
+            const kbBack = document.getElementById('signupKbBackspace');
+            if (kbBack) {
+                kbBack.onclick = () => {
+                    const start = targetInput.selectionStart;
+                    const end = targetInput.selectionEnd;
+                    const val = targetInput.value;
+                    if (start === end && start > 0) {
+                        targetInput.value = val.substring(0, start - 1) + val.substring(end);
+                        targetInput.selectionStart = targetInput.selectionEnd = start - 1;
+                    } else if (start !== end) {
+                        targetInput.value = val.substring(0, start) + val.substring(end);
+                        targetInput.selectionStart = targetInput.selectionEnd = start;
+                    }
+                    targetInput.focus();
+                };
+            }
+        }
+
+        // Signup form handler with Consultation Request submission
         const signupForm = document.getElementById('signupForm');
         if (signupForm) {
             signupForm.addEventListener('submit', async (e) => {
@@ -866,6 +1029,11 @@ $errorMsg = $_GET['error'] ?? '';
                 const username = document.getElementById('signupUsername').value.trim();
                 const email = document.getElementById('signupEmail').value.trim();
                 const password = document.getElementById('signupPassword').value;
+                const fullName = document.getElementById('signupFullName') ? document.getElementById('signupFullName').value.trim() : '';
+                const contact = document.getElementById('signupContact') ? document.getElementById('signupContact').value.trim() : '';
+                const reqNameLookup = document.getElementById('signupReqName') ? document.getElementById('signupReqName').value.trim() : '';
+                const reqRelationship = document.getElementById('signupRelationship') ? document.getElementById('signupRelationship').value.trim() : '';
+                const reqQuestion = document.getElementById('signupQuestion') ? document.getElementById('signupQuestion').value.trim() : '';
                 const alertDiv = document.getElementById('signupAlert');
                 const submitBtn = signupForm.querySelector('button[type="submit"]');
 
@@ -876,7 +1044,17 @@ $errorMsg = $_GET['error'] ?? '';
                     const res = await fetch('api.php?action=signup', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, email, password })
+                        body: JSON.stringify({
+                            username,
+                            email,
+                            password,
+                            full_name: fullName,
+                            contact,
+                            req_name_lookup: reqNameLookup,
+                            req_relationship: reqRelationship,
+                            req_question: reqQuestion,
+                            request_info: true
+                        })
                     });
 
                     let data;
@@ -888,9 +1066,14 @@ $errorMsg = $_GET['error'] ?? '';
 
                     if (res.ok && data.success) {
                         alertDiv.className = 'alert alert-success';
-                        alertDiv.innerText = '✓ ' + (data.message || 'Account created! Pending approval.');
+                        alertDiv.innerText = '✓ ' + (data.message || 'Account registered and consultation request submitted!');
                         alertDiv.style.display = 'block';
                         signupForm.reset();
+                        if (data.redirect) {
+                            setTimeout(() => {
+                                window.location.href = data.redirect;
+                            }, 500);
+                        }
                     } else {
                         alertDiv.className = 'alert alert-danger';
                         alertDiv.innerText = data.error || 'Signup failed';

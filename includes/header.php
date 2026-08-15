@@ -432,6 +432,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         .status-approved { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
         .status-pending { background: var(--accent-gold-light); color: var(--accent-gold); border: 1px solid var(--accent-gold-border); }
         .status-rejected { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+        .status-disabled { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
 
         .role-badge {
             font-size: 0.68rem;

@@ -408,6 +408,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         gap: 0.75rem;
         margin-bottom: 1rem;
         box-sizing: border-box;
+        direction: rtl;
     }
 
     @media (max-width: 520px) {
@@ -500,6 +501,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                     <button type="button" class="filter-tab-btn active" id="tabAll" onclick="setFilter('all')">All Accounts (<span id="countTabAll">0</span>)</button>
                     <button type="button" class="filter-tab-btn" id="tabPending" onclick="setFilter('pending')">Pending (<span id="countTabPending">0</span>)</button>
                     <button type="button" class="filter-tab-btn" id="tabInquiries" onclick="setFilter('inquiries')">Inquiries (<span id="countTabInquiries">0</span>)</button>
+                    <button type="button" class="filter-tab-btn" id="tabDisabled" onclick="setFilter('disabled')">Disabled (<span id="countTabDisabled">0</span>)</button>
                     <button type="button" class="filter-tab-btn" id="tabStaff" onclick="setFilter('staff')">Staff/Admin (<span id="countTabStaff">0</span>)</button>
                 </div>
 
@@ -668,6 +670,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         const total = usersList.length;
         const pendingAppr = usersList.filter(u => u.status === 'pending').length;
         const pendingChats = usersList.filter(u => u.req_status === 'pending').length;
+        const disabledCount = usersList.filter(u => u.status === 'disabled').length;
         const staffAndAdmin = usersList.filter(u => ['staff', 'admin'].includes(u.role)).length;
 
         document.getElementById('kpiTotalUsers').innerText = total;
@@ -678,6 +681,8 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         document.getElementById('countTabAll').innerText = total;
         document.getElementById('countTabPending').innerText = pendingAppr;
         document.getElementById('countTabInquiries').innerText = pendingChats;
+        const tabDis = document.getElementById('countTabDisabled');
+        if (tabDis) tabDis.innerText = disabledCount;
         document.getElementById('countTabStaff').innerText = staffAndAdmin;
     }
 
@@ -685,7 +690,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         currentFilter = filter;
 
         // Update tabs active state
-        ['All', 'Pending', 'Inquiries', 'Staff'].forEach(f => {
+        ['All', 'Pending', 'Inquiries', 'Disabled', 'Staff'].forEach(f => {
             const el = document.getElementById('tab' + f);
             if (el) el.classList.toggle('active', filter.toLowerCase() === f.toLowerCase());
             const kpi = document.getElementById('kpiCard' + f);
@@ -700,6 +705,7 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         return usersList.filter(u => {
             if (currentFilter === 'pending' && u.status !== 'pending') return false;
             if (currentFilter === 'inquiries' && u.req_status !== 'pending') return false;
+            if (currentFilter === 'disabled' && u.status !== 'disabled') return false;
             if (currentFilter === 'staff' && !['staff', 'admin'].includes(u.role)) return false;
 
             if (search) {
@@ -763,12 +769,26 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                         </select>
                     </td>
                     <td>
-                        <span class="status-badge ${statusClass}">${escapeHtml(u.status)}</span>
+                        <select onchange="updateUserStatus(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.2rem 0.45rem; font-size: 0.78rem; font-weight: 600; border-radius: 0;">
+                            <option value="approved" ${u.status === 'approved' ? 'selected' : ''}>✓ Approved</option>
+                            <option value="disabled" ${u.status === 'disabled' ? 'selected' : ''}>🚫 Disabled</option>
+                            <option value="pending" ${u.status === 'pending' ? 'selected' : ''}>⏳ Pending</option>
+                            <option value="rejected" ${u.status === 'rejected' ? 'selected' : ''}>✕ Rejected</option>
+                        </select>
                     </td>
                     <td>${reqBadge}</td>
                     <td style="text-align: right; white-space: nowrap;">
                         <div style="display: inline-flex; gap: 0.3rem;">
-                            ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>` : ''}
+                            ${u.status === 'approved' 
+                                ? `<button onclick="toggleUserStatus(${u.id}, 'disabled')" type="button" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; color: var(--danger); border-radius: 2px;" title="Disable User Account">🚫 Disable</button>` 
+                                : (u.status === 'disabled'
+                                    ? `<button onclick="toggleUserStatus(${u.id}, 'approved')" type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;" title="Enable User Account">✓ Enable</button>`
+                                    : (u.status === 'pending'
+                                        ? `<button onclick="toggleUserStatus(${u.id}, 'approved')" type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>`
+                                        : `<button onclick="toggleUserStatus(${u.id}, 'approved')" type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Re-enable</button>`
+                                    )
+                                )
+                            }
                             <button onclick="openUserProfile(${u.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem; border-radius: 2px;">
                                 ${u.req_status === 'pending' ? '💬 Reply' : 'Inspect'}
                             </button>
@@ -821,13 +841,27 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                     ${reqBadge ? `<div style="margin-top: 0.2rem;">${reqBadge}</div>` : ''}
 
                     <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.5rem; margin-top: 0.25rem;">
-                        <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.2rem 0.4rem; font-size: 0.78rem; border-radius: 0;">
-                            <option value="public" ${u.role === 'public' ? 'selected' : ''}>Public</option>
-                            <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
-                            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
-                        </select>
+                        <div style="display: flex; gap: 0.35rem; align-items: center;">
+                            <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.2rem 0.4rem; font-size: 0.78rem; border-radius: 0;">
+                                <option value="public" ${u.role === 'public' ? 'selected' : ''}>Public</option>
+                                <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
+                                <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                            </select>
+                            <select onchange="updateUserStatus(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.2rem 0.4rem; font-size: 0.78rem; font-weight: 600; border-radius: 0;">
+                                <option value="approved" ${u.status === 'approved' ? 'selected' : ''}>Approved</option>
+                                <option value="disabled" ${u.status === 'disabled' ? 'selected' : ''}>Disabled</option>
+                                <option value="pending" ${u.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="rejected" ${u.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+                            </select>
+                        </div>
                         <div style="display: flex; gap: 0.3rem;">
-                            ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>` : ''}
+                            ${u.status === 'approved' 
+                                ? `<button onclick="toggleUserStatus(${u.id}, 'disabled')" type="button" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; color: var(--danger); border-radius: 2px;">🚫 Disable</button>` 
+                                : (u.status === 'disabled'
+                                    ? `<button onclick="toggleUserStatus(${u.id}, 'approved')" type="button" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">✓ Enable</button>`
+                                    : `<button onclick="toggleUserStatus(${u.id}, 'approved')" type="button" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>`
+                                )
+                            }
                             <button onclick="openUserProfile(${u.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-radius: 2px;">
                                 ${u.req_status === 'pending' ? '💬 Reply' : 'Inspect'}
                             </button>
@@ -856,7 +890,12 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                         ${u.full_name ? `<span style="color: var(--text-secondary); margin-left: 0.35rem; font-weight: 500;">• ${escapeHtml(u.full_name)}</span>` : ''}
                     </div>
                     <div style="display: flex; gap: 0.35rem; align-items: center;">
-                        <span class="status-badge status-${u.status}">${u.status}</span>
+                        <select onchange="updateUserStatus(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.12rem 0.35rem; font-size: 0.75rem; font-weight: 600; border-radius: 0;">
+                            <option value="approved" ${u.status === 'approved' ? 'selected' : ''}>✓ Approved (Enabled)</option>
+                            <option value="disabled" ${u.status === 'disabled' ? 'selected' : ''}>🚫 Disabled</option>
+                            <option value="pending" ${u.status === 'pending' ? 'selected' : ''}>⏳ Pending</option>
+                            <option value="rejected" ${u.status === 'rejected' ? 'selected' : ''}>✕ Rejected</option>
+                        </select>
                         <select onchange="updateRole(${u.id}, this.value)" class="form-control" style="width: auto; padding: 0.12rem 0.35rem; font-size: 0.75rem; border-radius: 0;">
                             <option value="public" ${u.role === 'public' ? 'selected' : ''}>Public</option>
                             <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
@@ -867,7 +906,10 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; font-size: 0.78rem; color: var(--text-secondary);">
                     <div>✉️ ${escapeHtml(u.email)} ${u.contact ? `| 📞 ${escapeHtml(u.contact)}` : ''}</div>
                     <div style="display: flex; gap: 0.3rem;">
-                        ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" type="button" class="btn btn-primary btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.72rem; background: var(--success); border-color: var(--success); border-radius: 2px;">Approve</button>` : ''}
+                        ${u.status === 'approved'
+                            ? `<button onclick="toggleUserStatus(${u.id}, 'disabled')" type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.72rem; color: var(--danger); border-radius: 2px;">🚫 Disable</button>`
+                            : `<button onclick="toggleUserStatus(${u.id}, 'approved')" type="button" class="btn btn-primary btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.72rem; background: var(--success); border-color: var(--success); border-radius: 2px;">✓ Enable / Approve</button>`
+                        }
                         ${u.status !== 'rejected' ? `<button onclick="rejectUser(${u.id})" type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.72rem; border-radius: 2px; color: var(--danger);">Reject</button>` : ''}
                         <button onclick="deleteUser(${u.id})" type="button" class="btn btn-danger btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.72rem; border-radius: 2px;">Delete</button>
                     </div>
@@ -1060,35 +1102,38 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         activeModalUserId = null;
     }
 
-    function approveUser(id) {
-        fetch('api.php?action=approve_user', {
+    function updateUserStatus(id, status) {
+        fetch('api.php?action=update_status', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
+            body: JSON.stringify({ id, status })
         })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                closeProfileModal();
+                if (activeModalUserId == id) {
+                    const u = usersList.find(item => item.id == id);
+                    if (u) u.status = status;
+                    openUserProfile(id);
+                }
                 loadUsers();
-            } else alert('Failed to approve user: ' + (data.error || ''));
+            } else alert('Failed to update status: ' + (data.error || ''));
         });
+    }
+
+    function toggleUserStatus(id, newStatus) {
+        const actionLabel = (newStatus === 'disabled') ? 'Disable this user account? The user will be prevented from logging in or sending questions.' : 'Enable and approve this user account?';
+        if (newStatus === 'disabled' && !confirm(actionLabel)) return;
+        updateUserStatus(id, newStatus);
+    }
+
+    function approveUser(id) {
+        updateUserStatus(id, 'approved');
     }
 
     function rejectUser(id) {
         if (!confirm('Reject this user account?')) return;
-        fetch('api.php?action=reject_user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                closeProfileModal();
-                loadUsers();
-            } else alert('Failed to reject user: ' + (data.error || ''));
-        });
+        updateUserStatus(id, 'rejected');
     }
 
     function deleteUser(id) {

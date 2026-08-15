@@ -216,6 +216,16 @@ if (!$currentUser) {
 </style>
 
 <main class="container">
+    <?php if (isset($_GET['submitted'])): ?>
+        <div class="alert alert-success" style="border-radius: 0; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.85rem; padding: 1rem 1.25rem;">
+            <span style="font-size: 1.6rem;">✨</span>
+            <div>
+                <strong style="font-size: 0.95rem;">Consultation Question Sent for Administrative Review!</strong><br>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">Your initial numerology question has been forwarded to the admin panel. Your account is currently in pending status; once an administrator reviews and approves your account, you will receive replies and will be able to submit follow-up questions.</span>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <div class="profile-dashboard-layout">
         <!-- Left: Account, Identity & Profile Information Form -->
         <div class="profile-card-panel">
@@ -319,65 +329,81 @@ if (!$currentUser) {
 
             <div id="requestAlert" style="display: none;"></div>
 
-            <!-- Ask New Question / Submit Consultation Query -->
-            <form id="circumstanceRequestForm" class="query-form-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">
-                        Send Consultation Question / Reply
-                    </h3>
-                    <button type="button" class="btn btn-secondary btn-sm btn-open-kb" data-target="question" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 2px;">
-                        ⌨️ Urdu Keyboard
-                    </button>
-                </div>
-                
-                <div>
-                    <label class="form-label" for="question" style="font-weight: 700; margin-bottom: 0.35rem;">
-                        Question / Message *
-                    </label>
-                    <textarea id="question" rows="3" class="form-control" required placeholder="Type your consultation question, follow-up, or circumstance message here..." style="border-radius: 0;"></textarea>
-                </div>
-
-                <!-- Optional Context Details Accordion / Sub-fields -->
-                <details style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 0.65rem 0.85rem; border-radius: 0; font-size: 0.85rem;">
-                    <summary style="cursor: pointer; font-weight: 600; color: var(--text-secondary); user-select: none;">
-                        <span>⚙️ Optional Context Details (Target Name, Relationship, Contact)</span>
-                    </summary>
-                    <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: 0.75rem; padding-top: 0.65rem; border-top: 1px solid var(--border-subtle);">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
-                            <div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                                    <label class="form-label" for="nameLookup" style="margin-bottom: 0; font-size: 0.76rem;">Target Name (Optional)</label>
-                                    <button type="button" class="btn btn-secondary btn-sm btn-open-kb" data-target="nameLookup" style="padding: 0.1rem 0.35rem; font-size: 0.68rem; border-radius: 2px;">
-                                        ⌨️
-                                    </button>
-                                </div>
-                                <input type="text" id="nameLookup" class="form-control" placeholder="e.g. احمد / فاطمہ" style="font-family: var(--font-arabic); font-size: 1.1rem; direction: rtl; border-radius: 0;">
-                            </div>
-
-                            <div>
-                                <label class="form-label" for="relationship" style="font-size: 0.76rem; margin-bottom: 0.25rem;">Relationship (Optional)</label>
-                                <input type="text" id="relationship" class="form-control" placeholder="e.g. Self, Spouse, Business" style="border-radius: 0;">
-                            </div>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
-                            <div>
-                                <label class="form-label" for="fullName" style="font-size: 0.76rem; margin-bottom: 0.25rem;">Your Name (Optional)</label>
-                                <input type="text" id="fullName" class="form-control" placeholder="Enter your name" value="<?php echo htmlspecialchars($currentUser['full_name'] ?? $currentUser['username']); ?>" style="border-radius: 0;">
-                            </div>
-
-                            <div>
-                                <label class="form-label" for="contactNumber" style="font-size: 0.76rem; margin-bottom: 0.25rem;">Contact / Phone (Optional)</label>
-                                <input type="text" id="contactNumber" class="form-control" placeholder="e.g. +92 300 1234567" value="<?php echo htmlspecialchars($currentUser['contact'] ?? ''); ?>" style="border-radius: 0;">
-                            </div>
-                        </div>
+            <?php if ($currentUser['status'] === 'approved'): ?>
+                <!-- Ask New Question / Submit Consultation Query (Approved Users) -->
+                <form id="circumstanceRequestForm" class="query-form-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">
+                            Send Consultation Question / Reply
+                        </h3>
+                        <button type="button" class="btn btn-secondary btn-sm btn-open-kb" data-target="question" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 2px;">
+                            ⌨️ Urdu Keyboard
+                        </button>
                     </div>
-                </details>
+                    
+                    <div>
+                        <label class="form-label" for="question" style="font-weight: 700; margin-bottom: 0.35rem;">
+                            Question / Message *
+                        </label>
+                        <textarea id="question" rows="3" class="form-control" required placeholder="Type your consultation question, follow-up, or circumstance message here..." style="border-radius: 0;"></textarea>
+                    </div>
 
-                <button type="submit" class="btn btn-primary" style="justify-content: center; padding: 0.65rem; border-radius: 2px;">
-                    ✉️ Send Message to Admin
-                </button>
-            </form>
+                    <!-- Optional Context Details Accordion / Sub-fields -->
+                    <details style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 0.65rem 0.85rem; border-radius: 0; font-size: 0.85rem;">
+                        <summary style="cursor: pointer; font-weight: 600; color: var(--text-secondary); user-select: none;">
+                            <span>⚙️ Optional Context Details (Target Name, Relationship, Contact)</span>
+                        </summary>
+                        <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: 0.75rem; padding-top: 0.65rem; border-top: 1px solid var(--border-subtle);">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                                        <label class="form-label" for="nameLookup" style="margin-bottom: 0; font-size: 0.76rem;">Target Name (Optional)</label>
+                                        <button type="button" class="btn btn-secondary btn-sm btn-open-kb" data-target="nameLookup" style="padding: 0.1rem 0.35rem; font-size: 0.68rem; border-radius: 2px;">
+                                            ⌨️
+                                        </button>
+                                    </div>
+                                    <input type="text" id="nameLookup" class="form-control" placeholder="e.g. احمد / فاطمہ" value="<?php echo htmlspecialchars($_GET['name'] ?? ''); ?>" style="font-family: var(--font-arabic); font-size: 1.1rem; direction: rtl; border-radius: 0;">
+                                </div>
+
+                                <div>
+                                    <label class="form-label" for="relationship" style="font-size: 0.76rem; margin-bottom: 0.25rem;">Relationship (Optional)</label>
+                                    <input type="text" id="relationship" class="form-control" placeholder="e.g. Self, Spouse, Business" style="border-radius: 0;">
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+                                <div>
+                                    <label class="form-label" for="fullName" style="font-size: 0.76rem; margin-bottom: 0.25rem;">Your Name (Optional)</label>
+                                    <input type="text" id="fullName" class="form-control" placeholder="Enter your name" value="<?php echo htmlspecialchars($currentUser['full_name'] ?? $currentUser['username']); ?>" style="border-radius: 0;">
+                                </div>
+
+                                <div>
+                                    <label class="form-label" for="contactNumber" style="font-size: 0.76rem; margin-bottom: 0.25rem;">Contact / Phone (Optional)</label>
+                                    <input type="text" id="contactNumber" class="form-control" placeholder="e.g. +92 300 1234567" value="<?php echo htmlspecialchars($currentUser['contact'] ?? ''); ?>" style="border-radius: 0;">
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <button type="submit" class="btn btn-primary" style="justify-content: center; padding: 0.65rem; border-radius: 2px;">
+                        ✉️ Send Message to Admin
+                    </button>
+                </form>
+            <?php else: ?>
+                <!-- Pending Approval State Message -->
+                <div style="background: var(--surface-subtle); border: 1px solid var(--border-medium); padding: 1.25rem; text-align: center; border-radius: 0;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.4rem;">⏳</div>
+                    <strong style="font-size: 0.95rem; color: var(--text-primary); display: block; margin-bottom: 0.35rem;">
+                        Account Pending Manual Admin Approval
+                    </strong>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 480px; margin: 0 auto; line-height: 1.5;">
+                        Your initial question has been submitted to the admin scholars. An administrator will manually review your account and consultation request. Once approved, you will be able to send follow-up questions in this thread.
+                    </p>
+                    <div style="margin-top: 0.75rem;">
+                        <span class="status-badge status-pending" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;">Status: Pending Manual Approval</span>
+                    </div>
+                </div>
+            <?php endif; ?>
 
             <!-- Virtual Urdu Keyboard Drawer (Shared, interactive for all input fields) -->
             <div class="keyboard-drawer-card" id="keyboardContainer" style="display: none; margin-top: 0.75rem;">

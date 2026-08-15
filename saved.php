@@ -226,7 +226,7 @@ if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $cur
         if (totalVal === 0) {
             return {
                 Fire: 0, Air: 0, Water: 0, Earth: 0,
-                html: '<span style="color:#d97706; font-weight:700;">0</span> <span style="color:#dc2626; font-weight:700;">0</span> <span style="color:#2563eb; font-weight:700;">0</span> <span style="color:#16a34a; font-weight:700;">0</span>'
+                html: '<div style="display: inline-flex; gap: 0.45rem; align-items: center; justify-content: center; direction: rtl; font-weight: 700; font-size: 0.92rem;"><span style="color:var(--fire-color);" title="Fire (آتشی)">0%</span> <span style="color:var(--air-color);" title="Air (بادی)">0%</span> <span style="color:var(--water-color);" title="Water (آبی)">0%</span> <span style="color:var(--earth-color);" title="Earth (خاکی)">0%</span></div>'
             };
         }
 
@@ -236,11 +236,11 @@ if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $cur
         const pEarth = Math.round((counts.Earth / totalVal) * 100);
 
         const html = `
-            <div style="display: inline-flex; gap: 0.45rem; align-items: center; justify-content: center; direction: ltr; font-weight: 700; font-size: 0.95rem;">
-                <span style="color: var(--fire-color);" title="Fire (آتشی)">${pFire}</span>
-                <span style="color: var(--air-color);" title="Air (بادی)">${pAir}</span>
-                <span style="color: var(--water-color);" title="Water (آبی)">${pWater}</span>
-                <span style="color: var(--earth-color);" title="Earth (خاکی)">${pEarth}</span>
+            <div style="display: inline-flex; gap: 0.45rem; align-items: center; justify-content: center; direction: rtl; font-weight: 700; font-size: 0.92rem;">
+                <span style="color: var(--fire-color);" title="Fire (آتشی)">${pFire}%</span>
+                <span style="color: var(--air-color);" title="Air (بادی)">${pAir}%</span>
+                <span style="color: var(--water-color);" title="Water (آبی)">${pWater}%</span>
+                <span style="color: var(--earth-color);" title="Earth (خاکی)">${pEarth}%</span>
             </div>
         `;
 
