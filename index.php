@@ -543,8 +543,8 @@ $isRequestMode = isset($_GET['request']) || $authMode === 'request' || !empty($r
                             <span style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary);">
                                 📜 Numerology Information & Target Name Request
                             </span>
-                            <button type="button" id="btnToggleUrduKb" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; border-radius: 2px;">
-                                ⌨️ Urdu Keyboard
+                            <button type="button" id="btnToggleUrduKb" class="btn-urdu-kb">
+                                Urdu Keyboard
                             </button>
                         </div>
 
@@ -922,9 +922,9 @@ $isRequestMode = isset($_GET['request']) || $authMode === 'request' || !empty($r
 
                     if (res.ok && data.success) {
                         if (data.user && data.user.role === 'admin') {
-                            window.location.href = 'admin.php';
+                            window.location.href = 'calculator.php';
                         } else if (data.user && data.user.role === 'staff') {
-                            window.location.href = 'saved.php';
+                            window.location.href = 'calculator.php';
                         } else {
                             window.location.href = 'calculator.php';
                         }

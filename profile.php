@@ -284,8 +284,8 @@ if (!$currentUser) {
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
                             <label class="form-label" for="profileFullName" style="margin-bottom: 0; font-size: 0.78rem;">Full Name</label>
-                            <button type="button" class="btn btn-secondary btn-sm btn-open-kb" data-target="profileFullName" style="padding: 0.12rem 0.45rem; font-size: 0.72rem; border-radius: 2px;">
-                                ⌨️ Urdu Keyboard
+                            <button type="button" class="btn-urdu-kb btn-open-kb" data-target="profileFullName">
+                                Urdu Keyboard
                             </button>
                         </div>
                         <input type="text" id="profileFullName" class="form-control" placeholder="e.g. محمد طارق / Tariq Ali" value="<?php echo htmlspecialchars($currentUser['full_name'] ?? ''); ?>" style="border-radius: 0;">
@@ -336,8 +336,8 @@ if (!$currentUser) {
                         <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">
                             Send Consultation Question / Reply
                         </h3>
-                        <button type="button" class="btn btn-secondary btn-sm btn-open-kb" data-target="question" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 2px;">
-                            ⌨️ Urdu Keyboard
+                        <button type="button" class="btn-urdu-kb btn-open-kb" data-target="question">
+                            Urdu Keyboard
                         </button>
                     </div>
                     

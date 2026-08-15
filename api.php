@@ -349,8 +349,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Admin Element Settings endpoints
-    if (in_array($action, ['save_element_settings', 'reset_element_settings'])) {
+    // Admin Element & Font Settings endpoints
+    if (in_array($action, ['save_element_settings', 'reset_element_settings', 'save_font_settings', 'reset_font_settings'])) {
         if (!$currentUser || $currentUser['role'] !== 'admin') {
             http_response_code(403);
             echo json_encode(['error' => 'Admin privileges required']);
@@ -404,6 +404,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (PDOException $e) {
                 http_response_code(500);
                 echo json_encode(['error' => 'Failed to reset colors: ' . $e->getMessage()]);
+            }
+            exit;
+        }
+
+        // Save Typography & Font Settings
+        if ($action === 'save_font_settings') {
+            $arabicFont = trim($data['arabic_font'] ?? 'Amiri');
+            $uiFont = trim($data['ui_font'] ?? 'Outfit');
+
+            $validArabic = ['Amiri', 'Noto Nastaliq Urdu', 'Gulzar', 'Noto Sans Arabic', 'Scheherazade New'];
+            $validUi = ['Outfit', 'Inter', 'Poppins', 'Roboto'];
+
+            if (!in_array($arabicFont, $validArabic)) $arabicFont = 'Amiri';
+            if (!in_array($uiFont, $validUi)) $uiFont = 'Outfit';
+
+            try {
+                setSiteSetting($db, 'font_arabic', $arabicFont);
+                setSiteSetting($db, 'font_ui', $uiFont);
+
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Typography settings saved successfully!',
+                    'arabic_font' => $arabicFont,
+                    'ui_font' => $uiFont,
+                    'arabic_family' => getArabicFontFamily($arabicFont),
+                    'ui_family' => getUiFontFamily($uiFont)
+                ]);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Failed to save font settings: ' . $e->getMessage()]);
+            }
+            exit;
+        }
+
+        // Reset Typography & Font Settings to Defaults
+        if ($action === 'reset_font_settings') {
+            try {
+                setSiteSetting($db, 'font_arabic', 'Amiri');
+                setSiteSetting($db, 'font_ui', 'Outfit');
+
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Typography restored to defaults (Amiri & Outfit)!',
+                    'arabic_font' => 'Amiri',
+                    'ui_font' => 'Outfit',
+                    'arabic_family' => getArabicFontFamily('Amiri'),
+                    'ui_family' => getUiFontFamily('Outfit')
+                ]);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Failed to reset font settings: ' . $e->getMessage()]);
             }
             exit;
         }
@@ -605,6 +656,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     if ($action === 'get_element_settings') {
         echo json_encode(getElementColors($db));
+        exit;
+    }
+
+    if ($action === 'get_font_settings') {
+        echo json_encode(getFontSettings($db));
         exit;
     }
 }

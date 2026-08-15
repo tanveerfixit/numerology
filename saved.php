@@ -74,9 +74,10 @@ if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $cur
     }
 
     .history-table td.arabic-cell {
-        font-family: 'Amiri', serif;
+        font-family: var(--font-arabic);
         font-size: 1.45rem;
         font-weight: bold;
+        line-height: 1.5;
     }
 
     .table-search-input {
@@ -87,7 +88,21 @@ if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $cur
         border-radius: 0;
         font-size: 0.95rem;
         font-weight: 500;
-        direction: rtl;
+    .history-table th.sortable-th {
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.12s ease;
+    }
+
+    .history-table th.sortable-th:hover {
+        background: #cbd5e1;
+    }
+
+    .sort-icon {
+        display: inline-block;
+        font-size: 0.78rem;
+        margin-right: 3px;
+        color: #64748b;
     }
 </style>
 
@@ -141,12 +156,12 @@ if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $cur
         <table class="history-table">
             <thead>
                 <tr>
-                    <th>Name (Click for Notes/Edit) ↕</th>
-                    <th>Total ↕</th>
-                    <th>Single ↕</th>
-                    <th>Origin ↕</th>
+                    <th class="sortable-th" onclick="toggleSort('name')" title="Click to sort by Name">Name (Click for Notes/Edit) <span id="sort-icon-name" class="sort-icon">↕</span></th>
+                    <th class="sortable-th" onclick="toggleSort('total')" title="Click to sort by Total">Total <span id="sort-icon-total" class="sort-icon">↕</span></th>
+                    <th class="sortable-th" onclick="toggleSort('single')" title="Click to sort by Single Root">Single <span id="sort-icon-single" class="sort-icon">↕</span></th>
+                    <th class="sortable-th" onclick="toggleSort('origin')" title="Click to sort by Origin">Origin <span id="sort-icon-origin" class="sort-icon">↕</span></th>
                     <th>Meanings</th>
-                    <th>Element Status</th>
+                    <th class="sortable-th" onclick="toggleSort('element')" title="Click to sort by Element Status">Element Status <span id="sort-icon-element" class="sort-icon">↕</span></th>
                 </tr>
                 <tr>
                     <td><input type="text" id="search-name" class="table-search-input" placeholder="Search name..."></td>
@@ -154,14 +169,27 @@ if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $cur
                     <td><input type="text" id="search-single" class="table-search-input" placeholder="Search single..."></td>
                     <td><input type="text" id="search-origin" class="table-search-input" placeholder="Search origin..."></td>
                     <td><input type="text" id="search-meanings" class="table-search-input" placeholder="Search meanings..."></td>
-                    <td style="display: flex; gap: 0.2rem; align-items: center;">
-                        <button id="btnClearFilters" type="button" class="btn btn-sm" style="font-size: 0.75rem; padding: 0.15rem 0.35rem; font-weight: 600; border-radius: 2px;">Clear</button>
-                        <select id="search-temperament" class="table-search-input" style="font-size: 0.85rem; font-weight: 500; border-radius: 0;">
+                    <td style="display: flex; gap: 0.25rem; align-items: center; flex-wrap: nowrap;">
+                        <button id="btnClearFilters" type="button" class="btn btn-sm" style="font-size: 0.72rem; padding: 0.15rem 0.35rem; font-weight: 600; border-radius: 2px;" title="Clear search and sort filters">Clear</button>
+                        <select id="search-temperament" class="table-search-input" style="font-size: 0.78rem; font-weight: 500; border-radius: 0; min-width: 85px;" title="Filter by element">
                             <option value="">All Elements</option>
-                            <option value="Fire">Fire</option>
-                            <option value="Air">Air</option>
-                            <option value="Water">Water</option>
-                            <option value="Earth">Earth</option>
+                            <option value="Fire">🔥 Fire</option>
+                            <option value="Air">💨 Air</option>
+                            <option value="Water">💧 Water</option>
+                            <option value="Earth">🪨 Earth</option>
+                        </select>
+                        <select id="sort-element-order" class="table-search-input" style="font-size: 0.78rem; font-weight: 500; border-radius: 0; min-width: 110px;" title="Sort Ascending / Descending by Element Status">
+                            <option value="">Sort Element ↕</option>
+                            <option value="elem_desc">Dominant % (High → Low ▼)</option>
+                            <option value="elem_asc">Dominant % (Low → High ▲)</option>
+                            <option value="fire_desc">🔥 Fire % (High → Low ▼)</option>
+                            <option value="fire_asc">🔥 Fire % (Low → High ▲)</option>
+                            <option value="air_desc">💨 Air % (High → Low ▼)</option>
+                            <option value="air_asc">💨 Air % (Low → High ▲)</option>
+                            <option value="water_desc">💧 Water % (High → Low ▼)</option>
+                            <option value="water_asc">💧 Water % (Low → High ▲)</option>
+                            <option value="earth_desc">🪨 Earth % (High → Low ▼)</option>
+                            <option value="earth_asc">🪨 Earth % (Low → High ▲)</option>
                         </select>
                     </td>
                 </tr>
@@ -269,6 +297,64 @@ if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $cur
         });
     }
 
+    let currentSortColumn = null;
+    let currentSortOrder = 'none'; // 'asc', 'desc', 'none'
+
+    function getDominantElement(elemInfo) {
+        const arr = [
+            { name: 'Fire', val: elemInfo.Fire },
+            { name: 'Air', val: elemInfo.Air },
+            { name: 'Water', val: elemInfo.Water },
+            { name: 'Earth', val: elemInfo.Earth }
+        ];
+        arr.sort((a, b) => b.val - a.val);
+        return arr[0];
+    }
+
+    function toggleSort(col) {
+        if (currentSortColumn === col) {
+            if (currentSortOrder === 'desc') currentSortOrder = 'asc';
+            else if (currentSortOrder === 'asc') { currentSortColumn = null; currentSortOrder = 'none'; }
+            else currentSortOrder = 'desc';
+        } else {
+            currentSortColumn = col;
+            currentSortOrder = 'desc';
+        }
+
+        const elemSortSel = document.getElementById('sort-element-order');
+        if (elemSortSel) {
+            if (currentSortColumn === 'element') {
+                elemSortSel.value = currentSortOrder === 'asc' ? 'elem_asc' : 'elem_desc';
+            } else if (['fire', 'air', 'water', 'earth'].includes(currentSortColumn)) {
+                elemSortSel.value = `${currentSortColumn}_${currentSortOrder}`;
+            } else {
+                elemSortSel.value = '';
+            }
+        }
+
+        updateSortIcons();
+        currentPage = 1;
+        renderTable();
+    }
+
+    function updateSortIcons() {
+        const cols = ['name', 'total', 'single', 'origin', 'element'];
+        cols.forEach(c => {
+            const icon = document.getElementById(`sort-icon-${c}`);
+            if (icon) {
+                if (currentSortColumn === c || (c === 'element' && ['fire', 'air', 'water', 'earth'].includes(currentSortColumn))) {
+                    icon.innerText = currentSortOrder === 'asc' ? '▲' : '▼';
+                    icon.style.color = 'var(--primary)';
+                    icon.style.fontWeight = 'bold';
+                } else {
+                    icon.innerText = '↕';
+                    icon.style.color = '#64748b';
+                    icon.style.fontWeight = 'normal';
+                }
+            }
+        });
+    }
+
     function renderTable() {
         const tbody = document.getElementById('historyTableBody');
         if (!tbody) return;
@@ -297,6 +383,63 @@ if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $cur
             }
             return true;
         });
+
+        // Apply Sorting (Ascending / Descending)
+        if (currentSortColumn && currentSortOrder !== 'none') {
+            filtered.sort((a, b) => {
+                let valA, valB;
+                const elemA = getElementPercentages(a.name);
+                const elemB = getElementPercentages(b.name);
+
+                switch (currentSortColumn) {
+                    case 'total':
+                        valA = Number(a.total) || 0;
+                        valB = Number(b.total) || 0;
+                        break;
+                    case 'single':
+                        valA = Number(a.single) || 0;
+                        valB = Number(b.single) || 0;
+                        break;
+                    case 'origin':
+                        valA = (a.origin || '').toLowerCase();
+                        valB = (b.origin || '').toLowerCase();
+                        break;
+                    case 'element':
+                        valA = getDominantElement(elemA).val;
+                        valB = getDominantElement(elemB).val;
+                        break;
+                    case 'fire':
+                        valA = elemA.Fire;
+                        valB = elemB.Fire;
+                        break;
+                    case 'air':
+                        valA = elemA.Air;
+                        valB = elemB.Air;
+                        break;
+                    case 'water':
+                        valA = elemA.Water;
+                        valB = elemB.Water;
+                        break;
+                    case 'earth':
+                        valA = elemA.Earth;
+                        valB = elemB.Earth;
+                        break;
+                    case 'name':
+                    default:
+                        valA = (a.name || '').toLowerCase();
+                        valB = (b.name || '').toLowerCase();
+                        break;
+                }
+
+                if (typeof valA === 'string') {
+                    return currentSortOrder === 'asc' 
+                        ? valA.localeCompare(valB) 
+                        : valB.localeCompare(valA);
+                } else {
+                    return currentSortOrder === 'asc' ? valA - valB : valB - valA;
+                }
+            });
+        }
 
         if (filtered.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">No matching records found.</td></tr>`;
@@ -392,11 +535,32 @@ if (!$currentUser || !in_array($currentUser['role'], ['staff', 'admin']) || $cur
             if (el) el.addEventListener('input', renderTable);
         });
 
+        document.getElementById('sort-element-order')?.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (!val) {
+                currentSortColumn = null;
+                currentSortOrder = 'none';
+            } else {
+                const parts = val.split('_');
+                currentSortColumn = parts[0] === 'elem' ? 'element' : parts[0];
+                currentSortOrder = parts[1]; // 'asc' or 'desc'
+            }
+            updateSortIcons();
+            currentPage = 1;
+            renderTable();
+        });
+
         document.getElementById('btnClearFilters')?.addEventListener('click', () => {
             ['search-name', 'search-total', 'search-single', 'search-origin', 'search-meanings', 'search-temperament'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = '';
             });
+            const elemSort = document.getElementById('sort-element-order');
+            if (elemSort) elemSort.value = '';
+            currentSortColumn = null;
+            currentSortOrder = 'none';
+            updateSortIcons();
+            currentPage = 1;
             renderTable();
         });
 

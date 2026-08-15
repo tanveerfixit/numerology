@@ -1,5 +1,9 @@
 <?php
 // includes/header.php
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
 startSession();
@@ -15,6 +19,7 @@ if ($currentUser && $currentUser['role'] === 'admin') {
     }
 }
 $elemColors = getElementColors($db);
+$fontSettings = getFontSettings($db);
 $isStaffOrAdmin = ($currentUser && in_array($currentUser['role'], ['staff', 'admin']) && $currentUser['status'] === 'approved');
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
@@ -23,10 +28,25 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for (let r of registrations) { r.unregister(); }
+            });
+        }
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (let name of names) caches.delete(name);
+            });
+        }
+    </script>
     <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) : 'Huroof-e-Abjad & Geomancy'; ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Gulzar&family=Inter:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-page: #f8fafc;
@@ -88,8 +108,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             --radius-lg: 0px;
             --radius-full: 0px;
             
-            --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-arabic: 'Amiri', serif;
+            --font-main: <?php echo getUiFontFamily($fontSettings['ui_font']); ?>;
+            --font-arabic: <?php echo getArabicFontFamily($fontSettings['arabic_font']); ?>;
         }
 
         * {
@@ -295,6 +315,43 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             font-size: 1rem;
             border-radius: var(--radius-btn) !important;
             font-weight: 600;
+        }
+
+        /* Light Grey Inside Urdu Keyboard Toggle with Rainbow Border */
+        .btn-urdu-kb {
+            background: linear-gradient(#f1f5f9, #f1f5f9) padding-box,
+                        linear-gradient(135deg, #ef4444, #f97316, #eab308, #22c55e, #06b6d4, #3b82f6, #a855f7, #ec4899) border-box !important;
+            color: #334155 !important;
+            border: 1.5px solid transparent !important;
+            border-radius: 9999px !important;
+            padding: 0.22rem 0.85rem !important;
+            font-size: 0.78rem !important;
+            font-weight: 600 !important;
+            line-height: 1.3 !important;
+            box-shadow: none !important;
+            transition: all 0.2s ease-in-out !important;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .btn-urdu-kb:hover {
+            background: linear-gradient(#e2e8f0, #e2e8f0) padding-box,
+                        linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6, #06b6d4, #22c55e, #eab308, #f97316, #ef4444) border-box !important;
+            color: #0f172a !important;
+            border: 1.5px solid transparent !important;
+            box-shadow: none !important;
+            transform: translateY(-1px);
+        }
+
+        .btn-urdu-kb:active {
+            transform: translateY(0);
+            background: linear-gradient(#cbd5e1, #cbd5e1) padding-box,
+                        linear-gradient(135deg, #ef4444, #f97316, #eab308, #22c55e, #06b6d4, #3b82f6, #a855f7, #ec4899) border-box !important;
+            border: 1.5px solid transparent !important;
+            box-shadow: none !important;
         }
 
         /* Profile Dropdown Component */

@@ -449,6 +449,9 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
             </div>
 
             <div class="admin-actions-bar">
+                <button id="btnOpenFontSettings" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="Configure Urdu/Arabic Calligraphy & UI Typography">
+                    <span>🔤</span> <span>Typography & Fonts</span>
+                </button>
                 <button id="btnOpenElemSettings" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="Configure 4 Elements Theme Colors">
                     <span>🎨</span> <span>Element Colors</span>
                 </button>
@@ -633,6 +636,86 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                 <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('elemSettingsModal').style.display='none'" style="border-radius: 2px; font-size: 0.78rem;">Cancel</button>
                 <button id="btnSaveElemColors" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px; font-size: 0.78rem;">
                     💾 Save Colors
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Typography & Font Settings Modal -->
+<div id="fontSettingsModal" class="modal-overlay-custom" style="display: none;">
+    <div class="modal-card-box" style="max-width: 600px; width: 95%; max-height: 85vh; overflow-y: auto; text-align: left; padding: 1.25rem; border-radius: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.65rem; margin-bottom: 0.85rem;">
+            <div>
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                    <span>🔤</span> Typography & Font Configuration
+                </h3>
+                <p style="font-size: 0.76rem; color: var(--text-muted); margin-top: 0.1rem;">Customize global fonts for Urdu Nastaliq / Arabic Calligraphy and System UI.</p>
+            </div>
+            <button id="btnCloseFontSettings" type="button" class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.5rem; border-radius: 2px;">✕ Close</button>
+        </div>
+
+        <div id="fontSettingsAlert" style="display: none; margin-bottom: 0.75rem;"></div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.25rem;">
+            <!-- Arabic / Urdu Font Selection -->
+            <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <label for="selectArabicFont" style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0;">
+                        🖋️ Urdu / Arabic Calligraphy Font
+                    </label>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">Current Default: <strong>Amiri</strong></span>
+                </div>
+                <select id="selectArabicFont" class="form-control" style="width: 100%; border-radius: 0; font-size: 0.88rem; margin-bottom: 0.65rem; height: 38px; background: #ffffff;">
+                    <option value="Amiri" <?php echo ($fontSettings['arabic_font'] === 'Amiri') ? 'selected' : ''; ?>>Amiri (Arabic Naskh — Default)</option>
+                    <option value="Noto Nastaliq Urdu" <?php echo ($fontSettings['arabic_font'] === 'Noto Nastaliq Urdu') ? 'selected' : ''; ?>>Noto Nastaliq Urdu (Urdu Nastaliq Calligraphy)</option>
+                    <option value="Gulzar" <?php echo ($fontSettings['arabic_font'] === 'Gulzar') ? 'selected' : ''; ?>>Gulzar (Urdu Nastaliq Display)</option>
+                    <option value="Noto Sans Arabic" <?php echo ($fontSettings['arabic_font'] === 'Noto Sans Arabic') ? 'selected' : ''; ?>>Noto Sans Arabic (Modern Clean)</option>
+                    <option value="Scheherazade New" <?php echo ($fontSettings['arabic_font'] === 'Scheherazade New') ? 'selected' : ''; ?>>Scheherazade New (Traditional Naskh)</option>
+                </select>
+
+                <!-- Live Urdu / Arabic Preview Box -->
+                <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">
+                    Live Urdu / Arabic Preview:
+                </div>
+                <div id="previewArabicBox" style="background: #ffffff; border: 1px solid var(--border-medium); padding: 0.85rem 1rem; direction: rtl; text-align: right; font-size: 1.65rem; color: var(--text-primary); font-family: <?php echo getArabicFontFamily($fontSettings['arabic_font']); ?>; line-height: 1.8; min-height: 60px;">
+                    بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ • علم الاعداد و جفر و طلسمات • محمد • علی • فاطمہ
+                </div>
+            </div>
+
+            <!-- Interface / UI Font Selection -->
+            <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <label for="selectUiFont" style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0;">
+                        🌐 Interface & System English UI Font
+                    </label>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">Current Default: <strong>Outfit</strong></span>
+                </div>
+                <select id="selectUiFont" class="form-control" style="width: 100%; border-radius: 0; font-size: 0.88rem; margin-bottom: 0.65rem; height: 38px; background: #ffffff;">
+                    <option value="Outfit" <?php echo ($fontSettings['ui_font'] === 'Outfit') ? 'selected' : ''; ?>>Outfit (Modern Geometric UI — Default)</option>
+                    <option value="Inter" <?php echo ($fontSettings['ui_font'] === 'Inter') ? 'selected' : ''; ?>>Inter (Clean Crisp UI)</option>
+                    <option value="Poppins" <?php echo ($fontSettings['ui_font'] === 'Poppins') ? 'selected' : ''; ?>>Poppins (Rounded Modern)</option>
+                    <option value="Roboto" <?php echo ($fontSettings['ui_font'] === 'Roboto') ? 'selected' : ''; ?>>Roboto (Standard Clean)</option>
+                </select>
+
+                <!-- Live UI Preview Box -->
+                <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">
+                    Live Interface UI Preview:
+                </div>
+                <div id="previewUiBox" style="background: #ffffff; border: 1px solid var(--border-medium); padding: 0.75rem 1rem; font-size: 0.95rem; color: var(--text-primary); font-family: <?php echo getUiFontFamily($fontSettings['ui_font']); ?>; line-height: 1.4;">
+                    Abjad & Geomancy Calculation System — Total Sum: 786, Digital Root: 3 (Fire Element)
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.65rem;">
+            <button id="btnResetFontSettings" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px; font-size: 0.78rem;">
+                🔄 Reset Defaults (Amiri & Outfit)
+            </button>
+            <div style="display: flex; gap: 0.4rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('fontSettingsModal').style.display='none'" style="border-radius: 2px; font-size: 0.78rem;">Cancel</button>
+                <button id="btnSaveFontSettings" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px; font-size: 0.78rem;">
+                    💾 Save Font Settings
                 </button>
             </div>
         </div>
@@ -933,8 +1016,8 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
                     <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0;">
                         Send Administrative Reply:
                     </label>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleAdminKeyboard(${u.id})" style="font-size: 0.72rem; padding: 0.12rem 0.45rem; border-radius: 2px;">
-                        ⌨️ Urdu Keyboard
+                    <button type="button" class="btn-urdu-kb" onclick="toggleAdminKeyboard(${u.id})">
+                        Urdu Keyboard
                     </button>
                 </div>
                 <textarea id="replyMsg_${u.id}" class="form-control" rows="2" placeholder="Type your response or advice to ${escapeHtml(u.username)}..." style="width: 100%; box-sizing: border-box; resize: vertical; min-height: 60px; max-height: 120px; font-size: 0.88rem; border-radius: 0;"></textarea>
@@ -1283,9 +1366,128 @@ if (!$currentUser || $currentUser['role'] !== 'admin') {
         });
     }
 
+    // Typography & Font Settings Logic
+    function bindFontSettings() {
+        const fontModal = document.getElementById('fontSettingsModal');
+        document.getElementById('btnOpenFontSettings')?.addEventListener('click', () => {
+            if (fontModal) fontModal.style.display = 'flex';
+        });
+        document.getElementById('btnCloseFontSettings')?.addEventListener('click', () => {
+            if (fontModal) fontModal.style.display = 'none';
+        });
+
+        const selectArabic = document.getElementById('selectArabicFont');
+        const selectUi = document.getElementById('selectUiFont');
+        const previewArabic = document.getElementById('previewArabicBox');
+        const previewUi = document.getElementById('previewUiBox');
+
+        function resolveArabicFamily(name) {
+            switch(name) {
+                case 'Noto Nastaliq Urdu': return "'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', 'Gulzar', 'Amiri', serif";
+                case 'Gulzar': return "'Gulzar', 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Amiri', serif";
+                case 'Noto Sans Arabic': return "'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif";
+                case 'Scheherazade New': return "'Scheherazade New', 'Amiri', serif";
+                case 'Amiri':
+                default: return "'Amiri', serif";
+            }
+        }
+
+        function resolveUiFamily(name) {
+            switch(name) {
+                case 'Inter': return "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+                case 'Poppins': return "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+                case 'Roboto': return "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+                case 'Outfit':
+                default: return "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+            }
+        }
+
+        if (selectArabic && previewArabic) {
+            selectArabic.addEventListener('change', () => {
+                const fam = resolveArabicFamily(selectArabic.value);
+                previewArabic.style.fontFamily = fam;
+            });
+        }
+
+        if (selectUi && previewUi) {
+            selectUi.addEventListener('change', () => {
+                const fam = resolveUiFamily(selectUi.value);
+                previewUi.style.fontFamily = fam;
+            });
+        }
+
+        // Save Font Settings
+        document.getElementById('btnSaveFontSettings')?.addEventListener('click', () => {
+            const arabic_font = selectArabic.value;
+            const ui_font = selectUi.value;
+            const alertDiv = document.getElementById('fontSettingsAlert');
+
+            fetch('api.php?action=save_font_settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ arabic_font, ui_font })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alertDiv.className = 'alert alert-success';
+                    alertDiv.innerText = '✓ ' + (data.message || 'Font settings saved successfully!');
+                    alertDiv.style.display = 'flex';
+
+                    if (data.arabic_family) document.documentElement.style.setProperty('--font-arabic', data.arabic_family);
+                    if (data.ui_family) document.documentElement.style.setProperty('--font-main', data.ui_family);
+
+                    setTimeout(() => { alertDiv.style.display = 'none'; }, 4000);
+                } else {
+                    alertDiv.className = 'alert alert-danger';
+                    alertDiv.innerText = data.error || 'Failed to save font settings';
+                    alertDiv.style.display = 'flex';
+                }
+            })
+            .catch(() => {
+                alertDiv.className = 'alert alert-danger';
+                alertDiv.innerText = 'Network error saving font settings.';
+                alertDiv.style.display = 'flex';
+            });
+        });
+
+        // Reset Font Settings
+        document.getElementById('btnResetFontSettings')?.addEventListener('click', () => {
+            if (!confirm('Reset font settings to default (Amiri for Arabic/Urdu, Outfit for Interface)?')) return;
+            const alertDiv = document.getElementById('fontSettingsAlert');
+
+            fetch('api.php?action=reset_font_settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    selectArabic.value = 'Amiri';
+                    selectUi.value = 'Outfit';
+                    previewArabic.style.fontFamily = resolveArabicFamily('Amiri');
+                    previewUi.style.fontFamily = resolveUiFamily('Outfit');
+
+                    document.documentElement.style.setProperty('--font-arabic', resolveArabicFamily('Amiri'));
+                    document.documentElement.style.setProperty('--font-main', resolveUiFamily('Outfit'));
+
+                    alertDiv.className = 'alert alert-success';
+                    alertDiv.innerText = '✓ ' + (data.message || 'Fonts reset to defaults!');
+                    alertDiv.style.display = 'flex';
+                    setTimeout(() => { alertDiv.style.display = 'none'; }, 4000);
+                } else {
+                    alertDiv.className = 'alert alert-danger';
+                    alertDiv.innerText = data.error || 'Failed to reset fonts';
+                    alertDiv.style.display = 'flex';
+                }
+            });
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         loadUsers();
         bindColorPickers();
+        bindFontSettings();
 
         document.getElementById('adminSearchInput')?.addEventListener('input', renderUserViews);
     });

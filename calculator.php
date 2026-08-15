@@ -119,56 +119,137 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
         transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Action Toolbar */
+    /* Action Toolbar & Metadata Inputs */
     .calc-toolbar-row {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        gap: 0.75rem;
+        align-items: flex-end;
+        gap: 1rem;
         flex-wrap: wrap;
-        padding-top: 0.5rem;
+        padding-top: 0.85rem;
         border-top: 1px solid var(--border-subtle);
     }
 
     .toolbar-left-buttons {
         display: flex;
+        align-items: center;
         gap: 0.45rem;
         flex-wrap: wrap;
     }
 
+    .toolbar-btn {
+        height: 38px;
+        padding: 0 0.85rem;
+        font-size: 0.84rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        border-radius: 2px !important;
+        white-space: nowrap;
+        box-sizing: border-box;
+    }
+
+    .toolbar-btn.btn-primary {
+        font-weight: 600;
+    }
+
     .metadata-inputs-group {
         display: flex;
-        gap: 0.5rem;
+        align-items: flex-end;
+        gap: 0.65rem;
         flex: 1;
-        min-width: 260px;
+        min-width: 280px;
     }
 
     .meta-field-wrapper {
-        flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 0.2rem;
+        gap: 0.3rem;
+    }
+
+    .meta-field-wrapper.meta-origin {
+        flex: 0 0 145px;
+    }
+
+    .meta-field-wrapper.meta-meanings {
+        flex: 1;
     }
 
     .meta-field-label {
         font-size: 0.72rem;
-        font-weight: 600;
-        color: var(--text-muted);
+        font-weight: 700;
+        color: var(--text-secondary);
         text-transform: uppercase;
+        letter-spacing: 0.04em;
+        line-height: 1;
     }
 
     .meta-input-box {
         width: 100%;
-        padding: 0.38rem 0.65rem;
+        height: 38px;
+        padding: 0 0.75rem;
         border: 1px solid var(--border-medium);
         border-radius: 0 !important;
         font-size: 0.85rem;
         font-family: inherit;
+        background: #ffffff;
+        color: var(--text-primary);
+        box-sizing: border-box;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
     .meta-input-box:focus {
         outline: none;
         border-color: var(--primary);
+        box-shadow: 0 0 0 1px var(--primary);
+    }
+
+    .meta-input-box::placeholder {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+    }
+
+    @media (max-width: 992px) {
+        .calc-toolbar-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.85rem;
+        }
+
+        .toolbar-left-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            width: 100%;
+            gap: 0.45rem;
+        }
+
+        .toolbar-btn {
+            width: 100%;
+            padding: 0 0.45rem;
+        }
+
+        .metadata-inputs-group {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .toolbar-left-buttons {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .metadata-inputs-group {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.6rem;
+        }
+
+        .meta-field-wrapper.meta-origin {
+            flex: 1;
+            width: 100%;
+        }
     }
 
     /* Live Results Dashboard Card */
@@ -442,8 +523,8 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
                     <span>🔤</span> Name or Text Input (Arabic / Urdu / Persian)
                 </span>
                 <div style="display: flex; align-items: center; gap: 0.6rem;">
-                    <button id="btnToggleKeyboard" type="button" class="btn btn-sm" style="background: var(--primary-light); color: var(--primary); border-color: var(--primary-border); font-weight: 600; padding: 0.28rem 0.75rem; border-radius: 2px;">
-                        ⌨️ Urdu Keyboard
+                    <button id="btnToggleKeyboard" type="button" class="btn-urdu-kb">
+                        Urdu Keyboard
                     </button>
                     <span class="input-stats-badge" id="charCountLabel">0 characters</span>
                 </div>
@@ -515,18 +596,18 @@ $userCircumstance = $currentUser ? ($currentUser['circumstance'] ?? '') : '';
             <!-- Action Toolbar & Metadata Inputs -->
             <div class="calc-toolbar-row">
                 <div class="toolbar-left-buttons">
-                    <button id="btnClear" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="Clear input fields">✕ Clear</button>
-                    <button id="btnCopyResult" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;" title="Copy breakdown to clipboard">📋 Copy</button>
-                    <button id="btnSave" type="button" class="btn btn-primary btn-sm" style="border-radius: 2px;">💾 Save Record</button>
-                    <button id="btnMemo" type="button" class="btn btn-secondary btn-sm" style="border-radius: 2px;">📜 Saved History</button>
+                    <button id="btnClear" type="button" class="btn btn-secondary toolbar-btn" title="Clear input fields">✕ Clear</button>
+                    <button id="btnCopyResult" type="button" class="btn btn-secondary toolbar-btn" title="Copy breakdown to clipboard">📋 Copy</button>
+                    <button id="btnSave" type="button" class="btn btn-primary toolbar-btn" title="Save current calculation to database">💾 Save Record</button>
+                    <button id="btnMemo" type="button" class="btn btn-secondary toolbar-btn" title="View saved records history">📜 Saved History</button>
                 </div>
 
                 <div class="metadata-inputs-group">
-                    <div class="meta-field-wrapper" style="max-width: 130px;">
+                    <div class="meta-field-wrapper meta-origin">
                         <label class="meta-field-label" for="originInput">Origin</label>
                         <input type="text" id="originInput" class="meta-input-box" placeholder="e.g. Arabic">
                     </div>
-                    <div class="meta-field-wrapper">
+                    <div class="meta-field-wrapper meta-meanings">
                         <label class="meta-field-label" for="meaningInput">Meanings</label>
                         <input type="text" id="meaningInput" class="meta-input-box" placeholder="e.g. Praised, Exalted">
                     </div>

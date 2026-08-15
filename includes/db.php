@@ -170,9 +170,64 @@ function getElementColors($db) {
 }
 
 /**
+ * Retrieve current typography & font settings (Arabic/Urdu font and UI font)
+ */
+function getFontSettings($db) {
+    $defaults = [
+        'arabic_font' => 'Amiri', // Default as requested: keep current as default
+        'ui_font' => 'Outfit'     // Default UI font
+    ];
+
+    try {
+        $stmt = $db->query("SELECT setting_key, setting_value FROM site_settings WHERE setting_key LIKE 'font_%'");
+        $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        return [
+            'arabic_font' => $rows['font_arabic'] ?? $defaults['arabic_font'],
+            'ui_font' => $rows['font_ui'] ?? $defaults['ui_font']
+        ];
+    } catch (Exception $e) {
+        return $defaults;
+    }
+}
+
+/**
+ * Return CSS font-family string based on font selection
+ */
+function getArabicFontFamily($fontName) {
+    switch ($fontName) {
+        case 'Noto Nastaliq Urdu':
+            return "'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', 'Gulzar', 'Amiri', serif";
+        case 'Gulzar':
+            return "'Gulzar', 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Amiri', serif";
+        case 'Noto Sans Arabic':
+            return "'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif";
+        case 'Scheherazade New':
+            return "'Scheherazade New', 'Amiri', serif";
+        case 'Amiri':
+        default:
+            return "'Amiri', serif";
+    }
+}
+
+function getUiFontFamily($fontName) {
+    switch ($fontName) {
+        case 'Inter':
+            return "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+        case 'Poppins':
+            return "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+        case 'Roboto':
+            return "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+        case 'Outfit':
+        default:
+            return "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    }
+}
+
+/**
  * Upsert site setting value in MySQL
  */
 function setSiteSetting($db, $key, $value) {
     $stmt = $db->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
     return $stmt->execute([$key, $value]);
 }
+
